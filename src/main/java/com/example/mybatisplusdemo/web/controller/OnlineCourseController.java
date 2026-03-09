@@ -19,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/online-course")
 public class OnlineCourseController {
     private static final Logger logger = LoggerFactory.getLogger(OnlineCourseController.class);
-    private static final String VIDEO_PATH = "D:/xjtushixun/mybatis-plus-demo/file/video/";
+    private static final String VIDEO_PATH = "E:/Suncaper Project/xjtuexer/file//video";
 
     @Autowired
     private IOnlineCourseService onlineCourseService;

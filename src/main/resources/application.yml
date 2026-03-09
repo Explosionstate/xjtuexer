@@ -1,9 +1,9 @@
 spring:
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/springboot_demo?useUnicode=true&characterEncoding=utf8&useSSL=false
-    username: root
-    password: admin
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/springboot_demo?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
   mvc:
     format:
       date: yyyy-MM-dd
@@ -14,24 +14,41 @@ spring:
   web:
     resources:
       static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, file:${file-upload-path}
+
 server:
   servlet:
     encoding:
-      charset: utf-8
+      charset: UTF-8
+      enabled: true
+      force: true
 
+# 兼容：同时配置 mybatis 与 mybatis-plus，避免 XML 加载不到
 mybatis:
-  mapper-locations: classpath:/mybatis/mapper/*.xml, classpath:/mybatis/mapper/extend/*.xml
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 
 logging:
   level:
     com.example.mybatisplusdemo.mapper: debug
-file-upload-path: ./file
+
+file-upload-path: ${FILE_UPLOAD_PATH:./file}
+
 langchain4j:
   open-ai:
     chat-model:
-      base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
+      base-url: ${LLM_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
   community:
     dashscope:
       chat-model:
-        api-key: sk-db6dcd3cb6d84001a29c970d71b1d460
-        model-name: deepseek-r1
+        api-key: ${DASHSCOPE_API_KEY:}
+        model-name: ${DASHSCOPE_MODEL_NAME:deepseek-r1}

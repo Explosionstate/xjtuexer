@@ -117,6 +117,12 @@
             <artifactId>langchain4j-community-dashscope-spring-boot-starter</artifactId>
             <version>1.0.0-beta3</version>
         </dependency>
+        <!-- AOP：用于审计改进项 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
     </dependencies>
     <repositories>
         <repository>
