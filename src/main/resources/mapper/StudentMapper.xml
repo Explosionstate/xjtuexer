@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mybatisplusdemo.mapper.StudentMapper">
+    <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.Student">
+        SELECT name, student_id, college, learning_index, comparison_last_month, total_warnings, resolved_warnings
+        FROM student
+        <where>
+            <if test="student.name != null and student.name != ''">
+                AND student.name LIKE CONCAT('%', #{student.name}, '%')
+            </if>
+            <if test="student.college != null and student.college != ''">
+                AND student.college LIKE CONCAT('%', #{student.college}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="selectByList" resultType="com.example.mybatisplusdemo.model.domain.Student">
+        select * from student
+        <where>
+            <if test="student.studentId != null">
+                student_id = #{studentDTO.studentId}
+            </if>
+            <if test="student.name != null and student.name != ''">
+                AND name LIKE CONCAT('%', #{student.name}, '%')
+            </if>
+            <if test="student.college != null and student.college != ''">
+                AND college LIKE CONCAT('%', #{student.college}, '%') COLLATE utf8mb4_unicode_ci
+            </if>
+        </where>
+        <if test="page.orders != null and page.orders.size() > 0">
+            ORDER BY ${page.orders[0].column} ${page.orders[0].asc ? 'ASC' : 'DESC'}
+        </if>
+
+    </select>
+
+    <resultMap id="BaseResultMap" type="com.example.mybatisplusdemo.model.domain.Student">
+        <id column="student_id" property="studentId" />
+        <result column="name" property="name" />
+        <result column="college" property="college" />
+        <result column="learning_index" property="learningIndex" />
+        <result column="comparison_last_month" property="comparisonLastMonth" />
+        <result column="total_warnings" property="totalWarnings" />
+        <result column="resolved_warnings" property="resolvedWarnings" />
+    </resultMap>
+</mapper>
