@@ -25,12 +25,14 @@
         </foreach>
     </insert>
 
-    <delete id="deleteByIdsMy">
-        DELETE FROM users WHERE id IN
+    <!-- 软删除 -->
+    <update id="deleteByIdsMy">
+        UPDATE users SET is_deleted = 1
+        WHERE id IN
         <foreach collection="list" item="x" separator="," open="(" close=")">
             #{x}
         </foreach>
-    </delete>
+    </update>
 
     <select id="selectByIdMy" resultMap="BaseResultMap">
         SELECT * FROM users WHERE id = #{id} AND is_deleted = 0
@@ -61,6 +63,7 @@
         </where>
     </select>
 
+    <!-- 移除 password like（不应支持按密码搜索） -->
     <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.Users">
         SELECT * FROM users
         <where>
@@ -68,18 +71,19 @@
             <if test="users.loginName != null and users.loginName != ''">
                 AND login_name LIKE CONCAT('%', #{users.loginName}, '%')
             </if>
-            <if test="users.password != null and users.password != ''">
-                AND password LIKE CONCAT('%', #{users.password}, '%')
+            <if test="users.name != null and users.name != ''">
+                AND name LIKE CONCAT('%', #{users.name}, '%')
             </if>
         </where>
     </select>
 
+    <!-- 排名：按 visits DESC 更符合“排行榜”语义 -->
     <select id="selectDepartmentRanking" resultType="com.example.mybatisplusdemo.model.dto.DepartmentRankingDTO">
         SELECT department_name AS name, COUNT(*) AS visits
         FROM users
         WHERE is_deleted = 0 AND department_name IS NOT NULL
         GROUP BY department_name
-        ORDER BY department_name DESC
+        ORDER BY visits DESC
             LIMIT 10
     </select>
 </mapper>

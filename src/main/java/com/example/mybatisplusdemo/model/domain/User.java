@@ -1,25 +1,26 @@
 package com.example.mybatisplusdemo.model.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
 @TableName("user")
-@ApiModel(value="User对象", description="")
+@ApiModel(value = "User对象", description = "管理员账户（后台）")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -27,11 +28,13 @@ public class User implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-        @ApiModelProperty(value = "用户名")
+    @ApiModelProperty(value = "用户名")
     @TableField("login_name")
     private String loginName;
 
+    @ApiModelProperty(value = "密码（BCrypt哈希，仅写入不返回）")
     @TableField("password")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     @TableField("last_login_time")
@@ -40,19 +43,18 @@ public class User implements Serializable {
     @TableField("remark")
     private String remark;
 
-        @ApiModelProperty(value = "是否删除")
+    @ApiModelProperty(value = "是否删除")
     @TableField("is_deleted")
-        @TableLogic
+    @TableLogic(value = "0", delval = "1")
     private Boolean deleted;
 
-        @ApiModelProperty(value = "创建时间")
-    @TableField("gmt_created")
+    @TableField(value = "gmt_created", fill = FieldFill.INSERT)
     private LocalDateTime gmtCreated;
 
-        @ApiModelProperty(value = "更新时间")
-    @TableField("gmt_modified")
+    @TableField(value = "gmt_modified", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime gmtModified;
 
-        private String advater;
-
+    @ApiModelProperty(value = "头像")
+    @TableField("avatar")
+    private String avatar;
 }

@@ -2,7 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mybatisplusdemo.mapper.UserMapper">
 
-    <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.example.mybatisplusdemo.model.domain.User">
         <id column="id" property="id" />
         <result column="login_name" property="loginName" />
@@ -12,8 +11,9 @@
         <result column="is_deleted" property="deleted" />
         <result column="gmt_created" property="gmtCreated" />
         <result column="gmt_modified" property="gmtModified" />
-        <result column="advater" property="advater"/>
+        <result column="avatar" property="avatar" />
     </resultMap>
+
     <resultMap id="withOrder" type="com.example.mybatisplusdemo.model.vo.UserVO" extends="BaseResultMap">
         <collection property="orders" ofType="com.example.mybatisplusdemo.model.domain.Orders">
             <id column="oid" property="id" />
@@ -21,55 +21,69 @@
             <result column="user_id" property="userId" />
         </collection>
     </resultMap>
-    <insert id="batchInsertUsers">
-        insert into user(id,login_name,password)
-        values
-            <foreach collection="userList" item="user" separator=",">
-                (#{user.id},#{user.loginName},#{user.password})
-            </foreach>
-    </insert>
-    <delete id="deleteByIdsMy">
-        delete from user where id in
-                         <foreach collection="list" item="x" separator="," open="(" close=")">
-                             #{x}
-                         </foreach>
 
-    </delete>
+    <insert id="batchInsertUsers">
+        INSERT INTO user(id, login_name, password, avatar)
+        VALUES
+        <foreach collection="userList" item="user" separator=",">
+            (#{user.id}, #{user.loginName}, #{user.password}, #{user.avatar})
+        </foreach>
+    </insert>
+
+    <update id="deleteByIdsMy">
+        UPDATE user
+        SET is_deleted = 1
+        WHERE id IN
+        <foreach collection="list" item="x" separator="," open="(" close=")">
+            #{x}
+        </foreach>
+    </update>
+
     <select id="selectByIdMy" resultMap="BaseResultMap">
-        select  * from user where id =#{id}
+        SELECT * FROM user WHERE id = #{id} AND is_deleted = 0
     </select>
+
     <select id="selectByIdMy2" resultType="com.example.mybatisplusdemo.model.domain.User">
-         select  * from user where id =#{id} and id =#{user.id}
+        SELECT * FROM user WHERE id = #{id} AND id = #{user.id} AND is_deleted = 0
     </select>
+
     <select id="selectListMy" resultType="com.example.mybatisplusdemo.model.domain.User">
-        select * from user
+        SELECT * FROM user WHERE is_deleted = 0
     </select>
+
     <select id="selectPageMy" resultType="com.example.mybatisplusdemo.model.domain.User">
-        select * from user
+        SELECT * FROM user WHERE is_deleted = 0
     </select>
+
     <select id="selectWithOrder" resultMap="withOrder">
-        SELECT *,o.id as oid FROM user u left join orders o on o.user_id =u.id where u.id =#{id};
+        SELECT u.*, o.id AS oid
+        FROM user u
+                 LEFT JOIN orders o ON o.user_id = u.id
+        WHERE u.id = #{id} AND u.is_deleted = 0
     </select>
+
     <select id="selectListOwn" resultType="com.example.mybatisplusdemo.model.domain.User">
-        select * from user
+        SELECT * FROM user
         <where>
-            <if test="user.id !=null">
-              and  id =#{user.id}
+            is_deleted = 0
+            <if test="user.id != null">
+                AND id = #{user.id}
             </if>
-            <if test="user.loginName != null and user.loginName !=''">
-                and login_name =#{user.loginName}
+            <if test="user.loginName != null and user.loginName != ''">
+                AND login_name = #{user.loginName}
             </if>
         </where>
     </select>
+
     <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.User">
-        select * from user
+        SELECT * FROM user
         <where>
             is_deleted = 0
-        <if test="user.loginName !=null and user.loginName !=''">
-            and login_name like '%${user.loginName}%'
-        </if>
-            <if test="user.password !=null and user.password !=''">
-                and login_name like '%${user.password}%'
+            <if test="user.loginName != null and user.loginName != ''">
+                AND login_name LIKE CONCAT('%', #{user.loginName}, '%')
+            </if>
+            <if test="user.remark != null and user.remark != ''">
+                AND remark LIKE CONCAT('%', #{user.remark}, '%')
             </if>
         </where>
     </select>
