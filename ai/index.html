@@ -1,0 +1,1294 @@
+"""
+优化的对话机器人核心模块 - 包含语义理解与检索优化
+包含：意图识别、问题重写、多知识库检索、检索过滤、语义纠错
+"""
+
+import json
+import os
+import re
+from datetime import datetime
+from typing import List, Dict, Optional, Tuple, Set
+from dataclasses import dataclass, field, asdict
+from enum import Enum
+import hashlib
+from abc import ABC, abstractmethod
+
+
+# ==================== 枚举定义 ====================
+
+class Priority(Enum):
+    """优先级枚举"""
+    HIGH = "高"
+    MEDIUM = "中"
+    LOW = "低"
+
+
+class Intent(Enum):
+    """用户意图枚举"""
+    QUERY = "查询"  # 查询信息
+    MODIFY = "修改"  # 修改、更新信息
+    DELETE = "删除"  # 删除操作
+    HELP = "帮助"  # 系统帮助
+    FEEDBACK = "反馈"  # 用户反馈
+    UNKNOWN = "未知"  # 未知意图
+
+
+class DocumentType(Enum):
+    """文档类型"""
+    PRODUCT = "产品文档"
+    SERVICE = "服务文档"
+    FAQ = "常见问题"
+    MANUAL = "使用手册"
+    OTHER = "其他"
+
+
+# ==================== 数据类 ====================
+
+@dataclass
+class Message:
+    """消息对象"""
+    id: str
+    role: str  # "user" or "assistant"
+    content: str
+    timestamp: str
+    message_type: str = "text"  # text, image, audio
+    metadata: Dict = field(default_factory=dict)
+    intent: Optional[str] = None  # 用户意图
+    corrected_content: Optional[str] = None  # 纠错后的内容
+
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class DialogueContext:
+    """对话上下文"""
+    conversation_id: str
+    messages: List[Message] = field(default_factory=list)
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    max_history: int = 10
+    tags: List[str] = field(default_factory=list)
+
+    def add_message(self, message: Message):
+        """添加消息到对话历史"""
+        self.messages.append(message)
+        if len(self.messages) > self.max_history * 2:
+            self.messages = self.messages[-self.max_history:]
+
+    def get_context_summary(self) -> str:
+        """获取上下文摘要"""
+        context_text = []
+        for msg in self.messages[-5:]:
+            context_text.append(f"{msg.role}: {msg.content}")
+        return "\n".join(context_text)
+
+    def clear_history(self):
+        """清空对话历史"""
+        self.messages = []
+
+    def get_conversation_count(self) -> int:
+        """获取对话轮数"""
+        return len([m for m in self.messages if m.role == "user"])
+
+    def to_dict(self):
+        return {
+            "conversation_id": self.conversation_id,
+            "messages": [m.to_dict() for m in self.messages],
+            "created_at": self.created_at,
+            "max_history": self.max_history,
+            "tags": self.tags,
+            "conversation_count": self.get_conversation_count()
+        }
+
+
+@dataclass
+class KnowledgeItem:
+    """知识库项目"""
+    id: str
+    question: str
+    answer: str
+    doc_type: str = DocumentType.FAQ.value
+    created_at: str = field(default_factory=lambda: datetime.now().isoformat())
+    tags: List[str] = field(default_factory=list)
+    priority: str = Priority.MEDIUM.value
+    access_level: str = "public"  # public, private, restricted
+    metadata: Dict = field(default_factory=dict)
+
+    def to_dict(self):
+        return asdict(self)
+
+
+@dataclass
+class SearchResult:
+    """检索结果"""
+    item: KnowledgeItem
+    similarity_score: float  # 0-1
+    matched_keywords: List[str] = field(default_factory=list)
+    rank: int = 0
+
+
+# ==================== 语义处理模块 ====================
+
+class IntentRecognizer:
+    """意图识别器"""
+
+    def __init__(self):
+        self.intent_keywords = {
+            Intent.QUERY: ["查询", "了解", "请问", "如何", "是什么", "有哪些", "最近", "新的", "信息"],
+            Intent.MODIFY: ["修改", "更新", "改", "变更", "调整", "删除", "替换", "编辑"],
+            Intent.DELETE: ["删除", "移除", "清除", "清空", "丢弃"],
+            Intent.HELP: ["帮助", "怎么办", "不会", "教我", "说明", "指南", "教程"],
+            Intent.FEEDBACK: ["反馈", "建议", "意见", "抱怨", "投诉", "评价"],
+        }
+
+    def recognize(self, user_input: str) -> Intent:
+        """识别用户意图"""
+        user_input_lower = user_input.lower()
+
+        # 计算每个意图的匹配度
+        intent_scores = {}
+        for intent, keywords in self.intent_keywords.items():
+            score = sum(1 for keyword in keywords if keyword in user_input_lower)
+            if score > 0:
+                intent_scores[intent] = score
+
+        if intent_scores:
+            # 返回匹配度最高的意图
+            return max(intent_scores.items(), key=lambda x: x[1])[0]
+
+        return Intent.UNKNOWN
+
+    def get_intent_name(self, intent: Intent) -> str:
+        """获取意图的中文名称"""
+        return intent.value
+
+
+class QuestionRewriter:
+    """问题重写器 - 优化模糊提问的表述"""
+
+    def __init__(self):
+        self.common_patterns = {
+            r"^(葡萄|葡萄[^。]*?)怎么样": "关于{0}的相关信息",
+            r"^(葡萄|葡萄[^。]*?)怎么(吃|做|弄)": "如何{1}{0}",
+            r"^(什么|啥)是(.+?)": "{1}是什么",
+            r"^(.+?)有(啥|什么)用": "{1}的作用和功能",
+        }
+
+    def rewrite(self, user_input: str) -> str:
+        """重写问题提升搜索准确率"""
+        rewritten = user_input
+
+        for pattern, template in self.common_patterns.items():
+            match = re.match(pattern, user_input)
+            if match:
+                groups = match.groups()
+                rewritten = template.format(*groups)
+                return rewritten
+
+        return rewritten
+
+
+class SemanticCorrector:
+    """语义纠错器 - 纠正用户输入的错别字"""
+
+    def __init__(self):
+        # 常见的同音字和错别字映射表
+        self.correction_map = {
+            "葡萄": ["吐葡", "蒲萄", "蒲陶"],
+            "查询": ["查阅", "查看"],
+            "知识库": ["只是库", "智识库"],
+            "产品": ["产物", "产婦"],
+            "服务": ["服侍", "服务"],
+        }
+
+    def correct(self, user_input: str, threshold: float = 0.7) -> str:
+        """纠正输入的错别字"""
+        corrected = user_input
+
+        for correct_word, error_words in self.correction_map.items():
+            for error_word in error_words:
+                if error_word in corrected:
+                    # 进行替换但不影响搜索逻辑
+                    corrected = corrected.replace(error_word, correct_word)
+
+        return corrected
+
+    def get_correction_info(self, original: str, corrected: str) -> Optional[Dict]:
+        """获取纠错信息"""
+        if original != corrected:
+            return {
+                "original": original,
+                "corrected": corrected,
+                "applied": True
+            }
+        return None
+
+
+# ==================== 多知识库管理 ====================
+
+class KnowledgeBase:
+    """增强的知识库类 - 支持多知识库和访问控制"""
+
+    def __init__(self, name: str = "default", access_level: str = "public"):
+        self.name = name
+        self.access_level = access_level
+        self.items: Dict[str, KnowledgeItem] = {}
+        self.created_at = datetime.now().isoformat()
+        self.init_default_qa()
+
+    def init_default_qa(self):
+        """初始化默认QA对"""
+        default_items = [
+            ("知识库中有多少份文档", "我们的知识库包含超过1000份分类文档，涵盖产品、服务和常见问题。", DocumentType.FAQ),
+            ("葡萄的主要品种有哪些", "葡萄的主要品种包括：红葡萄、白葡萄、绿葡萄等多种，各有不同的风味和用途。", DocumentType.PRODUCT),
+            ("如何联系客服", "您可以通过电话、邮件或在线客服与我们联系，工作时间为周一至周五9:00-17:00。", DocumentType.SERVICE),
+            ("产品保修期是多久", "我们的产品享受1年的免费保修期，可根据需要延长保修服务。", DocumentType.PRODUCT),
+        ]
+
+        for idx, (question, answer, doc_type) in enumerate(default_items):
+            item_id = f"{self.name}_{idx}"
+            item = KnowledgeItem(
+                id=item_id,
+                question=question,
+                answer=answer,
+                doc_type=doc_type.value,
+                tags=[self.name]
+            )
+            self.items[item_id] = item
+
+    def add_item(self, question: str, answer: str, doc_type: DocumentType = DocumentType.FAQ,
+                 tags: List[str] = None, priority: str = Priority.MEDIUM.value,
+                 access_level: str = "public") -> str:
+        """添加知识项目"""
+        item_id = f"{self.name}_{len(self.items)}"
+        item = KnowledgeItem(
+            id=item_id,
+            question=question,
+            answer=answer,
+            doc_type=doc_type.value,
+            tags=tags or [self.name],
+            priority=priority,
+            access_level=access_level
+        )
+        self.items[item_id] = item
+        return item_id
+
+    def search(self, query: str, threshold: float = 0.3) -> List[SearchResult]:
+        """搜索知识库，返回带相似度分数的结果"""
+        results = []
+        query_lower = query.lower()
+
+        for item in self.items.values():
+            score = 0
+            matched_keywords = []
+
+            # 精确匹配
+            if query_lower == item.question.lower():
+                score = 1.0
+                matched_keywords = [item.question]
+            else:
+                # 模糊匹配 - 计算关键词匹配度
+                question_words = set(item.question.lower().split())
+                query_words = set(query_lower.split())
+                common_words = question_words & query_words
+
+                if common_words:
+                    score = len(common_words) / max(len(question_words), len(query_words))
+                    matched_keywords = list(common_words)
+
+                # 子字符串匹配
+                if query_lower in item.question.lower():
+                    score = max(score, 0.8)
+                elif item.question.lower() in query_lower:
+                    score = max(score, 0.6)
+
+            if score >= threshold:
+                result = SearchResult(
+                    item=item,
+                    similarity_score=score,
+                    matched_keywords=matched_keywords
+                )
+                results.append(result)
+
+        # 按相似度分数和优先级排序
+        results.sort(key=lambda x: (
+            -x.similarity_score,
+            self._priority_to_score(x.item.priority),
+            -len(x.matched_keywords)
+        ))
+
+        return results
+
+    def _priority_to_score(self, priority: str) -> float:
+        """将优先级转换为分数"""
+        priority_scores = {
+            Priority.HIGH.value: 1.0,
+            Priority.MEDIUM.value: 0.5,
+            Priority.LOW.value: 0.0
+        }
+        return priority_scores.get(priority, 0.0)
+
+    def get_items_by_type(self, doc_type: DocumentType) -> List[KnowledgeItem]:
+        """按文档类型获取项目"""
+        return [item for item in self.items.values()
+                if item.doc_type == doc_type.value]
+
+    def get_items_by_tag(self, tag: str) -> List[KnowledgeItem]:
+        """按标签获取项目"""
+        return [item for item in self.items.values() if tag in item.tags]
+
+    def get_all_items(self) -> Dict[str, KnowledgeItem]:
+        """获取所有项目"""
+        return self.items.copy()
+
+    def to_dict(self) -> Dict:
+        """转换为字典"""
+        return {
+            "name": self.name,
+            "access_level": self.access_level,
+            "created_at": self.created_at,
+            "items_count": len(self.items),
+            "items": {k: v.to_dict() for k, v in self.items.items()}
+        }
+
+
+class MultiKnowledgeBaseManager:
+    """多知识库管理器"""
+
+    def __init__(self):
+        self.knowledge_bases: Dict[str, KnowledgeBase] = {}
+        # 创建默认知识库
+        self.add_knowledge_base("default", "public")
+
+    def add_knowledge_base(self, name: str, access_level: str = "public") -> KnowledgeBase:
+        """添加新知识库"""
+        if name not in self.knowledge_bases:
+            kb = KnowledgeBase(name=name, access_level=access_level)
+            self.knowledge_bases[name] = kb
+            return kb
+        return self.knowledge_bases[name]
+
+    def get_knowledge_base(self, name: str) -> Optional[KnowledgeBase]:
+        """获取指定知识库"""
+        return self.knowledge_bases.get(name)
+
+    def search_across_kbs(self, query: str, kb_names: List[str] = None,
+                         threshold: float = 0.3, doc_type: DocumentType = None) -> List[SearchResult]:
+        """跨知识库搜索"""
+        if kb_names is None:
+            kb_names = list(self.knowledge_bases.keys())
+
+        all_results = []
+
+        for kb_name in kb_names:
+            kb = self.knowledge_bases.get(kb_name)
+            if kb:
+                results = kb.search(query, threshold)
+
+                # 按文档类型过滤
+                if doc_type:
+                    results = [r for r in results if r.item.doc_type == doc_type.value]
+
+                all_results.extend(results)
+
+        # 按相似度排序
+        all_results.sort(key=lambda x: -x.similarity_score)
+        return all_results
+
+    def get_all_kbs_info(self) -> List[Dict]:
+        """获取所有知识库信息"""
+        return [
+            {
+                "name": name,
+                "access_level": kb.access_level,
+                "items_count": len(kb.items),
+                "created_at": kb.created_at
+            }
+            for name, kb in self.knowledge_bases.items()
+        ]
+
+
+# ==================== AI模型客户端 ====================
+
+class AIModelClient:
+    """阿里云大模型客户端"""
+
+    def __init__(self, api_key: Optional[str] = None):
+        self.api_key = os.environ.get("API_KEY")
+        self.base_url = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        self.model = "qwen3.5-plus"
+        self.temperature = 0.3
+
+        self.chat_client = None
+        self._init_chat_client()
+
+    def _init_chat_client(self):
+        try:
+            from langchain_openai import ChatOpenAI
+
+            self.chat_client = ChatOpenAI(
+                api_key=self.api_key,
+                base_url=self.base_url,
+                model=self.model,
+                temperature=self.temperature
+            )
+            print(f"✓ 已连接到阿里云大模型: {self.model}")
+            return True
+        except ImportError:
+            print("提示: langchain-openai 未安装")
+            return False
+
+    def generate_response(self, messages: List[Dict], system_prompt: Optional[str] = None) -> str:
+        if not self.chat_client:
+            return None
+
+        try:
+            full_messages = []
+
+            if system_prompt:
+                full_messages.append({
+                    "role": "system",
+                    "content": system_prompt
+                })
+
+            full_messages.extend(messages)
+
+            from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+
+            langchain_messages = []
+            for msg in full_messages:
+                if msg["role"] == "system":
+                    langchain_messages.append(SystemMessage(content=msg["content"]))
+                elif msg["role"] == "user":
+                    langchain_messages.append(HumanMessage(content=msg["content"]))
+                elif msg["role"] == "assistant":
+                    langchain_messages.append(AIMessage(content=msg["content"]))
+
+            response = self.chat_client.invoke(langchain_messages)
+            return response.content
+
+        except Exception as e:
+            print(f"✗ 调用大模型失败: {str(e)}")
+            return None
+
+    def set_model(self, model: str):
+        """设置使用的模型"""
+        self.model = model
+        self._init_chat_client()
+
+    def set_temperature(self, temperature: float):
+        """设置温度参数"""
+        self.temperature = temperature
+        self._init_chat_client()
+
+
+# ==================== 快捷提问管理 ====================
+
+class QuickQuestionManager:
+    """快捷提问管理"""
+
+    def __init__(self):
+        self.templates: Dict[str, str] = {}
+        self.init_templates()
+
+    def init_templates(self):
+        """初始化提问模板"""
+        self.templates = {
+            "template_1": "知识库中有多少份文档？",
+            "template_2": "葡萄的主要品种有哪些？",
+            "template_3": "如何联系客服？",
+            "template_4": "产品保修期是多久？",
+        }
+
+    def get_templates(self) -> Dict[str, str]:
+        """获取所有模板"""
+        return self.templates.copy()
+
+    def get_template(self, template_id: str) -> Optional[str]:
+        """获取指定模板"""
+        return self.templates.get(template_id)
+
+    def add_template(self, template_id: str, question: str):
+        """添加新模板"""
+        self.templates[template_id] = question
+
+
+# ==================== 多模态处理 ====================
+
+class MultimodalHandler:
+    """多模态输入处理"""
+
+    def process_image(self, image_path: str) -> Dict:
+        """处理图片输入（模拟OCR识别）"""
+        return {
+            "type": "image",
+            "path": image_path,
+            "recognized_text": f"[识别自图片: {image_path}的内容]",
+            "confidence": 0.95
+        }
+
+    def process_audio(self, audio_path: str) -> Dict:
+        """处理音频输入（模拟ASR转文本）"""
+        return {
+            "type": "audio",
+            "path": audio_path,
+            "transcribed_text": f"[识别自音频: {audio_path}的内容]",
+            "confidence": 0.92
+        }
+
+    def process_multimodal(self, content: str, media_path: Optional[str] = None,
+                           media_type: Optional[str] = None) -> str:
+        """处理多模态输入"""
+        result = content
+        if media_path and media_type:
+            if media_type == "image":
+                processed = self.process_image(media_path)
+                result += f"\n[图片识别结果：{processed['recognized_text']}]"
+            elif media_type == "audio":
+                processed = self.process_audio(media_path)
+                result += f"\n[音频识别结果：{processed['transcribed_text']}]"
+        return result
+
+
+# ==================== 对话机器人 ====================
+
+# ==================== 模块三：答案生成与增强 ====================
+
+class AnswerFormatter:
+    """答案格式化和增强器"""
+
+    def __init__(self):
+        self.citation_format = "【{title}】{content}"
+        self.source_template = "\n\n📚 **参考来源：**\n{sources}"
+        self.related_q_template = "\n\n🔗 **相关问题：**\n{questions}"
+
+    def format_answer(self,
+                     answer: str,
+                     sources: List['SearchResult'] = None,
+                     related_questions: List[str] = None) -> Dict:
+        """
+        格式化答案，支持多源拼接和引用标注
+
+        返回：
+        {
+            "answer": "格式化的答案",
+            "sources": [{"id": "...", "title": "..."}],
+            "related_questions": [...],
+            "markdown": "完整的markdown格式输出"
+        }
+        """
+        result = {
+            "answer": answer,
+            "sources": [],
+            "related_questions": related_questions or [],
+            "markdown": answer
+        }
+
+        # 添加来源引用
+        if sources:
+            result["sources"] = [
+                {
+                    "id": s.item.id,
+                    "question": s.item.question,
+                    "doc_type": s.item.doc_type,
+                    "priority": s.item.priority,
+                    "similarity": round(s.similarity_score, 3)
+                }
+                for s in sources
+            ]
+            sources_text = self._format_sources_section(sources)
+            result["markdown"] += sources_text
+
+        # 添加相关问题
+        if related_questions:
+            questions_text = self._format_questions_section(related_questions)
+            result["markdown"] += questions_text
+
+        return result
+
+    def _format_sources_section(self, sources: List['SearchResult']) -> str:
+        """格式化来源信息部分"""
+        if not sources:
+            return ""
+
+        lines = ["\n\n---\n\n📚 **参考来源：**"]
+        for idx, result in enumerate(sources, 1):
+            source = result.item
+            lines.append(f"\n{idx}. **{source.question}**")
+            lines.append(f"   - 文档类型：{source.doc_type}")
+            lines.append(f"   - 优先级：{source.priority}")
+            lines.append(f"   - 匹配度：{result.similarity_score:.1%}")
+
+        return "\n".join(lines)
+
+    def _format_questions_section(self, questions: List[str]) -> str:
+        """格式化相关问题部分"""
+        if not questions:
+            return ""
+
+        lines = ["\n\n---\n\n🔗 **相关问题：**"]
+        for idx, q in enumerate(questions, 1):
+            lines.append(f"\n{idx}. {q}")
+
+        return "\n".join(lines)
+
+    def merge_multiple_answers(self,
+                              search_results: List['SearchResult']) -> str:
+        """
+        从多个搜索结果拼接成逻辑通顺的答案
+        """
+        if not search_results:
+            return ""
+
+        merged_parts = []
+        seen_content = set()
+
+        for result in search_results:
+            answer = result.item.answer
+
+            # 避免重复内容
+            if answer not in seen_content:
+                merged_parts.append(answer)
+                seen_content.add(answer)
+
+        # 使用换行符连接
+        return "\n\n".join(merged_parts)
+
+    def generate_related_questions(self,
+                                   query: str,
+                                   search_results: List['SearchResult'],
+                                   max_questions: int = 3) -> List[str]:
+        """根据搜索结果生成相关问题"""
+        related = []
+
+        # 从搜索结果中提取不同的问题
+        for result in search_results:
+            if result.item.question != query and len(related) < max_questions:
+                related.append(result.item.question)
+
+        # 如果结果不足，生成启发式问题
+        if len(related) < max_questions:
+            heuristic = self._generate_heuristic_questions(query, max_questions - len(related))
+            related.extend(heuristic)
+
+        return related[:max_questions]
+
+    def _generate_heuristic_questions(self, query: str, count: int) -> List[str]:
+        """生成启发式问题"""
+        questions = []
+
+        if "是什么" in query or "什么" in query:
+            # 转换为"如何"形式的问题
+            q = query.replace("是什么", "").replace("什么", "")
+            if q:
+                questions.append(f"怎样使用{q}")
+                if len(questions) < count:
+                    questions.append(f"{q}有哪些特点")
+        elif "怎样" in query or "如何" in query:
+            # 转换为"是什么"形式的问题
+            q = query.replace("怎样", "").replace("如何", "")
+            if q:
+                questions.append(f"{q}是什么")
+                if len(questions) < count:
+                    questions.append(f"为什么要{q}")
+
+        return questions[:count]
+
+
+class SensitiveWordFilter:
+    """敏感词过滤器"""
+
+    def __init__(self):
+        self.sensitive_words: Set[str] = set()
+        self.replacement_char = "*"
+        self.init_default_words()
+
+    def init_default_words(self):
+        """初始化默认敏感词（可扩展）"""
+        # 这里可以添加实际的敏感词
+        # 为了演示，只添加几个示例
+        default_words = [
+            # "敏感词示例",
+        ]
+        self.sensitive_words = set(w.lower() for w in default_words)
+
+    def add_word(self, word: str) -> bool:
+        """添加敏感词"""
+        if word:
+            self.sensitive_words.add(word.lower())
+            return True
+        return False
+
+    def add_words_batch(self, words: List[str]) -> int:
+        """批量添加敏感词"""
+        count = 0
+        for word in words:
+            if self.add_word(word):
+                count += 1
+        return count
+
+    def contains_sensitive_words(self, text: str) -> Tuple[bool, List[str]]:
+        """
+        检查文本是否包含敏感词
+
+        返回：
+            (has_sensitive, found_words_list)
+        """
+        text_lower = text.lower()
+        found = []
+
+        for word in self.sensitive_words:
+            if word in text_lower:
+                found.append(word)
+
+        return len(found) > 0, found
+
+    def filter_text(self, text: str, replacement: str = None) -> str:
+        """过滤文本中的敏感词"""
+        filtered = text
+        repl = replacement or self.replacement_char
+
+        for word in self.sensitive_words:
+            pattern = word.lower()
+            # 大小写不敏感的替换
+            idx = 0
+            while idx < len(filtered):
+                lower_text = filtered[idx:].lower()
+                pos = lower_text.find(pattern)
+                if pos == -1:
+                    break
+                actual_pos = idx + pos
+                filtered = filtered[:actual_pos] + (repl * len(pattern)) + filtered[actual_pos + len(pattern):]
+                idx = actual_pos + len(pattern)
+
+        return filtered
+
+
+# ==================== 模块四：对话规则与兜底 ====================
+
+@dataclass
+class FallbackTemplate:
+    """兜底话术模板"""
+    name: str
+    condition: str  # 触发条件："no_result", "low_confidence", "sensitive"
+    response: str  # 兜底文本
+    priority: int = 10
+    enabled: bool = True
+
+
+class FallbackManager:
+    """知识库兜底管理器"""
+
+    def __init__(self):
+        self.fallback_templates: Dict[str, FallbackTemplate] = {}
+        self.init_default_fallbacks()
+
+    def init_default_fallbacks(self):
+        """初始化默认兜底话术"""
+        defaults = [
+            FallbackTemplate(
+                name="no_result",
+                condition="no_result",
+                response="抱歉，我暂时没有找到相关的答案。您可以：\n1. 尝试用其他方式描述您的问题\n2. 查看我们的快捷提问列表\n3. 联系人工客服获得帮助",
+                priority=10
+            ),
+            FallbackTemplate(
+                name="low_confidence",
+                condition="low_confidence",
+                response="我找到了一些相关信息，但匹配度不是很高。您可能需要：\n1. 重新描述问题\n2. 提供更多背景信息\n3. 咨询人工客服",
+                priority=8
+            ),
+            FallbackTemplate(
+                name="sensitive_content",
+                condition="sensitive",
+                response="抱歉，我无法回答这个问题。如有其他问题，欢迎提问。",
+                priority=20
+            ),
+        ]
+
+        for template in defaults:
+            self.fallback_templates[template.condition] = template
+
+    def add_fallback(self, template: FallbackTemplate):
+        """添加兜底模板"""
+        self.fallback_templates[template.condition] = template
+
+    def get_fallback(self, condition: str) -> Optional[str]:
+        """获取兜底话术"""
+        template = self.fallback_templates.get(condition)
+        if template and template.enabled:
+            return template.response
+        return None
+
+    def get_best_fallback_for_search(self,
+                                    results: List['SearchResult'],
+                                    has_sensitive: bool = False) -> Tuple[str, str]:
+        """
+        根据搜索结果类型返回最合适的兜底话术
+
+        返回：
+            (fallback_text, fallback_type)
+        """
+        # 优先检查敏感词
+        if has_sensitive:
+            return self.get_fallback("sensitive") or "", "sensitive"
+
+        # 检查是否有结果
+        if not results:
+            return self.get_fallback("no_result") or "", "no_result"
+
+        # 检查匹配度
+        best_score = max((r.similarity_score for r in results), default=0)
+        if best_score < 0.3:
+            return self.get_fallback("low_confidence") or "", "low_confidence"
+
+        return "", "no_fallback"
+
+
+class DialogueRobot:
+    """增强的对话机器人 - 包含语义理解与检索优化"""
+
+    def __init__(self, use_llm: bool = True):
+        self.use_llm = use_llm
+        self.ai_client = AIModelClient() if use_llm else None
+
+        # 初始化语义处理模块
+        self.intent_recognizer = IntentRecognizer()
+        self.question_rewriter = QuestionRewriter()
+        self.semantic_corrector = SemanticCorrector()
+
+        # 初始化多知识库
+        self.kb_manager = MultiKnowledgeBaseManager()
+
+        # 初始化快捷提问和多模态
+        self.quick_question_manager = QuickQuestionManager()
+        self.multimodal_handler = MultimodalHandler()
+
+        # 初始化模块三：答案生成与增强
+        self.answer_formatter = AnswerFormatter()
+
+        # 初始化模块四：对话规则与兜底
+        self.sensitive_filter = SensitiveWordFilter()
+        self.fallback_manager = FallbackManager()
+
+        # 对话管理
+        self.contexts: Dict[str, DialogueContext] = {}
+        self.current_conversation_id: Optional[str] = None
+
+        # 系统提示词
+        self.system_prompt = """你是一个专业的AI对话助手，擅长：
+1. 理解用户的真实意图
+2. 从知识库中检索相关信息
+3. 提供准确、清晰的回答
+4. 处理歧义和模糊提问
+
+在回答时：
+- 优先使用知识库中的信息
+- 如果知识库没有相关内容，进行合理推理
+- 保持回答的准确性和专业性
+"""
+
+        print("✓ 对话机器人已初始化")
+        print("  - 语义理解模块已加载")
+        print("  - 多知识库系统已启动")
+        print("  - 答案格式化模块已加载")
+        print("  - 敏感词过滤已启用")
+        print("  - 兜底管理已启动")
+        print(f"  - LLM状态: {'已连接' if self.use_llm and self.ai_client.chat_client else '未连接'}")
+
+    # ==================== 对话管理 ====================
+
+    def start_conversation(self) -> str:
+        """开始新对话"""
+        conv_id = f"conv_{len(self.contexts)}_{datetime.now().timestamp()}"
+        self.contexts[conv_id] = DialogueContext(conversation_id=conv_id)
+        self.current_conversation_id = conv_id
+        return conv_id
+
+    def add_user_message(self, content: str, media_path: Optional[str] = None,
+                        media_type: Optional[str] = None) -> Message:
+        """添加用户消息"""
+        if not self.current_conversation_id:
+            self.start_conversation()
+
+        # 语义处理
+        intent = self.intent_recognizer.recognize(content)
+        corrected_content = self.semantic_corrector.correct(content)
+
+        msg = Message(
+            id=f"msg_{len(self.contexts[self.current_conversation_id].messages)}",
+            role="user",
+            content=content,
+            timestamp=datetime.now().isoformat(),
+            message_type=media_type or "text",
+            metadata={"media_path": media_path} if media_path else {},
+            intent=intent.value,
+            corrected_content=corrected_content
+        )
+
+        self.contexts[self.current_conversation_id].add_message(msg)
+        return msg
+
+    def add_assistant_message(self, content: str) -> Message:
+        """添加助手消息"""
+        if not self.current_conversation_id:
+            self.start_conversation()
+
+        msg = Message(
+            id=f"msg_{len(self.contexts[self.current_conversation_id].messages)}",
+            role="assistant",
+            content=content,
+            timestamp=datetime.now().isoformat(),
+            message_type="text"
+        )
+
+        self.contexts[self.current_conversation_id].add_message(msg)
+        return msg
+
+    # ==================== 增强的搜索功能 ====================
+
+    def search_knowledge(self, query: str, kb_names: List[str] = None,
+                       doc_type: DocumentType = None, threshold: float = 0.3) -> Tuple[List[SearchResult], str]:
+        """增强的知识库搜索"""
+        # 1. 语义纠错
+        corrected_query = self.semantic_corrector.correct(query)
+
+        # 2. 问题重写
+        rewritten_query = self.question_rewriter.rewrite(corrected_query)
+
+        # 3. 多知识库检索
+        results = self.kb_manager.search_across_kbs(
+            rewritten_query,
+            kb_names=kb_names,
+            threshold=threshold,
+            doc_type=doc_type
+        )
+
+        # 构建搜索信息
+        search_info = f"[搜索分析] 原始查询: {query}\n"
+        if corrected_query != query:
+            search_info += f"纠正后: {corrected_query}\n"
+        if rewritten_query != corrected_query:
+            search_info += f"重写后: {rewritten_query}\n"
+        search_info += f"找到 {len(results)} 个相关结果"
+
+        return results, search_info
+
+    def get_next_response(self, user_input: str) -> Tuple[str, Dict]:
+        """
+        获取下一个响应 - 增强版本，包含：
+        1. 敏感词过滤
+        2. 答案拼接和格式化
+        3. 引用标注
+        4. 兜底管理
+        """
+        if not self.current_conversation_id:
+            self.start_conversation()
+
+        # ==================== 第一步：敏感词检查 ====================
+        has_sensitive, found_words = self.sensitive_filter.contains_sensitive_words(user_input)
+
+        if has_sensitive:
+            fallback_response, fallback_type = self.fallback_manager.get_best_fallback_for_search(
+                results=[],
+                has_sensitive=True
+            )
+
+            # 添加用户消息
+            self.add_user_message(user_input)
+            # 添加回复消息
+            self.add_assistant_message(fallback_response)
+
+            return fallback_response, {
+                "user_message": user_input,
+                "assistant_message": fallback_response,
+                "has_sensitive": True,
+                "found_sensitive_words": found_words,
+                "is_fallback": True,
+                "fallback_type": "sensitive",
+                "sources": [],
+                "related_questions": [],
+                "markdown": fallback_response
+            }
+
+        # ==================== 第二步：添加用户消息 ====================
+        user_msg = self.add_user_message(user_input)
+        context = self.contexts[self.current_conversation_id]
+
+        # ==================== 第三步：知识库搜索 ====================
+        search_results, search_info = self.search_knowledge(user_input, threshold=0.3)
+
+        # ==================== 第四步：生成答案 ====================
+        messages_for_llm = []
+        for msg in context.messages[:-1]:
+            messages_for_llm.append({
+                "role": msg.role,
+                "content": msg.content
+            })
+        messages_for_llm.append({
+            "role": "user",
+            "content": user_input
+        })
+
+        # 构建增强的系统提示词
+        enhanced_prompt = self.system_prompt
+        if search_results:
+            enhanced_prompt += "\n\n【知识库检索结果】\n"
+            for idx, result in enumerate(search_results[:3], 1):
+                enhanced_prompt += f"{idx}. 【{result.item.doc_type}】 相似度: {result.similarity_score:.2%}\n"
+                enhanced_prompt += f"   Q: {result.item.question}\n"
+                enhanced_prompt += f"   A: {result.item.answer}\n\n"
+
+        # 尝试使用LLM生成答案
+        answer = None
+        if self.use_llm and self.ai_client.chat_client:
+            answer = self.ai_client.generate_response(
+                messages=messages_for_llm,
+                system_prompt=enhanced_prompt
+            )
+
+        # 如果LLM没有回复或被禁用，使用知识库回复
+        if not answer:
+            if search_results:
+                # 拼接多个搜索结果
+                answer = self.answer_formatter.merge_multiple_answers(search_results)
+            else:
+                answer = ""
+
+        # ==================== 第五步：检查是否需要兜底 ====================
+        fallback_type = "no_fallback"
+        if not answer or (search_results and search_results[0].similarity_score < 0.3):
+            fallback_response, fallback_type = self.fallback_manager.get_best_fallback_for_search(
+                results=search_results,
+                has_sensitive=False
+            )
+
+            if fallback_response:
+                # 组合答案和兜底话术
+                if answer:
+                    final_answer = f"{answer}\n\n---\n\n{fallback_response}"
+                else:
+                    final_answer = fallback_response
+            else:
+                final_answer = answer if answer else "抱歉，我暂时无法回答这个问题。"
+        else:
+            final_answer = answer
+
+        # ==================== 第六步：答案格式化和引用标注 ====================
+        related_questions = self.answer_formatter.generate_related_questions(
+            user_input,
+            search_results,
+            max_questions=3
+        )
+
+        formatted = self.answer_formatter.format_answer(
+            answer=final_answer,
+            sources=search_results if search_results else None,
+            related_questions=related_questions if related_questions else None
+        )
+
+        # ==================== 第七步：存储消息 ====================
+        assistant_msg = self.add_assistant_message(final_answer)
+        context_summary = context.get_context_summary()
+
+        return final_answer, {
+            "user_message": user_input,
+            "assistant_message": final_answer,
+            "has_sensitive": False,
+            "is_fallback": fallback_type != "no_fallback",
+            "fallback_type": fallback_type,
+            "sources": formatted["sources"],
+            "related_questions": formatted["related_questions"],
+            "markdown": formatted["markdown"],
+            "search_results_count": len(search_results),
+            "timestamp": datetime.now().isoformat()
+        }
+
+    # ==================== 意图识别相关 ====================
+
+    def get_user_intent(self, message_id: Optional[str] = None) -> Dict:
+        """获取消息的用户意图"""
+        if not self.current_conversation_id:
+            return {"intent": Intent.UNKNOWN.value, "messages": []}
+
+        context = self.contexts[self.current_conversation_id]
+        user_messages = [m for m in context.messages if m.role == "user"]
+
+        intents = []
+        for msg in user_messages:
+            if msg.intent:
+                intents.append({
+                    "message": msg.content,
+                    "intent": msg.intent,
+                    "timestamp": msg.timestamp
+                })
+
+        return {
+            "total_intents": len(intents),
+            "recent_intent": intents[-1]["intent"] if intents else Intent.UNKNOWN.value,
+            "intent_history": intents
+        }
+
+    # ==================== 检索过滤功能 ====================
+
+    def filter_search_results(self, results: List[SearchResult],
+                             min_similarity: float = 0.5,
+                             doc_types: List[str] = None,
+                             max_results: int = 5) -> List[SearchResult]:
+        """过滤搜索结果"""
+        # 按相似度过滤
+        filtered = [r for r in results if r.similarity_score >= min_similarity]
+
+        # 按文档类型过滤
+        if doc_types:
+            filtered = [r for r in filtered if r.item.doc_type in doc_types]
+
+        # 限制结果数量
+        filtered = filtered[:max_results]
+
+        return filtered
+
+    # ==================== 对话历史管理 ====================
+
+    def show_conversation_history(self, max_turns: int = 10) -> List[Dict]:
+        """展示对话历史"""
+        if not self.current_conversation_id:
+            return []
+
+        context = self.contexts[self.current_conversation_id]
+        history = []
+
+        for msg in context.messages[-max_turns:]:
+            history.append({
+                "id": msg.id,
+                "role": msg.role,
+                "content": msg.content,
+                "timestamp": msg.timestamp,
+                "type": msg.message_type,
+                "intent": msg.intent,
+                "corrected": msg.corrected_content
+            })
+
+        return history
+
+    def clear_context(self, conversation_id: Optional[str] = None):
+        """清空对话上下文"""
+        cid = conversation_id or self.current_conversation_id
+        if cid and cid in self.contexts:
+            self.contexts[cid].clear_history()
+
+    def get_conversation_turn_count(self, conversation_id: Optional[str] = None) -> int:
+        """获取对话轮数"""
+        cid = conversation_id or self.current_conversation_id
+        if cid and cid in self.contexts:
+            return self.contexts[cid].get_conversation_count()
+        return 0
+
+    def get_conversation_history(self, conversation_id: Optional[str] = None) -> Dict:
+        """获取对话历史"""
+        cid = conversation_id or self.current_conversation_id
+        if not cid or cid not in self.contexts:
+            return {"error": "Conversation not found"}
+
+        return self.contexts[cid].to_dict()
+
+    # ==================== 多模态处理 ====================
+
+    def process_image_input(self, question: str, image_path: str) -> Dict:
+        """处理图片输入"""
+        if not self.current_conversation_id:
+            self.start_conversation()
+
+        processed = self.multimodal_handler.process_image(image_path)
+        combined_input = f"{question}\n[图片内容：{processed['recognized_text']}]"
+
+        self.add_user_message(question, image_path, "image")
+        answer, _ = self.get_next_response(combined_input)
+
+        return {
+            "status": "success",
+            "image_path": image_path,
+            "recognized_text": processed['recognized_text'],
+            "answer": answer,
+            "confidence": processed['confidence']
+        }
+
+    # ==================== 快捷提问 ====================
+
+    def get_quick_questions(self) -> Dict[str, str]:
+        """获取快捷提问列表"""
+        return self.quick_question_manager.get_templates()
+
+    def use_quick_question(self, template_id: str) -> Dict:
+        """使用快捷提问"""
+        question = self.quick_question_manager.get_template(template_id)
+        if not question:
+            return {"error": "Template not found"}
+
+        answer, context = self.get_next_response(question)
+        return {
+            "template_id": template_id,
+            "question": question,
+            "answer": answer
+        }
+
+    # ==================== 知识库管理 ====================
+
+    def add_knowledge(self, question: str, answer: str, kb_name: str = "default"):
+        """添加知识库条目"""
+        kb = self.kb_manager.get_knowledge_base(kb_name)
+        if kb:
+            kb.add_item(question, answer)
+
+    def get_knowledge_base(self, kb_name: str = "default") -> Dict:
+        """获取知识库内容"""
+        kb = self.kb_manager.get_knowledge_base(kb_name)
+        if kb:
+            return kb.get_all_items()
+        return {}
+
+    def get_all_knowledge_bases(self) -> List[Dict]:
+        """获取所有知识库信息"""
+        return self.kb_manager.get_all_kbs_info()
+
+    # ==================== 导出功能 ====================
+
+    def export_conversation(self, conversation_id: Optional[str] = None,
+                           format: str = "json") -> str:
+        """导出对话记录"""
+        cid = conversation_id or self.current_conversation_id
+        if not cid or cid not in self.contexts:
+            return ""
+
+        data = self.contexts[cid].to_dict()
+
+        if format == "json":
+            return json.dumps(data, ensure_ascii=False, indent=2)
+        elif format == "text":
+            text_output = []
+            for msg in data['messages']:
+                text_output.append(f"[{msg['timestamp']}] {msg['role']}: {msg['content']}")
+            return "\n".join(text_output)
+
+        return ""
+
+    def list_conversations(self) -> List[Dict]:
+        """列出所有对话"""
+        conversations = []
+        for cid, context in self.contexts.items():
+            conversations.append({
+                "id": cid,
+                "created_at": context.created_at,
+                "message_count": len(context.messages),
+                "turn_count": context.get_conversation_count()
+            })
+        return conversations
+
+    def get_llm_status(self) -> Dict:
+        """获取LLM连接状态"""
+        return {
+            "use_llm": self.use_llm,
+            "llm_available": self.ai_client.chat_client is not None if self.ai_client else False,
+            "model": self.ai_client.model if self.ai_client else None,
+            "api_key_set": bool(self.ai_client.api_key) if self.ai_client else False
+        }
