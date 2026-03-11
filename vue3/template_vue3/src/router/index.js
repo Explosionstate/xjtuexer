@@ -10,6 +10,7 @@ import UserJiashicang from '@/views/user/UserJiashicang.vue';
 import UsersList from '@/views/user/UsersList.vue';
 import LearningDurationAnalytics from '@/views/user/LearningDurationAnalytics.vue';
 import CourseCompletionAnalytics from '@/views/user/CourseCompletionAnalytics.vue';
+import News from "@/views/user/news.vue";
 
 import OnlineLearning from '@/views/user/OnlineLearning.vue';
 import InteractionAnalytics from "@/views/user/InteractionAnalytics.vue";
@@ -55,6 +56,7 @@ const routes = [
       { path: '/user/avgscore', component: CourseAvgScores },
       { path: '/user/learning', name: 'OnlineLearning', component: OnlineLearning },
       { path: '/user/courseinsert', component: CourseInsert },
+      { path: '/news', component: News },
     ],
   },
 ];
