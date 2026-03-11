@@ -1,5 +1,5 @@
 <script setup>
-import {CaretBottom, EditPen, Promotion, SwitchButton, TrendCharts, User, Search, Link, UserFilled, WarnTriangleFilled, Document, Tickets, SuccessFilled, DataLine, DArrowRight, DArrowLeft, Odometer} from '@element-plus/icons-vue'
+import {CaretBottom, EditPen, Promotion, SwitchButton, TrendCharts, User, Search, Link, UserFilled, WarnTriangleFilled, Document, Tickets, SuccessFilled, DataLine, DArrowRight, DArrowLeft, Odometer, Message} from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import {userInfoService} from "@/api/user";
 import {useUserInfoStore} from "@/stores/userInfo";
@@ -67,6 +67,12 @@ const handleClose = (key, keyPath) => {
         @close="handleClose"
         router
     >
+      <el-menu-item index="/news">
+        <el-tooltip :content="isCollapse ? '新闻资讯' : ''" placement="right">
+          <el-icon><Message/></el-icon>
+        </el-tooltip>
+        <span>新闻资讯</span>
+      </el-menu-item>
       <el-menu-item index="/user/list">
         <el-tooltip :content="isCollapse ? '用户管理' : ''" placement="right">
           <el-icon><Promotion/></el-icon>
@@ -197,7 +203,7 @@ const handleClose = (key, keyPath) => {
 
     &__logo {
       height: 120px;
-      background: url('@/assets/login_title.png') no-repeat center / 120px auto;
+      background: url('../assets/login_title.png') no-repeat center / 120px auto;
     }
 
     .el-menu {
