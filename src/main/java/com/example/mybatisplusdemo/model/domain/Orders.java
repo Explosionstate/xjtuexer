@@ -1,41 +1,34 @@
 package com.example.mybatisplusdemo.model.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
- * <p>
- * 
- * </p>
- *
- * @author jkx
- * @since 2025-06-30
+ * Compatibility placeholder for legacy /api/orders endpoint.
+ * It is mapped to coursevisit because table orders does not exist in latest db.sql.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("orders")
-@ApiModel(value="Orders对象", description="")
+@TableName("coursevisit")
+@ApiModel(value = "Orders", description = "Compatibility object")
 public class Orders implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @TableId("id")
+    @TableId("course_id")
     private Long id;
 
-    @TableField("name")
+    @TableField("coursename")
     private String name;
 
-    @TableField("user_id")
+    @TableField(exist = false)
     private Long userId;
-
-
 }

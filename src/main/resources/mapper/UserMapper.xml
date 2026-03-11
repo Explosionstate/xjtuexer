@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mybatisplusdemo.mapper.UserMapper">
 
@@ -17,13 +17,13 @@
     <resultMap id="withOrder" type="com.example.mybatisplusdemo.model.vo.UserVO" extends="BaseResultMap">
         <collection property="orders" ofType="com.example.mybatisplusdemo.model.domain.Orders">
             <id column="oid" property="id" />
-            <result column="name" property="name" />
-            <result column="user_id" property="userId" />
+            <result column="order_name" property="name" />
+            <result column="order_user_id" property="userId" />
         </collection>
     </resultMap>
 
     <insert id="batchInsertUsers">
-        INSERT INTO user(id, login_name, password, avatar)
+        INSERT INTO admin_user(id, login_name, password, avatar)
         VALUES
         <foreach collection="userList" item="user" separator=",">
             (#{user.id}, #{user.loginName}, #{user.password}, #{user.avatar})
@@ -31,7 +31,7 @@
     </insert>
 
     <update id="deleteByIdsMy">
-        UPDATE user
+        UPDATE admin_user
         SET is_deleted = 1
         WHERE id IN
         <foreach collection="list" item="x" separator="," open="(" close=")">
@@ -40,30 +40,33 @@
     </update>
 
     <select id="selectByIdMy" resultMap="BaseResultMap">
-        SELECT * FROM user WHERE id = #{id} AND is_deleted = 0
+        SELECT * FROM admin_user WHERE id = #{id} AND is_deleted = 0
     </select>
 
     <select id="selectByIdMy2" resultType="com.example.mybatisplusdemo.model.domain.User">
-        SELECT * FROM user WHERE id = #{id} AND id = #{user.id} AND is_deleted = 0
+        SELECT * FROM admin_user WHERE id = #{id} AND id = #{user.id} AND is_deleted = 0
     </select>
 
     <select id="selectListMy" resultType="com.example.mybatisplusdemo.model.domain.User">
-        SELECT * FROM user WHERE is_deleted = 0
+        SELECT * FROM admin_user WHERE is_deleted = 0
     </select>
 
     <select id="selectPageMy" resultType="com.example.mybatisplusdemo.model.domain.User">
-        SELECT * FROM user WHERE is_deleted = 0
+        SELECT * FROM admin_user WHERE is_deleted = 0
     </select>
 
     <select id="selectWithOrder" resultMap="withOrder">
-        SELECT u.*, o.id AS oid
-        FROM user u
-                 LEFT JOIN orders o ON o.user_id = u.id
-        WHERE u.id = #{id} AND u.is_deleted = 0
+        SELECT
+            a.*,
+            NULL AS oid,
+            NULL AS order_name,
+            NULL AS order_user_id
+        FROM admin_user a
+        WHERE a.id = #{id} AND a.is_deleted = 0
     </select>
 
     <select id="selectListOwn" resultType="com.example.mybatisplusdemo.model.domain.User">
-        SELECT * FROM user
+        SELECT * FROM admin_user
         <where>
             is_deleted = 0
             <if test="user.id != null">
@@ -76,7 +79,7 @@
     </select>
 
     <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.User">
-        SELECT * FROM user
+        SELECT * FROM admin_user
         <where>
             is_deleted = 0
             <if test="user.loginName != null and user.loginName != ''">

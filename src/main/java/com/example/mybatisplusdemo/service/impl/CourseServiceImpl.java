@@ -1,21 +1,26 @@
 package com.example.mybatisplusdemo.service.impl;
 
+import org.springframework.stereotype.Service;
+
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.mybatisplusdemo.mapper.CourseMapper;
+import com.example.mybatisplusdemo.mapper.TeacherMapper;
 import com.example.mybatisplusdemo.mapper.UsersMapper;
 import com.example.mybatisplusdemo.model.domain.Course;
+import com.example.mybatisplusdemo.model.domain.Teacher;
 import com.example.mybatisplusdemo.model.domain.Users;
 import com.example.mybatisplusdemo.service.ICourseService;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements ICourseService {
 
     private final UsersMapper usersMapper;
+    private final TeacherMapper teacherMapper;
 
-    public CourseServiceImpl(UsersMapper usersMapper) {
+    public CourseServiceImpl(UsersMapper usersMapper, TeacherMapper teacherMapper) {
         this.usersMapper = usersMapper;
+        this.teacherMapper = teacherMapper;
     }
 
     @Override
@@ -24,14 +29,18 @@ public class CourseServiceImpl extends ServiceImpl<CourseMapper, Course> impleme
             throw new IllegalArgumentException("teacherId 不能为空");
         }
 
-        // 规范：课程教师来自 users 表，并要求 role=teacher 且未删除
-        Users teacher = usersMapper.selectOne(new LambdaQueryWrapper<Users>()
+        Teacher teacher = teacherMapper.selectById(course.getTeacherId());
+        if (teacher == null) {
+            throw new RuntimeException("教师ID不存在或不是教师或已删除");
+        }
+
+        Users teacherUser = usersMapper.selectOne(new LambdaQueryWrapper<Users>()
                 .eq(Users::getId, course.getTeacherId())
                 .eq(Users::getRole, "teacher")
                 .eq(Users::getIsDeleted, 0));
 
-        if (teacher == null) {
-            throw new RuntimeException("教师ID不存在或不是教师(role!=teacher)或已删除");
+        if (teacherUser == null) {
+            throw new RuntimeException("教师ID不存在或不是教师或已删除");
         }
 
         this.save(course);

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mybatisplusdemo.mapper.StudentMapper">
     <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.Student">
-        SELECT name, student_id, college, learning_index, comparison_last_month, total_warnings, resolved_warnings
+        SELECT name, student_id, student_no, college, learning_index, comparison_last_month, total_warnings, resolved_warnings
         FROM student
         <where>
             <if test="student.name != null and student.name != ''">
@@ -17,7 +17,7 @@
         select * from student
         <where>
             <if test="student.studentId != null">
-                student_id = #{studentDTO.studentId}
+                student_id = #{student.studentId}
             </if>
             <if test="student.name != null and student.name != ''">
                 AND name LIKE CONCAT('%', #{student.name}, '%')
@@ -34,6 +34,7 @@
 
     <resultMap id="BaseResultMap" type="com.example.mybatisplusdemo.model.domain.Student">
         <id column="student_id" property="studentId" />
+        <result column="student_no" property="studentNo" />
         <result column="name" property="name" />
         <result column="college" property="college" />
         <result column="learning_index" property="learningIndex" />

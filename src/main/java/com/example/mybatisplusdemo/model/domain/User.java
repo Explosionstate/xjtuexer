@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("user")
+@TableName("admin_user")
 @ApiModel(value = "User对象", description = "管理员账户（后台）")
 public class User implements Serializable {
 
@@ -57,4 +57,17 @@ public class User implements Serializable {
     @ApiModelProperty(value = "头像")
     @TableField("avatar")
     private String avatar;
+
+    /**
+     * 兼容前端历史字段拼写：advater -> avatar
+     */
+    @JsonProperty("advater")
+    public String getAdvater() {
+        return avatar;
+    }
+
+    @JsonProperty("advater")
+    public void setAdvater(String advater) {
+        this.avatar = advater;
+    }
 }

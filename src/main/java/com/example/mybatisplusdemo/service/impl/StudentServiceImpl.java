@@ -5,8 +5,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.example.mybatisplusdemo.common.PageResult;
-import com.example.mybatisplusdemo.model.domain.Student;
 import com.example.mybatisplusdemo.mapper.StudentMapper;
+import com.example.mybatisplusdemo.mapper.UsersMapper;
+import com.example.mybatisplusdemo.model.domain.Student;
+import com.example.mybatisplusdemo.model.domain.Users;
 import com.example.mybatisplusdemo.model.dto.PageDTO;
 import com.example.mybatisplusdemo.model.dto.QueryDTO;
 import com.example.mybatisplusdemo.model.dto.StudentDTO;
@@ -24,10 +26,34 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
 
     @Autowired
     private StudentMapper studentMapper;
+    @Autowired
+    private UsersMapper usersMapper;
 
     @Override
     public Student getByIdMy(Long studentId) {
-        return studentMapper.selectById(studentId);
+        Users user = usersMapper.selectOne(new LambdaQueryWrapper<Users>()
+                .eq(Users::getId, studentId)
+                .eq(Users::getRole, "student")
+                .eq(Users::getIsDeleted, 0));
+        if (user == null) {
+            return null;
+        }
+
+        Student student = studentMapper.selectById(studentId);
+        if (student == null) {
+            return null;
+        }
+
+        if (!StringUtils.hasText(student.getName()) && StringUtils.hasText(user.getName())) {
+            student.setName(user.getName());
+        }
+        if (!StringUtils.hasText(student.getCollege()) && StringUtils.hasText(user.getDepartmentName())) {
+            student.setCollege(user.getDepartmentName());
+        }
+        if (student.getLearningIndex() == null) {
+            student.setLearningIndex(user.getLearningIndex());
+        }
+        return student;
     }
 
     @Override

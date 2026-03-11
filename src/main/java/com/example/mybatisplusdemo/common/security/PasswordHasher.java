@@ -8,7 +8,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 
-public class Pbkdf2PasswordHasher {
+public class PasswordHasher {
 
     private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
     private static final int ITERATIONS = 120_000;

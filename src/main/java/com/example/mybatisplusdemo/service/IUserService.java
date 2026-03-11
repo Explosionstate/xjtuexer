@@ -22,4 +22,12 @@ public interface IUserService extends IService<User> {
 
     User register(User user);
 
+    List<String> getAdminPermissionCodes(Long adminUserId);
+
+    List<String> getRolePermissionCodes(String roleCode);
+
+    boolean updateAdminPermissions(Long adminUserId, List<Long> permIds);
+
+    boolean updateRolePermissions(String roleCode, List<Long> permIds);
+
 }

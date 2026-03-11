@@ -3,42 +3,51 @@ import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { userLogin } from "@/api/api";
-import request from '@/utils/request'; // 假设request定义在@/utils/request
+import { useUserInfoStore } from "@/stores/userInfo";
 
 const router = useRouter();
-const username = ref('');
-const password = ref('');
+const userInfoStore = useUserInfoStore();
+const username = ref("");
+const password = ref("");
+
+const resolveHomePathByRole = (role) => {
+  if (role === "teacher" || role === "student") {
+    return "/news";
+  }
+  return "/user/list";
+};
 
 const login = () => {
   const user = {
     loginName: username.value,
-    password: password.value
+    password: password.value,
   };
-  userLogin(user).then(res => {
+  userLogin(user).then((res) => {
     if (res.data == null) {
       ElMessage({
-        message: '用户名密码错误',
-        type: 'warning',
+        message: "用户名密码错误",
+        type: "warning",
       });
-    } else {
-      ElMessage({
-        message: '登陆成功',
-        type: 'success',
-      });
-      router.push({ path: '/user/list' });
+      return;
     }
+
+    userInfoStore.setUserInfo(res.data);
+    const targetPath = resolveHomePathByRole(res.data.role);
+    ElMessage({
+      message: "登录成功",
+      type: "success",
+    });
+    router.push({ path: targetPath });
   });
 };
 
 const register = () => {
-
-  router.push({ path: '/register' });
-
+  router.push({ path: "/register" });
 };
 
 onMounted(() => {
-  const canvas = document.getElementById('particleCanvas');
-  const ctx = canvas.getContext('2d');
+  const canvas = document.getElementById("particleCanvas");
+  const ctx = canvas.getContext("2d");
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -53,7 +62,7 @@ onMounted(() => {
       this.size = Math.random() * 4 + 1;
       this.speedX = Math.random() * 2 - 1;
       this.speedY = Math.random() * 2 - 1;
-      this.color = Math.random() > 0.5 ? '#00a8a8' : '#4b0082';
+      this.color = Math.random() > 0.5 ? "#00a8a8" : "#4b0082";
     }
 
     update() {
@@ -93,7 +102,7 @@ onMounted(() => {
         const distance = Math.sqrt(dx * dx + dy * dy);
         if (distance < 100) {
           ctx.beginPath();
-          ctx.strokeStyle = 'rgba(100, 100, 100, 0.1)';
+          ctx.strokeStyle = "rgba(100, 100, 100, 0.1)";
           ctx.lineWidth = 1;
           ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
           ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
@@ -108,7 +117,7 @@ onMounted(() => {
   init();
   animate();
 
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   });
@@ -127,17 +136,17 @@ onMounted(() => {
         <el-form ref="form">
           <el-form-item prop="username">
             <el-input
-                v-model="username"
-                clearable
-                placeholder="请输入账号"
+              v-model="username"
+              clearable
+              placeholder="请输入账号"
             ></el-input>
           </el-form-item>
           <el-form-item prop="password">
             <el-input
-                v-model="password"
-                clearable
-                placeholder="请输入密码"
-                show-password
+              v-model="password"
+              clearable
+              placeholder="请输入密码"
+              show-password
             ></el-input>
           </el-form-item>
         </el-form>

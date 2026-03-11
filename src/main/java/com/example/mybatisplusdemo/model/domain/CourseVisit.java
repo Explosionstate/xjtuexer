@@ -5,6 +5,7 @@ import lombok.Data;
 
 @Data
 public class CourseVisit {
+    private Long courseId;
     private String courseName;
     private Integer today;
     private Integer thisWeek;

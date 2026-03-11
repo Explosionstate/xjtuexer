@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class Pbkdf2PasswordHasherTest {
+class PasswordHasherTest {
 
-    private final Pbkdf2PasswordHasher passwordHasher = new Pbkdf2PasswordHasher();
+    private final PasswordHasher passwordHasher = new PasswordHasher();
 
     @Test
     void hashShouldCreateDistinctValuesForSamePassword() {

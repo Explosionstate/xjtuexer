@@ -1,6 +1,6 @@
 package com.example.mybatisplusdemo.common.config;
 
-import com.example.mybatisplusdemo.common.security.Pbkdf2PasswordHasher;
+import com.example.mybatisplusdemo.common.security.PasswordHasher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class SecurityCryptoConfig {
 
     @Bean
-    public Pbkdf2PasswordHasher passwordHasher() {
-        return new Pbkdf2PasswordHasher();
+    public PasswordHasher passwordHasher() {
+        return new PasswordHasher();
     }
 }

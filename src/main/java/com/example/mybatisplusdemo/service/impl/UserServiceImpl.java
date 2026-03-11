@@ -6,28 +6,66 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.mybatisplusdemo.common.PageResult;
-import com.example.mybatisplusdemo.common.security.Pbkdf2PasswordHasher;
+import com.example.mybatisplusdemo.common.security.PasswordHasher;
 import com.example.mybatisplusdemo.common.utls.SessionUtils;
+import com.example.mybatisplusdemo.mapper.AdminUserMenuMapper;
+import com.example.mybatisplusdemo.mapper.AdminUserPermissionMapper;
+import com.example.mybatisplusdemo.mapper.RolePermissionMapper;
+import com.example.mybatisplusdemo.mapper.SysMenuMapper;
+import com.example.mybatisplusdemo.mapper.SysPermissionMapper;
 import com.example.mybatisplusdemo.mapper.UserMapper;
+import com.example.mybatisplusdemo.model.domain.AdminUserMenu;
+import com.example.mybatisplusdemo.model.domain.AdminUserPermission;
+import com.example.mybatisplusdemo.model.domain.RolePermission;
+import com.example.mybatisplusdemo.model.domain.SysMenu;
+import com.example.mybatisplusdemo.model.domain.SysPermission;
 import com.example.mybatisplusdemo.model.domain.User;
 import com.example.mybatisplusdemo.model.dto.PageDTO;
 import com.example.mybatisplusdemo.model.dto.QueryDTO;
 import com.example.mybatisplusdemo.service.IUserService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
-    private final UserMapper userMapper;
-    private final Pbkdf2PasswordHasher passwordHasher;
+    private static final String ADMIN_MENU_SESSION_KEY = "sessionAdminMenus";
+    private static final String ADMIN_PERMISSION_SESSION_KEY = "sessionAdminPermissions";
 
-    public UserServiceImpl(UserMapper userMapper, Pbkdf2PasswordHasher passwordHasher) {
+    private final UserMapper userMapper;
+    private final PasswordHasher passwordHasher;
+    private final AdminUserMenuMapper adminUserMenuMapper;
+    private final AdminUserPermissionMapper adminUserPermissionMapper;
+    private final RolePermissionMapper rolePermissionMapper;
+    private final SysMenuMapper sysMenuMapper;
+    private final SysPermissionMapper sysPermissionMapper;
+
+    public UserServiceImpl(
+            UserMapper userMapper,
+            PasswordHasher passwordHasher,
+            AdminUserMenuMapper adminUserMenuMapper,
+            AdminUserPermissionMapper adminUserPermissionMapper,
+            RolePermissionMapper rolePermissionMapper,
+            SysMenuMapper sysMenuMapper,
+            SysPermissionMapper sysPermissionMapper
+    ) {
         this.userMapper = userMapper;
         this.passwordHasher = passwordHasher;
+        this.adminUserMenuMapper = adminUserMenuMapper;
+        this.adminUserPermissionMapper = adminUserPermissionMapper;
+        this.rolePermissionMapper = rolePermissionMapper;
+        this.sysMenuMapper = sysMenuMapper;
+        this.sysPermissionMapper = sysPermissionMapper;
     }
 
     @Override
@@ -101,10 +139,81 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
                 .setRemark(db.getRemark())
                 .setAvatar(db.getAvatar());
 
+        SessionUtils.clearBiz();
+        clearSessionKey("sessionBizMenus");
+        clearSessionKey("sessionBizPermissions");
         SessionUtils.saveCurrentAdminUserInfo(sessionUser);
+        loadAndSaveAdminMenus(db.getId());
+        loadAndSaveAdminPermissions(db.getId());
 
         db.setPassword(null);
         return db;
+    }
+
+    private void loadAndSaveAdminMenus(Long adminUserId) {
+        if (adminUserId == null) {
+            saveAdminMenusToSession(List.of());
+            return;
+        }
+        List<AdminUserMenu> rels = adminUserMenuMapper.selectList(new LambdaQueryWrapper<AdminUserMenu>()
+                .eq(AdminUserMenu::getAdminUserId, adminUserId));
+        if (rels == null || rels.isEmpty()) {
+            saveAdminMenusToSession(List.of());
+            return;
+        }
+
+        List<Long> menuIds = rels.stream()
+                .map(AdminUserMenu::getMenuId)
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (menuIds.isEmpty()) {
+            saveAdminMenusToSession(List.of());
+            return;
+        }
+
+        List<SysMenu> menus = sysMenuMapper.selectList(new LambdaQueryWrapper<SysMenu>()
+                .in(SysMenu::getMenuId, menuIds)
+                .eq(SysMenu::getEnabled, 1)
+                .orderByAsc(SysMenu::getSortNo));
+
+        saveAdminMenusToSession(menus);
+    }
+
+    private void loadAndSaveAdminPermissions(Long adminUserId) {
+        List<String> permissionList = getAdminPermissionCodes(adminUserId);
+        saveAdminPermissionsToSession(permissionList);
+    }
+
+    private void saveAdminMenusToSession(List<SysMenu> menus) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attr == null) {
+            return;
+        }
+        HttpSession session = attr.getRequest().getSession(true);
+        session.setAttribute(ADMIN_MENU_SESSION_KEY, menus);
+    }
+
+    private void saveAdminPermissionsToSession(List<String> permissionList) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attr == null) {
+            return;
+        }
+        HttpSession session = attr.getRequest().getSession(true);
+        session.setAttribute(ADMIN_PERMISSION_SESSION_KEY, permissionList);
+    }
+
+    private void clearSessionKey(String key) {
+        ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attr == null) {
+            return;
+        }
+        HttpSession session = attr.getRequest().getSession(false);
+        if (session == null) {
+            return;
+        }
+        session.removeAttribute(key);
     }
 
     private boolean passwordMatchesAndMaybeUpgrade(String raw, String stored, User dbRow) {
@@ -153,5 +262,100 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         user.setPassword(null);
         return user;
     }
-}
 
+    @Override
+    public List<String> getAdminPermissionCodes(Long adminUserId) {
+        if (adminUserId == null) {
+            return List.of();
+        }
+        List<String> permissionList = adminUserPermissionMapper.selectEnabledPermCodesByAdminUserId(adminUserId);
+        return permissionList == null ? List.of() : permissionList;
+    }
+
+    @Override
+    public List<String> getRolePermissionCodes(String roleCode) {
+        if (!StringUtils.hasText(roleCode)) {
+            return List.of();
+        }
+        String normalized = roleCode.trim().toLowerCase();
+        if (!"student".equals(normalized) && !"teacher".equals(normalized)) {
+            return List.of();
+        }
+        List<String> permissionList = rolePermissionMapper.selectEnabledPermCodesByRoleCode(normalized);
+        return permissionList == null ? List.of() : permissionList;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateAdminPermissions(Long adminUserId, List<Long> permIds) {
+        if (adminUserId == null) {
+            return false;
+        }
+
+        User admin = userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getId, adminUserId)
+                .eq(User::getDeleted, false));
+        if (admin == null) {
+            return false;
+        }
+
+        Set<Long> normalizedPermIds = normalizeAndValidatePermIds(permIds);
+        if (normalizedPermIds == null) {
+            return false;
+        }
+
+        adminUserPermissionMapper.deleteByAdminUserId(adminUserId);
+        for (Long permId : normalizedPermIds) {
+            AdminUserPermission row = new AdminUserPermission();
+            row.setAdminUserId(adminUserId);
+            row.setPermId(permId);
+            adminUserPermissionMapper.insert(row);
+        }
+        return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean updateRolePermissions(String roleCode, List<Long> permIds) {
+        if (!StringUtils.hasText(roleCode)) {
+            return false;
+        }
+
+        String normalizedRole = roleCode.trim().toLowerCase();
+        if (!"student".equals(normalizedRole) && !"teacher".equals(normalizedRole)) {
+            return false;
+        }
+
+        Set<Long> normalizedPermIds = normalizeAndValidatePermIds(permIds);
+        if (normalizedPermIds == null) {
+            return false;
+        }
+
+        rolePermissionMapper.deleteByRoleCode(normalizedRole);
+        for (Long permId : normalizedPermIds) {
+            RolePermission row = new RolePermission();
+            row.setRoleCode(normalizedRole);
+            row.setPermId(permId);
+            rolePermissionMapper.insert(row);
+        }
+        return true;
+    }
+
+    private Set<Long> normalizeAndValidatePermIds(List<Long> permIds) {
+        Set<Long> normalized = new HashSet<>();
+        if (permIds != null) {
+            permIds.stream().filter(Objects::nonNull).forEach(normalized::add);
+        }
+        if (normalized.isEmpty()) {
+            return normalized;
+        }
+
+        List<SysPermission> enabledPerms = sysPermissionMapper.selectList(new LambdaQueryWrapper<SysPermission>()
+                .in(SysPermission::getPermId, normalized)
+                .eq(SysPermission::getEnabled, 1));
+        if (enabledPerms == null || enabledPerms.size() != normalized.size()) {
+            return null;
+        }
+        return normalized;
+    }
+}

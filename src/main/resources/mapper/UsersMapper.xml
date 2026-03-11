@@ -1,6 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.mybatisplusdemo.mapper.UsersMapper">
+
+    <sql id="BizUserColumns">
+        u.id,
+        u.login_name,
+        u.password,
+        u.role,
+        u.name,
+        u.email,
+        s.learning_index AS learning_index,
+        u.department_name,
+        u.last_login_time,
+        u.is_deleted,
+        u.gmt_created,
+        u.gmt_modified,
+        u.avatar
+    </sql>
 
     <resultMap id="BaseResultMap" type="com.example.mybatisplusdemo.model.domain.Users">
         <id column="id" property="id" />
@@ -15,19 +31,19 @@
         <result column="is_deleted" property="isDeleted" />
         <result column="gmt_created" property="gmtCreated" />
         <result column="gmt_modified" property="gmtModified" />
+        <result column="avatar" property="avatar" />
     </resultMap>
 
     <insert id="batchInsertUsers">
-        INSERT INTO users (id, login_name, password, role, name, email, learning_index, department_name)
+        INSERT INTO `user` (id, login_name, password, role, name, email, department_name, avatar)
         VALUES
         <foreach collection="usersList" item="users" separator=",">
-            (#{users.id}, #{users.loginName}, #{users.password}, #{users.role}, #{users.name}, #{users.email}, #{users.learningIndex}, #{users.departmentName})
+            (#{users.id}, #{users.loginName}, #{users.password}, #{users.role}, #{users.name}, #{users.email}, #{users.departmentName}, #{users.avatar})
         </foreach>
     </insert>
 
-    <!-- 软删除 -->
     <update id="deleteByIdsMy">
-        UPDATE users SET is_deleted = 1
+        UPDATE `user` SET is_deleted = 1
         WHERE id IN
         <foreach collection="list" item="x" separator="," open="(" close=")">
             #{x}
@@ -35,55 +51,69 @@
     </update>
 
     <select id="selectByIdMy" resultMap="BaseResultMap">
-        SELECT * FROM users WHERE id = #{id} AND is_deleted = 0
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
+        WHERE u.id = #{id} AND u.is_deleted = 0
     </select>
 
-    <select id="selectByIdMy2" resultType="com.example.mybatisplusdemo.model.domain.Users">
-        SELECT * FROM users WHERE id = #{id} AND is_deleted = 0
+    <select id="selectByIdMy2" resultMap="BaseResultMap">
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
+        WHERE u.id = #{id} AND u.is_deleted = 0
     </select>
 
-    <select id="selectListMy" resultType="com.example.mybatisplusdemo.model.domain.Users">
-        SELECT * FROM users WHERE is_deleted = 0
+    <select id="selectListMy" resultMap="BaseResultMap">
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
+        WHERE u.is_deleted = 0
     </select>
 
-    <select id="selectPageMy" resultType="com.example.mybatisplusdemo.model.domain.Users">
-        SELECT * FROM users WHERE is_deleted = 0
+    <select id="selectPageMy" resultMap="BaseResultMap">
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
+        WHERE u.is_deleted = 0
     </select>
 
-    <select id="selectListOwn" resultType="com.example.mybatisplusdemo.model.domain.Users">
-        SELECT * FROM users
+    <select id="selectListOwn" resultMap="BaseResultMap">
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
         <where>
-            is_deleted = 0
+            u.is_deleted = 0
             <if test="users.id != null">
-                AND id = #{users.id}
+                AND u.id = #{users.id}
             </if>
             <if test="users.loginName != null and users.loginName != ''">
-                AND login_name = #{users.loginName}
+                AND u.login_name = #{users.loginName}
             </if>
         </where>
     </select>
 
-    <!-- 移除 password like（不应支持按密码搜索） -->
-    <select id="listPage" resultType="com.example.mybatisplusdemo.model.domain.Users">
-        SELECT * FROM users
+    <select id="listPage" resultMap="BaseResultMap">
+        SELECT <include refid="BizUserColumns" />
+        FROM `user` u
+        LEFT JOIN student s ON s.student_id = u.id
         <where>
-            is_deleted = 0
+            u.is_deleted = 0
             <if test="users.loginName != null and users.loginName != ''">
-                AND login_name LIKE CONCAT('%', #{users.loginName}, '%')
+                AND u.login_name LIKE CONCAT('%', #{users.loginName}, '%')
             </if>
             <if test="users.name != null and users.name != ''">
-                AND name LIKE CONCAT('%', #{users.name}, '%')
+                AND u.name LIKE CONCAT('%', #{users.name}, '%')
             </if>
         </where>
     </select>
 
-    <!-- 排名：按 visits DESC 更符合“排行榜”语义 -->
     <select id="selectDepartmentRanking" resultType="com.example.mybatisplusdemo.model.dto.DepartmentRankingDTO">
-        SELECT department_name AS name, COUNT(*) AS visits
-        FROM users
-        WHERE is_deleted = 0 AND department_name IS NOT NULL
-        GROUP BY department_name
+        SELECT u.department_name AS name, COUNT(*) AS visits
+        FROM `user` u
+        WHERE u.is_deleted = 0 AND u.department_name IS NOT NULL
+        GROUP BY u.department_name
         ORDER BY visits DESC
-            LIMIT 10
+        LIMIT 10
     </select>
 </mapper>

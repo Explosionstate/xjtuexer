@@ -20,8 +20,11 @@ public class Student implements Serializable {
     private String name;
 
     @ApiModelProperty(value = "学号")
-    @TableId(value = "student_id", type = IdType.AUTO)
+    @TableId(value = "student_id", type = IdType.INPUT)
     private Long studentId;
+
+    @TableField("student_no")
+    private String studentNo;
 
     @ApiModelProperty(value = "学院")
     @TableField("college")

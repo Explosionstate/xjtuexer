@@ -1,20 +1,29 @@
 package com.example.mybatisplusdemo.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.mybatisplusdemo.mapper.CourseMapper;
 import com.example.mybatisplusdemo.mapper.LearningRecordMapper;
 import com.example.mybatisplusdemo.mapper.LiveSessionMapper;
+import com.example.mybatisplusdemo.mapper.TeacherMapper;
 import com.example.mybatisplusdemo.mapper.UsersMapper;
-import com.example.mybatisplusdemo.model.domain.*;
-import com.example.mybatisplusdemo.model.dto.*;
+import com.example.mybatisplusdemo.model.domain.Course;
+import com.example.mybatisplusdemo.model.domain.LearningRecord;
+import com.example.mybatisplusdemo.model.domain.LiveSession;
+import com.example.mybatisplusdemo.model.domain.Teacher;
+import com.example.mybatisplusdemo.model.domain.Users;
+import com.example.mybatisplusdemo.model.dto.DepartmentRankingDTO;
+import com.example.mybatisplusdemo.model.dto.LearningIndexDTO;
+import com.example.mybatisplusdemo.model.dto.LiveSessionDTO;
+import com.example.mybatisplusdemo.model.dto.PageDTO;
+import com.example.mybatisplusdemo.model.dto.StatsDTO;
 import com.example.mybatisplusdemo.service.IDashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.stream.Collectors; // 添加 import
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements IDashboardService {
@@ -27,6 +36,8 @@ public class DashboardServiceImpl implements IDashboardService {
     private LearningRecordMapper learningRecordMapper;
     @Autowired
     private LiveSessionMapper liveSessionMapper;
+    @Autowired
+    private TeacherMapper teacherMapper;
 
     @Override
     public StatsDTO getStats() {
@@ -65,14 +76,13 @@ public class DashboardServiceImpl implements IDashboardService {
         Long totalStudents = usersMapper.selectCount(new LambdaQueryWrapper<Users>()
                 .eq(Users::getIsDeleted, 0)
                 .eq(Users::getRole, "student"));
-        List<LearningIndexDTO> result = List.of(
+        return List.of(
                 createLearningIndexDTO("极差 (0-2)", 0.0, 2.0, totalStudents),
                 createLearningIndexDTO("较差 (2-4)", 2.0, 4.0, totalStudents),
                 createLearningIndexDTO("一般 (4-6)", 4.0, 6.0, totalStudents),
                 createLearningIndexDTO("较好 (6-8)", 6.0, 8.0, totalStudents),
                 createLearningIndexDTO("极好 (8-10)", 8.0, 10.0, totalStudents)
         );
-        return result;
     }
 
     private LearningIndexDTO createLearningIndexDTO(String label, Double min, Double max, Long totalStudents) {
@@ -96,11 +106,6 @@ public class DashboardServiceImpl implements IDashboardService {
                 .eq(Users::getRole, "student")
                 .ge(Users::getLearningIndex, min)
                 .lt(Users::getLearningIndex, max));
-//        return usersMapper.s(resultPage, new LambdaQueryWrapper<Users>()
-//                .eq(Users::getIsDeleted, 0)
-//                .eq(Users::getRole, "student")
-//                .ge(Users::getLearningIndex, min)
-//                .lt(Users::getLearningIndex, max));
     }
 
     @Override
@@ -115,10 +120,24 @@ public class DashboardServiceImpl implements IDashboardService {
                 .map(ls -> {
                     LiveSessionDTO dto = new LiveSessionDTO();
                     dto.setId(ls.getSessionId());
+
                     Course course = courseMapper.selectByIdMy(ls.getCourseId());
-                    Users users = usersMapper.selectByIdMy(ls.getTeacherId());
                     dto.setCourseName(course != null ? course.getTitle() : "");
-                    dto.setTeacher(users != null ? users.getName() : "");
+
+                    Teacher teacher = teacherMapper.selectById(ls.getTeacherId());
+                    Users teacherUser = usersMapper.selectOne(new LambdaQueryWrapper<Users>()
+                            .eq(Users::getId, ls.getTeacherId())
+                            .eq(Users::getRole, "teacher")
+                            .eq(Users::getIsDeleted, 0));
+
+                    String teacherName = "";
+                    if (teacher != null && StringUtils.hasText(teacher.getName())) {
+                        teacherName = teacher.getName();
+                    } else if (teacherUser != null && StringUtils.hasText(teacherUser.getName())) {
+                        teacherName = teacherUser.getName();
+                    }
+
+                    dto.setTeacher(teacherName);
                     dto.setStartTime(ls.getStartTime());
                     dto.setStatus(ls.getStatus());
                     return dto;
