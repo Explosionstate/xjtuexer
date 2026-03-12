@@ -14,7 +14,7 @@
           </button>
           <a
               class="secondary-btn"
-              href="https://news.xjtu.edu.cn/tpjd.htm"
+              href="https://news.xjtu.edu.cn/zyxw.htm"
               target="_blank"
               rel="noreferrer"
           >
@@ -39,11 +39,10 @@
       </div>
 
       <div class="hero-carousel">
-        <el-carousel :interval="5000" arrow="always" height="340px" indicator-position="outside">
+        <el-carousel :interval="5600" arrow="always" height="376px">
           <el-carousel-item v-for="slide in heroSlides" :key="slide.title">
             <article class="hero-slide" :style="slideStyle(slide)">
               <div class="hero-slide-content">
-                <span class="hero-slide-tag">{{ slide.tag }}</span>
                 <h2>{{ slide.title }}</h2>
                 <p>{{ slide.summary }}</p>
                 <div class="hero-slide-footer">
@@ -84,7 +83,7 @@
               target="_blank"
               rel="noreferrer"
           >
-            理论专题
+            更多资讯
           </a>
         </div>
 
@@ -337,20 +336,36 @@ const categories = [
 
 const heroSlides = [
   {
-    tag: '时政速览',
-    title: '阔步向前启新程 接续奋斗谱新篇',
-    summary: '以 2026 年全国两会专题为核心入口，适合教师和学生集中了解近期国内时政重点。',
+    title: '全国两会观察：把高质量发展要求贯穿全年工作主线',
+    summary: '聚焦权威时政报道与两会专题解读，适合作为页面顶部焦点资讯入口，快速掌握当前重要政策议题。',
     source: '新华网',
-    link: 'https://www.news.cn/politics/2026lh/index.html',
-    background: 'linear-gradient(135deg, rgba(88, 22, 62, 0.94), rgba(194, 60, 84, 0.88))'
+    link: 'https://www.news.cn/politics/',
+    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1600&h=900&fit=crop',
+    focalPoint: 'center center'
   },
   {
-    tag: '校园专题',
-    title: '图片交大：校园焦点与专题入口',
-    summary: '通过图片交大进入校内活动、校园专题与视觉新闻，保留页面的校园资讯入口。',
-    source: '西安交通大学新闻网',
-    link: 'https://news.xjtu.edu.cn/tpjd.htm',
-    background: 'linear-gradient(135deg, rgba(17, 81, 72, 0.96), rgba(79, 167, 134, 0.88))'
+    title: '理论学习纵横：持续推动党的创新理论入脑入心',
+    summary: '围绕理论阐释、思想引领和实践转化组织内容，更贴合当前页面的理论学习与思想政治资讯定位。',
+    source: '求是网',
+    link: 'https://www.qstheory.cn/',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&h=900&fit=crop',
+    focalPoint: 'center 42%'
+  },
+  {
+    title: '思想引领：把思政工作贯穿教育教学与育人全过程',
+    summary: '聚合理论频道中的权威评论和学习文章，强化思政、理论与教育协同的内容氛围，保持页面整体主题一致。',
+    source: '人民网理论频道',
+    link: 'https://theory.people.com.cn/',
+    image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=1600&h=900&fit=crop',
+    focalPoint: 'center center'
+  },
+  {
+    title: '政策解读：围绕教育科技人才一体推进看部署落地',
+    summary: '以政策发布、权威解读和制度安排为核心，补足页面在时政政策维度上的信息感和专业感。',
+    source: '中国政府网',
+    link: 'https://www.gov.cn/zhengce/',
+    image: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&h=900&fit=crop',
+    focalPoint: 'center 38%'
   }
 ]
 
@@ -368,10 +383,10 @@ const headlineCards = [
     link: 'https://www.qstheory.cn/20260306/90f8b0af2f9a489081837716cb6d227f/c.html'
   },
   {
-    tag: '校内精选',
-    title: '校园专题与图片要闻',
-    description: '进入图片交大栏目，查看校园焦点、校内专题和活动现场影像。',
-    link: 'https://news.xjtu.edu.cn/tpjd.htm'
+    tag: '马克思主义学院',
+    title: '西安交通大学马克思主义学院',
+    description: '进入马克思主义学院官网，查看学院新闻、理论动态和思政教育活动内容。',
+    link: 'https://marx.xjtu.edu.cn/'
   }
 ]
 
@@ -1093,7 +1108,11 @@ const buildRandomQuote = (excludeText = '') => {
 }
 
 const slideStyle = (slide) => ({
-  background: slide.background
+  backgroundImage: `linear-gradient(90deg, rgba(8, 16, 31, 0.82) 0%, rgba(8, 16, 31, 0.58) 36%, rgba(8, 16, 31, 0.24) 68%, rgba(8, 16, 31, 0.14) 100%), url(${slide.image})`,
+  backgroundPosition: slide.focalPoint || 'center center',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover',
+  backgroundColor: '#243142'
 })
 
 const inferCategory = (title = '', description = '') => {
@@ -1613,6 +1632,7 @@ onMounted(() => {
 
 .hero-carousel {
   padding: 0;
+  overflow: hidden;
 }
 
 .hero-slide {
@@ -1620,7 +1640,7 @@ onMounted(() => {
   height: 100%;
   overflow: hidden;
   border-radius: 0;
-  padding: 28px 30px 24px;
+  padding: 34px 36px 28px;
   color: #fff;
   isolation: isolate;
 }
@@ -1629,7 +1649,7 @@ onMounted(() => {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 16, 30, 0.12), rgba(7, 16, 30, 0.42));
+  background: linear-gradient(180deg, rgba(6, 13, 25, 0.08) 0%, rgba(6, 13, 25, 0.18) 48%, rgba(6, 13, 25, 0.74) 100%);
   z-index: 0;
 }
 
@@ -1639,9 +1659,10 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-end;
+  max-width: min(560px, 72%);
 }
 
-.hero-slide-tag,
 .headline-tag,
 .article-badge {
   display: inline-flex;
@@ -1652,39 +1673,35 @@ onMounted(() => {
   letter-spacing: 0.03em;
 }
 
-.hero-slide-tag {
-  width: fit-content;
-  padding: 4px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(11, 19, 31, 0.2);
-  color: #fff;
-}
-
 .hero-slide h2 {
-  margin: 16px 0 10px;
-  max-width: 88%;
-  font-size: 30px;
-  line-height: 1.35;
+  margin: 0 0 12px;
+  font-size: 28px;
+  line-height: 1.42;
   font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 
 .hero-slide p {
   margin: 0;
-  max-width: 78%;
   font-size: 14px;
-  line-height: 1.8;
-  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.92);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .hero-slide-footer {
-  margin-top: auto;
-  padding-top: 16px;
+  margin-top: 18px;
+  padding-top: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 14px;
   font-size: 13px;
-  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .hero-slide-footer a {
@@ -1703,15 +1720,24 @@ onMounted(() => {
 }
 
 .hero-carousel :deep(.el-carousel__arrow) {
-  background-color: rgba(0, 0, 0, 0.32);
+  width: 34px;
+  height: 34px;
+  background-color: rgba(10, 20, 36, 0.48);
 }
 
 .hero-carousel :deep(.el-carousel__indicator button) {
-  background-color: rgba(74, 89, 108, 0.42);
+  width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.44);
 }
 
 .hero-carousel :deep(.el-carousel__indicator.is-active button) {
-  background-color: var(--accent);
+  background-color: #ffffff;
+}
+
+.hero-carousel :deep(.el-carousel__indicators) {
+  bottom: 12px;
 }
 
 .headline-strip {
@@ -2387,7 +2413,7 @@ onMounted(() => {
   }
 
   .hero-slide p {
-    max-width: 100%;
+    font-size: 13px;
   }
 }
 
@@ -2421,12 +2447,20 @@ onMounted(() => {
   }
 
   .hero-slide {
-    padding: 22px;
+    padding: 24px 22px 22px;
   }
 
   .hero-slide h2 {
+    font-size: 23px;
+  }
+
+  .hero-slide-content {
     max-width: 100%;
-    font-size: 24px;
+  }
+
+  .hero-slide-footer {
+    margin-top: 14px;
+    padding-top: 12px;
   }
 
   .section-title {
