@@ -159,7 +159,7 @@
 import { ref, computed, onMounted } from 'vue'
 
 // API配置
-const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:5000'
+const API_BASE_URL = import.meta.env.VITE_NEWS_API_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000'
 const defaultImage = 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop'
 
 // 响应式状态
