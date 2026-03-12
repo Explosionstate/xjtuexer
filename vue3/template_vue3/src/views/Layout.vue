@@ -310,7 +310,7 @@ const handleClose = (key, keyPath) => {
         <router-view />
       </el-main>
 
-      <el-footer>学业预警系统 ©2025</el-footer>
+      <el-footer>思政云平台系统 ©2026</el-footer>
     </el-container>
   </el-container>
 </template>

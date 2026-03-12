@@ -9,6 +9,7 @@ const router = useRouter();
 const userInfoStore = useUserInfoStore();
 const username = ref("");
 const password = ref("");
+const validRoles = ["teacher", "student", "admin"];
 
 const resolveHomePathByRole = (role) => {
   if (role === "teacher" || role === "student") {
@@ -17,28 +18,50 @@ const resolveHomePathByRole = (role) => {
   return "/user/list";
 };
 
+const isValidLoginRole = (role) => validRoles.includes(role);
+
+const shouldShowCredentialError = (error) => {
+  const message = error?.message || error?.data?.message || "";
+  return [
+    "用户名或密码错误",
+    "Invalid loginName or password",
+    "Invalid loginName/password",
+  ].some((text) => message.includes(text));
+};
+
+const showCredentialError = () => {
+  ElMessage.closeAll();
+  ElMessage({
+    message: "用户名或密码错误",
+    type: "warning",
+  });
+};
+
 const login = () => {
   const user = {
     loginName: username.value,
     password: password.value,
   };
-  userLogin(user).then((res) => {
-    if (res.data == null) {
-      ElMessage({
-        message: "用户名密码错误",
-        type: "warning",
-      });
-      return;
-    }
+  userLogin(user)
+    .then((res) => {
+      if (res.data == null || !isValidLoginRole(res.data.role)) {
+        showCredentialError();
+        return;
+      }
 
-    userInfoStore.setUserInfo(res.data);
-    const targetPath = resolveHomePathByRole(res.data.role);
-    ElMessage({
-      message: "登录成功",
-      type: "success",
+      userInfoStore.setUserInfo(res.data);
+      const targetPath = resolveHomePathByRole(res.data.role);
+      ElMessage({
+        message: "登录成功",
+        type: "success",
+      });
+      router.push({ path: targetPath });
+    })
+    .catch((error) => {
+      if (shouldShowCredentialError(error)) {
+        showCredentialError();
+      }
     });
-    router.push({ path: targetPath });
-  });
 };
 
 const register = () => {
