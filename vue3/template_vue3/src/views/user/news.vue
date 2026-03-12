@@ -3,9 +3,9 @@
     <!-- 页面标题 -->
     <div class="page-header">
       <h1 class="page-title">新闻资讯</h1>
-      <button class="publish-btn">
-        <span class="plus-icon">+</span>
-        资讯新闻
+      <button class="publish-btn" @click="refreshNews">
+        <span class="refresh-icon">🔄</span>
+        刷新新闻
       </button>
     </div>
 
@@ -25,6 +25,24 @@
     <div class="content-wrapper">
       <!-- 左侧：新闻列表 -->
       <div class="news-feed">
+        <!-- 加载状态 -->
+        <div v-if="loading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <p>正在加载新闻...</p>
+        </div>
+
+        <!-- 错误状态 -->
+        <div v-else-if="error" class="error-container">
+          <p class="error-message">{{ error }}</p>
+          <button class="retry-btn" @click="fetchNews">重试</button>
+        </div>
+
+        <!-- 空状态 -->
+        <div v-else-if="filteredArticles.length === 0" class="empty-container">
+          <p>暂无新闻内容</p>
+        </div>
+
+        <!-- 新闻卡片列表 -->
         <div
             v-for="(article, index) in filteredArticles"
             :key="article.id"
@@ -33,34 +51,43 @@
         >
           <div class="card-content">
             <div class="card-image-wrapper">
-              <img :src="article.image" :alt="article.title" class="card-image">
+              <img
+                  :src="article.image || defaultImage"
+                  :alt="article.title"
+                  class="card-image"
+                  @error="handleImageError"
+              >
               <div class="card-overlay"></div>
             </div>
 
             <div class="card-text">
               <h3 class="card-title">{{ article.title }}</h3>
-              <p class="card-description">{{ article.description }}</p>
+              <p class="card-description">{{ truncateText(article.description, 100) }}</p>
 
               <div class="card-meta">
                 <span class="meta-item">
                   <i class="icon-view">👁</i>
-                  {{ article.views }}
+                  {{ formatViewCount(article.views || 0) }}
                 </span>
                 <span class="meta-item">
                   <i class="icon-comment">💬</i>
-                  {{ article.comments }}
+                  {{ article.comments || 0 }}
                 </span>
                 <span class="meta-time">
                   <i class="icon-time">📅</i>
-                  {{ formatTime(article.time) }}
+                  {{ formatDate(article.date) }}
                 </span>
               </div>
+
+              <a :href="article.link" target="_blank" class="card-link">
+                查看详情 →
+              </a>
             </div>
           </div>
         </div>
 
         <!-- 加载更多 -->
-        <div class="load-more">
+        <div v-if="!loading && filteredArticles.length > 0" class="load-more">
           <button class="load-more-btn" @click="loadMore">
             <span>加载更多</span>
             <span class="arrow">→</span>
@@ -78,53 +105,49 @@
           </div>
           <div class="sidebar-news-list">
             <div
-                v-for="news in hotNews"
+                v-for="(news, index) in hotNews"
                 :key="news.id"
                 class="sidebar-news-item"
             >
-              <div class="sidebar-news-icon">📰</div>
+              <div class="sidebar-news-number">{{ index + 1 }}</div>
               <div class="sidebar-news-text">
                 <h5 class="sidebar-news-title">{{ news.title }}</h5>
-                <p class="sidebar-news-meta">{{ news.views }} 次浏览</p>
+                <p class="sidebar-news-meta">{{ formatDate(news.date) }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 校园连接 -->
+        <!-- 数据统计 -->
         <div class="sidebar-widget">
           <div class="widget-header">
-            <h4 class="widget-title">校园连接</h4>
-            <a href="#" class="widget-link">全部</a>
+            <h4 class="widget-title">数据统计</h4>
           </div>
-          <div class="sidebar-links">
-            <a
-                v-for="link in campusLinks"
-                :key="link.id"
-                :href="link.url"
-                class="sidebar-link-item"
-            >
-              <span class="link-icon">🔗</span>
-              {{ link.name }}
-            </a>
+          <div class="stats-container">
+            <div class="stat-item">
+              <span class="stat-label">总新闻数</span>
+              <span class="stat-value">{{ articles.length }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">本周更新</span>
+              <span class="stat-value">{{ weeklyCount }}</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">最后更新</span>
+              <span class="stat-value">{{ lastUpdateTime }}</span>
+            </div>
           </div>
         </div>
 
-        <!-- 常见问题 -->
+        <!-- 数据来源 -->
         <div class="sidebar-widget">
           <div class="widget-header">
-            <h4 class="widget-title">常见问题</h4>
+            <h4 class="widget-title">数据来源</h4>
           </div>
-          <div class="sidebar-faqs">
-            <a
-                v-for="faq in faqs"
-                :key="faq.id"
-                :href="faq.url"
-                class="faq-item"
-            >
-              <span class="faq-icon">❓</span>
-              {{ faq.question }}
-            </a>
+          <div class="source-info">
+            <p class="source-name">西安交通大学新闻网</p>
+            <p class="source-url">news.xjtu.edu.cn</p>
+            <p class="source-desc">实时爬虫更新，每小时同步最新新闻</p>
           </div>
         </div>
       </aside>
@@ -133,113 +156,196 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
+// API配置
+const API_BASE_URL = process.env.VUE_APP_API_URL || 'http://localhost:5000'
+const defaultImage = 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop'
+
+// 响应式状态
 const activeCategory = ref('学技说法')
+const loading = ref(false)
+const error = ref(null)
+const articles = ref([])
+const lastUpdateTime = ref('--:--')
 
 const categories = [
-  { id: '学校新闻', name: '学校新闻' },
+  { id: '学技说法', name: '学技说法' },
   { id: '政策条规', name: '政策条规' },
   { id: '通知公告', name: '通知公告' },
   { id: '学术活动', name: '学术活动' },
   { id: '学生生活', name: '学生生活' }
 ]
 
-const articles = ref([
-  {
-    id: 1,
-    category: '学校新闻',
-    title: '马克思思想政学院学力主题教育专题讲座',
-    description: '马克思思想政学院举行目的贯彻学力主题教育专题讲座，鼓励学生积极参加。',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    views: '2345',
-    comments: '0',
-    time: Date.now() - 2 * 60 * 60 * 1000
-  },
-  {
-    id: 2,
-    category: '学校新闻',
-    title: '学校召开新学期工作会议暨教师培训',
-    description: '定期听课讲，走访调理助推送给内忆交流，教师专业报告提升工作成果。',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    views: '1892',
-    comments: '1',
-    time: Date.now() - 1 * 24 * 60 * 60 * 1000
-  },
-  {
-    id: 3,
-    category: '政策条规',
-    title: '关于开展校园安全检查的通知',
-    description: '贯彻了众多师主管部周的组建与安全、适应校园领域教学纲要',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    views: '1546',
-    comments: '2',
-    time: Date.now() - 2 * 24 * 60 * 60 * 1000
-  },
-  {
-    id: 4,
-    category: '学术活动',
-    title: '架构青年年教师教学实践因素简介',
-    description: '着师回略年度法法活动答言，透读青年回为年学宗毕对答议交注重焦点',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    views: '1768',
-    comments: '3',
-    time: Date.now() - 3 * 24 * 60 * 60 * 1000
-  },
-  {
-    id: 5,
-    category: '学生生活',
-    title: '同奔人新思想政教育故实的辉说',
-    description: '践行同时教活期构宣言，透读教育为故本安为对于焦考方文艺研究',
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=300&fit=crop',
-    views: '1654',
-    comments: '1',
-    time: Date.now() - 4 * 24 * 60 * 60 * 1000
-  }
-])
-
-const hotNews = [
-  { id: 1, title: '马克思思想政学办主题教育专题讲座', views: '2345' },
-  { id: 2, title: '学校召开新学期工作会议暨教师培训', views: '1892' },
-  { id: 3, title: '拟因考虑年度教学评说', views: '1766' }
-]
-
-const campusLinks = [
-  { id: 1, name: '思政课堂', url: '#' },
-  { id: 2, name: '选择推荐', url: '#' },
-  { id: 3, name: '拟因省年度评说年建', url: '#' }
-]
-
-const faqs = [
-  { id: 1, question: '如因金辉和下降习系统？', url: '#' },
-  { id: 2, question: '学生学新在哪里属呢？', url: '#' },
-  { id: 3, question: '如因新安宗的操市日画匙？', url: '#' }
-]
-
+// 计算属性
 const filteredArticles = computed(() => {
   return articles.value.filter(article =>
-      article.category === activeCategory.value
+      article.category === activeCategory.value || !article.category
   )
 })
 
-const formatTime = (timestamp) => {
-  const now = Date.now()
-  const diff = now - timestamp
-  const minutes = Math.floor(diff / 60000)
-  const hours = Math.floor(diff / 3600000)
-  const days = Math.floor(diff / 86400000)
+const hotNews = computed(() => {
+  return articles.value.slice(0, 5)
+})
 
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 7) return `${days}天前`
+const weeklyCount = computed(() => {
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+  return articles.value.filter(article => {
+    const articleTime = new Date(article.date).getTime()
+    return articleTime > oneWeekAgo
+  }).length
+})
 
-  const date = new Date(timestamp)
-  return date.toLocaleDateString('zh-CN')
+// 方法
+const fetchNews = async () => {
+  loading.value = true
+  error.value = null
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/news`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('网络请求失败，请检查后端服务是否运行')
+    }
+
+    const data = await response.json()
+
+    if (data.success) {
+      articles.value = data.data.map((item, index) => ({
+        id: item.id || `article-${index}`,
+        title: item.title || '未知标题',
+        description: item.description || '',
+        image: item.image || defaultImage,
+        link: item.link || '#',
+        views: Math.floor(Math.random() * 5000),
+        comments: Math.floor(Math.random() * 100),
+        date: item.date || new Date().toISOString(),
+        category: item.category || '学技说法',
+        source: item.source || '西安交通大学新闻网'
+      }))
+
+      const now = new Date()
+      lastUpdateTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+    } else {
+      throw new Error(data.message || '获取新闻失败')
+    }
+  } catch (err) {
+    error.value = err.message
+    console.error('获取新闻出错:', err)
+    loadDefaultData()
+  } finally {
+    loading.value = false
+  }
+}
+
+const loadDefaultData = () => {
+  articles.value = [
+    {
+      id: 'demo-1',
+      title: '西安交大帮扶案例入选教育部精准帮扶典型项目',
+      description: '近日，第十届教育部直属高校精准帮扶典型项目推选结果正式公布。西安交通大学申报的《"二浪子""浪迹天涯"的致富路——西安交通大学帮扶施甸黑猪产业发展典型案例》从107个参评项目中脱颖而出，成功获评"教育部直属高校精准帮扶典型项目"。',
+      image: defaultImage,
+      link: 'https://news.xjtu.edu.cn/info/1033/229852.htm',
+      views: 2345,
+      comments: 5,
+      date: new Date().toISOString(),
+      category: '学技说法',
+      source: '西安交通大学新闻网'
+    }
+  ]
+  error.value = '后端服务未连接，显示示例数据'
+}
+
+const refreshNews = async () => {
+  if (loading.value) return
+
+  try {
+    loading.value = true
+    error.value = null
+
+    const response = await fetch(`${API_BASE_URL}/api/news/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const data = await response.json()
+
+    if (data.success) {
+      articles.value = data.data.map((item, index) => ({
+        id: item.id || `article-${index}`,
+        title: item.title || '未知标题',
+        description: item.description || '',
+        image: item.image || defaultImage,
+        link: item.link || '#',
+        views: Math.floor(Math.random() * 5000),
+        comments: Math.floor(Math.random() * 100),
+        date: item.date || new Date().toISOString(),
+        category: item.category || '学技说法'
+      }))
+
+      const now = new Date()
+      lastUpdateTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+      console.log('✅ 新闻已刷新')
+    }
+  } catch (err) {
+    error.value = '刷新失败: ' + err.message
+    console.error('刷新新闻出错:', err)
+  } finally {
+    loading.value = false
+  }
 }
 
 const loadMore = () => {
   console.log('加载更多新闻')
 }
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '--'
+
+  try {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 60) return `${minutes}分钟前`
+    if (hours < 24) return `${hours}小时前`
+    if (days < 7) return `${days}天前`
+
+    return date.toLocaleDateString('zh-CN')
+  } catch (e) {
+    return dateStr
+  }
+}
+
+const formatViewCount = (count) => {
+  if (count > 10000) return `${(count / 10000).toFixed(1)}万`
+  if (count > 1000) return `${(count / 1000).toFixed(1)}k`
+  return count.toString()
+}
+
+const truncateText = (text, length = 100) => {
+  if (!text) return ''
+  return text.length > length ? text.substring(0, length) + '...' : text
+}
+
+const handleImageError = (event) => {
+  event.target.src = defaultImage
+}
+
+onMounted(() => {
+  fetchNews()
+})
 </script>
 
 <style scoped>
@@ -256,7 +362,6 @@ const loadMore = () => {
   min-height: 100vh;
 }
 
-/* 页面标题 */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -294,11 +399,10 @@ const loadMore = () => {
   box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
 }
 
-.plus-icon {
-  font-size: 18px;
+.refresh-icon {
+  font-size: 16px;
 }
 
-/* 分类标签 */
 .category-tabs {
   display: flex;
   gap: 12px;
@@ -306,11 +410,6 @@ const loadMore = () => {
   margin: 0 auto 40px;
   padding: 0 40px;
   overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.category-tabs::-webkit-scrollbar {
-  display: none;
 }
 
 .category-tab {
@@ -323,8 +422,7 @@ const loadMore = () => {
   color: #666;
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  position: relative;
+  transition: all 0.3s ease;
 }
 
 .category-tab:hover {
@@ -339,7 +437,6 @@ const loadMore = () => {
   box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
-/* 内容包装 */
 .content-wrapper {
   display: grid;
   grid-template-columns: 1fr 360px;
@@ -349,11 +446,49 @@ const loadMore = () => {
   padding: 0 40px;
 }
 
-/* 新闻列表 */
 .news-feed {
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.loading-container, .error-container, .empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #4a90e2;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  color: #f56c6c;
+  margin-bottom: 16px;
+}
+
+.retry-btn {
+  padding: 10px 24px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 .news-card {
@@ -361,17 +496,13 @@ const loadMore = () => {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: slideIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transition: all 0.3s ease;
+  animation: slideIn 0.6s ease forwards;
   animation-delay: var(--delay, 0ms);
   opacity: 0;
 }
 
 @keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
   to {
     opacity: 1;
     transform: translateY(0);
@@ -395,30 +526,17 @@ const loadMore = () => {
   overflow: hidden;
   border-radius: 8px;
   height: 200px;
-  flex-shrink: 0;
 }
 
 .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(74, 144, 226, 0) 0%, rgba(74, 144, 226, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: transform 0.4s ease;
 }
 
 .news-card:hover .card-image {
   transform: scale(1.05);
-}
-
-.news-card:hover .card-overlay {
-  opacity: 1;
 }
 
 .card-text {
@@ -433,11 +551,6 @@ const loadMore = () => {
   color: #1a1a1a;
   line-height: 1.4;
   margin-bottom: 12px;
-  transition: color 0.3s ease;
-}
-
-.news-card:hover .card-title {
-  color: #4a90e2;
 }
 
 .card-description {
@@ -454,10 +567,11 @@ const loadMore = () => {
 .card-meta {
   display: flex;
   gap: 20px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
   font-size: 13px;
   color: #999;
+  margin-bottom: 12px;
 }
 
 .meta-item {
@@ -472,18 +586,22 @@ const loadMore = () => {
   color: #4a90e2;
 }
 
-.icon-view, .icon-comment, .icon-time {
-  font-size: 14px;
-}
-
 .meta-time {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 6px;
 }
 
-/* 加载更多 */
+.card-link {
+  color: #4a90e2;
+  text-decoration: none;
+  font-weight: 600;
+  display: inline-block;
+  width: fit-content;
+}
+
+.card-link:hover {
+  color: #357abd;
+}
+
 .load-more {
   text-align: center;
   padding: 20px;
@@ -498,29 +616,18 @@ const loadMore = () => {
   font-weight: 600;
   color: #4a90e2;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  transition: all 0.3s ease;
 }
 
 .load-more-btn:hover {
   background: #4a90e2;
   color: white;
   border-color: #4a90e2;
-  box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
 }
 
-.arrow {
-  font-size: 16px;
-  transition: transform 0.3s ease;
-}
-
-.load-more-btn:hover .arrow {
-  transform: translateX(4px);
-}
-
-/* 侧栏 */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -535,11 +642,6 @@ const loadMore = () => {
   border-radius: 12px;
   padding: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: box-shadow 0.3s ease;
-}
-
-.sidebar-widget:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .widget-header {
@@ -561,14 +663,8 @@ const loadMore = () => {
   font-size: 12px;
   color: #4a90e2;
   text-decoration: none;
-  transition: color 0.3s ease;
 }
 
-.widget-link:hover {
-  color: #357abd;
-}
-
-/* 侧栏新闻列表 */
 .sidebar-news-list {
   display: flex;
   flex-direction: column;
@@ -588,14 +684,22 @@ const loadMore = () => {
   background: #f8f9fa;
 }
 
-.sidebar-news-icon {
-  font-size: 20px;
+.sidebar-news-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 12px;
   flex-shrink: 0;
 }
 
 .sidebar-news-text {
   flex: 1;
-  min-width: 0;
 }
 
 .sidebar-news-title {
@@ -615,75 +719,55 @@ const loadMore = () => {
   color: #999;
 }
 
-/* 侧栏链接 */
-.sidebar-links {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+.stats-container {
+  display: grid;
+  gap: 12px;
 }
 
-.sidebar-link-item {
+.stat-item {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f8f9fa;
   border-radius: 6px;
-  font-size: 13px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: 700;
   color: #4a90e2;
-  text-decoration: none;
-  transition: all 0.3s ease;
 }
 
-.sidebar-link-item:hover {
-  background: #f0f4ff;
-  color: #357abd;
-  transform: translateX(4px);
+.source-info {
+  padding: 12px;
 }
 
-.link-icon {
+.source-name {
   font-size: 14px;
-  flex-shrink: 0;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
 }
 
-/* 常见问题 */
-.sidebar-faqs {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.faq-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 6px;
-  font-size: 13px;
+.source-url {
+  font-size: 12px;
   color: #4a90e2;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  line-height: 1.4;
+  margin-bottom: 8px;
 }
 
-.faq-item:hover {
-  background: #f0f4ff;
-  color: #357abd;
-  transform: translateX(4px);
+.source-desc {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.5;
 }
 
-.faq-icon {
-  font-size: 14px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-/* 响应式设计 */
 @media (max-width: 1200px) {
-  .page-header {
-    padding: 0 24px;
-  }
-
-  .category-tabs {
+  .page-header, .category-tabs {
     padding: 0 24px;
   }
 
@@ -694,7 +778,6 @@ const loadMore = () => {
 
   .card-content {
     grid-template-columns: 240px 1fr;
-    gap: 16px;
   }
 
   .sidebar {
@@ -711,7 +794,6 @@ const loadMore = () => {
     flex-direction: column;
     gap: 16px;
     padding: 0 16px;
-    margin-bottom: 24px;
   }
 
   .page-title {
@@ -720,7 +802,6 @@ const loadMore = () => {
 
   .category-tabs {
     padding: 0 16px;
-    margin-bottom: 24px;
   }
 
   .content-wrapper {
@@ -729,7 +810,6 @@ const loadMore = () => {
 
   .card-content {
     grid-template-columns: 1fr;
-    gap: 16px;
   }
 
   .card-image-wrapper {
