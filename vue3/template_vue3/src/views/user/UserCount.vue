@@ -11,7 +11,8 @@ import {
   Edit,
   Warning,
   DocumentCopy,
-  ChatDotRound
+  ChatDotRound,
+  ArrowRight
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -22,86 +23,29 @@ const carouselItems = ref([
   { id: 3, image: image3 },
   { id: 4, image: image4 }
 ])
+
 const centerCards = ref([
-  {
-    id: 1,
-    icon: 'User',
-    title: '学生成长助手',
-    subtitle: '学习建议·生活指导',
-    color: '#667eea'
-  },
-  {
-    id: 2,
-    icon: 'DataAnalysis',
-    title: '教师助教助手',
-    subtitle: '教学辅助·课堂分析',
-    color: '#764ba2'
-  },
-  {
-    id: 3,
-    icon: 'Edit',
-    title: '辅导员思政助手',
-    subtitle: '思想引导·学生管理',
-    color: '#f093fb'
-  },
-  {
-    id: 4,
-    icon: 'Warning',
-    title: '学情预警助手',
-    subtitle: '风险识别·预警分析',
-    color: '#ff6b6b'
-  },
-  {
-    id: 5,
-    icon: 'DocumentCopy',
-    title: '学情报告助手',
-    subtitle: '数据统计·报告生成',
-    color: '#4ecdc4'
-  },
-  {
-    id: 6,
-    icon: 'ChatDotRound',
-    title: '思政知识问答',
-    subtitle: '政策解读·知识问答',
-    color: '#ffa502'
-  }
+  { id: 1, icon: 'User', title: '学生成长助手', subtitle: '学习建议 · 生活指导', color: '#667eea' },
+  { id: 2, icon: 'DataAnalysis', title: '教师助教助手', subtitle: '教学辅助 · 课堂分析', color: '#764ba2' },
+  { id: 3, icon: 'Edit', title: '辅导员思政助手', subtitle: '思想引导 · 学生管理', color: '#f093fb' },
+  { id: 4, icon: 'Warning', title: '学情预警助手', subtitle: '风险识别 · 预警分析', color: '#ff6b6b' },
+  { id: 5, icon: 'DocumentCopy', title: '学情报告助手', subtitle: '数据统计 · 报告生成', color: '#4ecdc4' },
+  { id: 6, icon: 'ChatDotRound', title: '思政知识问答', subtitle: '政策解读 · 知识问答', color: '#ffa502' }
 ])
+
 const aiRecommendations = ref([
-  {
-    id: 1,
-    title: 'AI推荐咨询',
-    icon: '✓'
-  },
-  {
-    id: 2,
-    title: 'AI推荐咨询',
-    icon: '◉'
-  },
-  {
-    id: 3,
-    title: 'AI推荐咨询',
-    icon: '💬'
-  },
-  {
-    id: 4,
-    title: 'AI推荐咨询',
-    icon: '👁'
-  }
+  { id: 1, title: '2024年奖学金评定政策解读', icon: '✨' },
+  { id: 2, title: '如何进行期末复习规划？', icon: '💡' },
+  { id: 3, title: '近期校园心理健康讲座预约', icon: '💬' },
+  { id: 4, title: '大学生职业生涯规划指南', icon: '🎯' }
 ])
+
 const recentUsage = ref([
-  {
-    id: 1,
-    name: '最近使用智能体'
-  },
-  {
-    id: 2,
-    name: '最近使用智能体'
-  },
-  {
-    id: 3,
-    name: '最近使用智能体'
-  }
+  { id: 1, name: '学生成长助手 - 成绩分析' },
+  { id: 2, title: '思政知识问答 - 理论学习' },
+  { id: 3, title: '学情报告助手 - 月度总结' }
 ])
+
 const iconComponentMap = {
   'User': User,
   'DataAnalysis': DataAnalysis,
@@ -110,405 +54,400 @@ const iconComponentMap = {
   'DocumentCopy': DocumentCopy,
   'ChatDotRound': ChatDotRound
 } as const
+
 const getIconComponent = (iconName: string) => {
   return iconComponentMap[iconName as keyof typeof iconComponentMap] || User
 }
+
 const navigateToCard = (cardId: number) => {
   console.log('导航到卡片:', cardId)
+  // router.push(`/agent/${cardId}`)
+}
+
+const navigateToDetail = (item: any) => {
+  console.log('查看详情:', item)
 }
 </script>
 
 <template>
   <div class="home-page">
-    <header class="title-bar">
-      <h1 class="title-text">AI智能助手</h1>
-    </header>
     <div class="carousel-section">
       <el-carousel
-          indicator-position="outside"
-          height="600px"
-          :autoplay="true"
-          :interval="5000"
+        indicator-position="outside"
+        height="400px"
+        :autoplay="true"
+        :interval="5000"
+        arrow="hover"
       >
         <el-carousel-item v-for="item in carouselItems" :key="item.id">
-          <div class="carousel-content" :style="{ backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }">
+          <div class="carousel-content" :style="{ backgroundImage: `url(${item.image})` }">
+            <div class="carousel-overlay"></div>
           </div>
         </el-carousel-item>
       </el-carousel>
     </div>
+
     <main class="main-content">
-      <section class="section-title">
-        <h2>智能体中心</h2>
-        <div class="title-line"></div>
-      </section>
-      <div class="cards-grid">
-        <div
+      <section class="module-section">
+        <div class="section-title">
+          <h2>智能体中心</h2>
+          <span class="subtitle">AI-Powered Agents</span>
+        </div>
+
+        <div class="cards-grid">
+          <div
             v-for="card in centerCards"
             :key="card.id"
             class="card-item"
             @click="navigateToCard(card.id)"
-        >
-          <div class="card-icon-wrapper" :style="{ color: card.color }">
-            <component :is="getIconComponent(card.icon)" class="card-icon"></component>
-          </div>
-          <div class="card-title">{{ card.title }}</div>
-          <div class="card-subtitle">{{ card.subtitle }}</div>
-        </div>
-      </div>
-      <div class="recommendations-section">
-        <div class="section-header">
-          <h3>AI 推荐</h3>
-          <div class="recommendations-list">
-            <div v-for="rec in aiRecommendations" :key="rec.id" class="rec-item">
-              <span class="rec-icon">{{ rec.icon }}</span>
-              <span class="rec-text">{{ rec.title }}</span>
+          >
+            <div class="card-icon-wrapper" :style="{ '--theme-color': card.color }">
+              <component :is="getIconComponent(card.icon)" class="card-icon"></component>
+            </div>
+            <div class="card-info">
+              <div class="card-title">{{ card.title }}</div>
+              <div class="card-subtitle">{{ card.subtitle }}</div>
             </div>
           </div>
         </div>
-        <div class="section-header">
-          <h3>最近使用</h3>
-          <div class="recent-list">
-            <div v-for="item in recentUsage" :key="item.id" class="recent-item">
-              <span class="recent-text">{{ item.name }}</span>
+      </section>
+
+      <section class="bottom-sections">
+        <div class="info-panel">
+          <div class="panel-header">
+            <h3>AI 智能推荐</h3>
+          </div>
+          <div class="panel-list">
+            <div
+              v-for="rec in aiRecommendations"
+              :key="rec.id"
+              class="list-item"
+              @click="navigateToDetail(rec)"
+            >
+              <div class="item-icon">{{ rec.icon }}</div>
+              <div class="item-content">{{ rec.title }}</div>
+              <el-icon class="item-arrow"><ArrowRight /></el-icon>
             </div>
           </div>
         </div>
-      </div>
+
+        <div class="info-panel">
+          <div class="panel-header">
+            <h3>最近使用</h3>
+          </div>
+          <div class="panel-list">
+            <div
+              v-for="item in recentUsage"
+              :key="item.id"
+              class="list-item"
+              @click="navigateToDetail(item)"
+            >
+              <div class="item-icon">🕒</div>
+              <div class="item-content">{{ item.name || item.title }}</div>
+              <el-icon class="item-arrow"><ArrowRight /></el-icon>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </template>
+
 <style scoped lang="scss">
+/* --- 基础与背景 --- */
 .home-page {
-  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 50%, #e8ebff 100%);
+  background-color: #f5f7fa;
   min-height: 100vh;
   position: relative;
-  padding: 0;
-  margin: 0;
+  overflow-x: hidden;
+
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(circle at 15% 50%, rgba(102, 126, 234, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 85% 30%, rgba(118, 75, 162, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 }
-.home-page::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-      radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.08) 0%, transparent 50%),
-      radial-gradient(circle at 40% 20%, rgba(240, 147, 251, 0.05) 0%, transparent 50%);
-  pointer-events: none;
-  z-index: -1;
-}
-.title-bar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 16px 0;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 100;
-}
-.title-text {
-  font-size: 24px;
-  font-weight: 600;
-  color: white;
-  margin: 0;
-  letter-spacing: 0.5px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+
+/* --- 轮播图 --- */
 .carousel-section {
-  padding: 0;
-  background: transparent;
-  margin: 0;
   width: 100%;
-  max-width: 100%;
+  margin-bottom: -40px; /* 让主体内容稍微往上浮动，与轮播图产生层次感 */
+  z-index: 1;
+  position: relative;
 
-  :deep(.el-carousel) {
-    border-radius: 0;
-    overflow: hidden;
-    box-shadow: none;
+  .carousel-content {
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+
+    .carousel-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
+    }
   }
 
-  :deep(.el-carousel__item) {
-    border-radius: 0;
-  }
-
-  :deep(.el-carousel__indicators) {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 10px;
-    border-radius: 8px;
-  }
-
-  :deep(.el-carousel__indicator.is-active button) {
-    background-color: #667eea;
+  :deep(.el-carousel__indicators--outside) {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: transparent;
   }
 
   :deep(.el-carousel__indicator button) {
-    background-color: rgba(255, 255, 255, 0.5);
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.8);
-    }
+    background-color: rgba(255, 255, 255, 0.6);
+    height: 4px;
+    border-radius: 2px;
+  }
+  :deep(.el-carousel__indicator.is-active button) {
+    background-color: #fff;
+    width: 24px;
   }
 }
 
-.carousel-content {
-  width: 100%;
-  height: 100%;
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+/* --- 主体内容区 --- */
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 30px 40px;
+  padding: 0 24px 60px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
 
+.module-section {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+  margin-bottom: 32px;
+}
+
+/* --- 标题 --- */
 .section-title {
   display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 30px;
-  padding: 30px 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 100%);
-  border-radius: 8px;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 28px;
 
   h2 {
     font-size: 24px;
-    color: #333;
+    color: #1a1a1a;
     margin: 0;
     font-weight: 600;
   }
 
-  .title-line {
-    flex: 1;
-    height: 2px;
-    background: linear-gradient(to right, #667eea 0%, transparent 100%);
+  .subtitle {
+    font-size: 14px;
+    color: #8c939d;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
 }
 
+/* --- 卡片网格 --- */
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 24px;
-  margin-bottom: 50px;
 
   .card-item {
-    background: linear-gradient(135deg, rgba(245, 247, 250, 0.8) 0%, rgba(195, 207, 226, 0.6) 100%);
-    padding: 35px 20px;
+    display: flex;
+    align-items: center;
+    padding: 24px;
+    background: #ffffff;
     border-radius: 12px;
-    text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    position: relative;
-    overflow: hidden;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #ebeef5;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
 
     &:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
-
-      &::before {
-        opacity: 1;
-      }
-
-      .card-title,
-      .card-subtitle {
-        color: white;
-        position: relative;
-        z-index: 2;
-      }
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+      border-color: transparent;
 
       .card-icon-wrapper {
-        color: white;
-        transform: scale(1.1);
+        background: var(--theme-color);
+        color: #ffffff;
+        transform: scale(1.05) rotate(-5deg);
+      }
+
+      .card-title {
+        color: var(--theme-color);
       }
     }
 
     .card-icon-wrapper {
+      flex-shrink: 0;
       display: flex;
       justify-content: center;
       align-items: center;
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 20px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
+      width: 56px;
+      height: 56px;
+      margin-right: 20px;
+      background: rgba(240, 242, 245, 0.8);
+      color: var(--theme-color);
+      border-radius: 12px;
+      transition: all 0.4s ease;
 
-    .card-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-    }
-
-    .card-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 10px;
-      transition: color 0.3s ease;
-      position: relative;
-      z-index: 2;
-    }
-
-    .card-subtitle {
-      font-size: 14px;
-      color: #666;
-      transition: color 0.3s ease;
-      position: relative;
-      z-index: 2;
-    }
-  }
-}
-.recommendations-section {
-  display: flex;
-  gap: 60px;
-  margin-bottom: 50px;
-  padding: 30px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.5) 100%);
-  border-radius: 12px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-
-  .section-header {
-    flex: 1;
-
-    h3 {
-      font-size: 18px;
-      color: #333;
-      margin: 0 0 20px 0;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-
-      &::after {
-        content: '';
-        flex: 1;
-        height: 1px;
-        background: linear-gradient(to right, #667eea, transparent);
+      .card-icon {
+        font-size: 28px;
+        width: 28px;
+        height: 28px;
       }
     }
 
-    .recommendations-list,
-    .recent-list {
+    .card-info {
+      flex: 1;
+
+      .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #303133;
+        margin-bottom: 6px;
+        transition: color 0.3s ease;
+      }
+
+      .card-subtitle {
+        font-size: 13px;
+        color: #909399;
+        line-height: 1.4;
+      }
+    }
+  }
+}
+
+/* --- 底部面板区 (推荐 & 历史) --- */
+.bottom-sections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+
+  .info-panel {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.03);
+
+    .panel-header h3 {
+      font-size: 18px;
+      color: #303133;
+      margin: 0 0 20px 0;
+      font-weight: 600;
+      position: relative;
+      padding-left: 12px;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 16px;
+        background: #667eea;
+        border-radius: 2px;
+      }
+    }
+
+    .panel-list {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .rec-item,
-    .recent-item {
+    .list-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.8);
-      border-radius: 6px;
-      transition: all 0.3s ease;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 14px 16px;
+      background: #ffffff;
+      border-radius: 8px;
+      cursor: pointer;
+      border: 1px solid #ebeef5;
+      transition: all 0.2s ease;
 
       &:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        border-color: #c6e2ff;
+        background: #ecf5ff;
         transform: translateX(4px);
-        background: rgba(255, 255, 255, 1);
+
+        .item-content {
+          color: #409eff;
+        }
+
+        .item-arrow {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
-      .rec-icon {
+      .item-icon {
         font-size: 18px;
-        min-width: 24px;
+        margin-right: 12px;
       }
 
-      .rec-text,
-      .recent-text {
-        color: #333;
-        font-size: 14px;
+      .item-content {
         flex: 1;
+        font-size: 14px;
+        color: #606266;
+        transition: color 0.2s ease;
+      }
+
+      .item-arrow {
+        color: #409eff;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
       }
     }
   }
 }
+
+/* --- 响应式适配 --- */
 @media (max-width: 1024px) {
-  .recommendations-section {
-    flex-direction: column;
-    gap: 30px;
+  .bottom-sections {
+    grid-template-columns: 1fr;
   }
 
   .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   }
 }
 
 @media (max-width: 768px) {
-  .title-bar {
-    padding: 12px 0;
-  }
-
-  .title-text {
-    font-size: 20px;
-  }
-
   .carousel-section {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-
     :deep(.el-carousel) {
-      height: 300px !important;
+      height: 240px !important;
     }
+    margin-bottom: -20px;
   }
 
   .main-content {
+    padding: 0 16px 40px;
+  }
+
+  .module-section {
     padding: 20px;
   }
 
-  .cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-
-    .card-item {
-      padding: 25px 15px;
-    }
+  .cards-grid .card-item {
+    padding: 16px;
   }
 
-  .section-title {
-    margin-bottom: 20px;
-    padding: 20px 0;
-
-    h2 {
-      font-size: 20px;
-    }
-  }
-
-  .recommendations-section {
+  .bottom-sections .info-panel {
     padding: 20px;
-    gap: 20px;
   }
 }
 </style>
