@@ -403,7 +403,7 @@ const handleClose = (key, keyPath) => {
       justify-content: center;
 
       .brand-title {
-        font-size: 26px; /* 修改点：微调字号 */
+        font-size: 26px;
         font-weight: 700;
         margin: 0;
         letter-spacing: 2px;
@@ -481,7 +481,6 @@ const handleClose = (key, keyPath) => {
     height: 40px;
   }
 
-  /* 响应式适配 */
   @media (max-width: 768px) {
     .global-brand-header {
       height: 70px;
@@ -496,7 +495,6 @@ const handleClose = (key, keyPath) => {
     .welcome-text {
       display: none;
     }
-    /* 移动端缩小logo */
     .brand-left-area .logo-wrapper {
       width: 50px;
       height: 50px;
