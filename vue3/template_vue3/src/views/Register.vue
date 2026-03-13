@@ -2,16 +2,17 @@
 import { ref, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
-import { userLogin } from "@/api/api";
-import request from '@/utils/request'; // 假设request定义在@/utils/request
+// import { userLogin } from "@/api/api"; // Unused import
+import request from '@/utils/request';
+import platformLogo from "@/assets/logo.png";
 
 const router = useRouter();
 const username = ref('');
 const password = ref('');
-const confirmPassword = ref(''); // 新增确认密码变量
+const confirmPassword = ref('');
 
 const login = () => {
-  router.push({ path: '/login' }); // 返回登录页面
+  router.push({ path: '/login' });
 };
 
 const register = () => {
@@ -138,7 +139,14 @@ onMounted(() => {
     <canvas id="particleCanvas"></canvas>
     <div class="logindata">
       <div class="logintext">
-        <h1>马克思主义学院精准思政云平台</h1>
+        <div class="brand-title">
+          <div class="brand-text-container">
+            <!-- Logo作为子元素，通过绝对定位放置在左侧，不影响父容器居中 -->
+            <img class="brand-logo" :src="platformLogo" alt="Platform logo" />
+            <div class="brand-text">马克思主义学院</div>
+            <div class="brand-text">精准思政云平台</div>
+          </div>
+        </div>
         <h2>注册界面</h2>
       </div>
       <div class="formdata">
@@ -201,7 +209,8 @@ canvas {
 }
 
 .logindata {
-  width: 400px;
+  width: 560px;
+  max-width: calc(100vw - 24px);
   padding: 30px;
   background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
@@ -212,14 +221,39 @@ canvas {
   z-index: 2;
 }
 
-.logintext h1 {
-  margin-bottom: 10px;
-  font-size: 36px;
-  font-weight: 900;
+.logintext .brand-title {
+  display: flex;
+  justify-content: center; /* 确保内部容器整体居中 */
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.brand-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 保持两行文字互相居中 */
+  position: relative; /* 为 logo 提供定位锚点 */
+}
+
+.logintext .brand-logo {
+  position: absolute;
+  right: 100%; /* 将 logo 放置在文字容器的左侧外 */
+  top: 50%;
+  transform: translateY(-50%); /* 垂直居中 */
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-right: 20px; /* Logo 和文字之间的间距 */
+}
+
+.logintext .brand-text {
+  font-size: 30px;
+  font-weight: bold;
   color: #e6e6fa;
-  text-align: center;
-  text-shadow: 0 0 15px #4b0082, 0 0 30px #4b0082, 0 0 45px #00a8a8, 0 0 60px #00a8a8;
-  animation: neonGlow 1s ease-in-out infinite alternate;
+  text-shadow: 0 0 10px #4b0082, 0 0 20px #4b0082, 0 0 30px #00a8a8;
+  animation: neonGlow 1.5s ease-in-out infinite alternate;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 .logintext h2 {
