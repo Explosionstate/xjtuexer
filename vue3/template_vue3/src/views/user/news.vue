@@ -1,4 +1,3 @@
-
 <template>
   <div class="news-container">
     <section class="hero-section">
@@ -301,7 +300,7 @@
           </div>
           <div class="quote-content">
             <p class="quote-text">
-              “{{ dailyQuote.text }}”
+              "{{ dailyQuote.text }}"
             </p>
             <div class="quote-source-box">
               <span class="quote-dash">——</span>
@@ -322,7 +321,7 @@ const API_BASE_URL = import.meta.env.VITE_NEWS_API_URL || import.meta.env.VITE_A
 const defaultImage = 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=560&fit=crop'
 
 const FIXED_NEWS_COUNT = 4
-const LOCAL_DYNAMIC_COUNT = 26
+const LOCAL_DYNAMIC_COUNT = 20
 const HOT_NEWS_COUNT = 6
 const ALL_PAGE_SIZE = 5
 const CATEGORY_BASE_PICK_COUNT = 4
@@ -380,7 +379,7 @@ const headlineCards = [
   {
     tag: '时政热点',
     title: '走好中国式现代化关键一程',
-    description: '从全国两会和“十五五”规划视角理解当前高质量发展与现代化建设的阶段重点。',
+    description: '从全国两会和"十五五"规划视角理解当前高质量发展与现代化建设的阶段重点。',
     link: 'https://www.qstheory.cn/20260306/90f8b0af2f9a489081837716cb6d227f/c.html'
   },
   {
@@ -483,7 +482,7 @@ const studentFaqs = [
   {
     id: 'faq-1',
     question: '忘记密码怎么办？',
-    answer: '可以先进入“个人中心 - 重置密码”进行修改；如果无法进入系统，请联系管理员协助重置。'
+    answer: '可以先进入"个人中心 - 重置密码"进行修改；如果无法进入系统，请联系管理员协助重置。'
   },
   {
     id: 'faq-2',
@@ -493,12 +492,12 @@ const studentFaqs = [
   {
     id: 'faq-3',
     question: '新闻无法打开怎么办？',
-    answer: '可以先点击本页“刷新新闻”重新获取内容；如果外链打不开，建议稍后重试或切换浏览器访问。'
+    answer: '可以先点击本页"刷新新闻"重新获取内容；如果外链打不开，建议稍后重试或切换浏览器访问。'
   },
   {
     id: 'faq-4',
     question: '如何查看个人学习信息？',
-    answer: '登录后可通过左侧菜单进入“在线学习”或“个人中心”，查看课程学习情况和个人基础信息。'
+    answer: '登录后可通过左侧菜单进入"在线学习"或"个人中心"，查看课程学习情况和个人基础信息。'
   },
   {
     id: 'faq-5',
@@ -623,7 +622,7 @@ const curatedArticlePool = [
     id: 'pool-1',
     title: '推动思想政治工作做在日常落到基层',
     description: '围绕高校思政工作的常态化与基层化路径，强调在具体场景中提升育人实效。',
-    image: defaultImage,
+    image: 'https://www.qstheory.cn/20260115/234f9c7d95d84a8f8590625021d1c4ca/20260115234f9c7d95d84a8f8590625021d1c4ca_2026011530365abe2cdc4e118d2c9b6d73fa984c.jpg',
     link: 'https://www.qstheory.cn/20260115/234f9c7d95d84a8f8590625021d1c4ca/c.html',
     date: '2026-03-11',
     source: '求是网',
@@ -633,7 +632,7 @@ const curatedArticlePool = [
     id: 'pool-2',
     title: '打牢做好思想政治工作的基本功',
     description: '聚焦思政工作中的能力建设和机制完善，适合作为理论学习起点内容。',
-    image: defaultImage,
+    image: 'https://www.qstheory.cn/20260131/64d379bc41184055ac077ad3f7795ee7/2026013164d379bc41184055ac077ad3f7795ee7_20260131944891a68ef346e1b6386f1538bed367.jpg',
     link: 'https://www.qstheory.cn/20260131/64d379bc41184055ac077ad3f7795ee7/c.html',
     date: '2026-03-10',
     source: '求是网',
@@ -641,59 +640,49 @@ const curatedArticlePool = [
   },
   {
     id: 'pool-3',
-    title: '深刻把握推动高质量发展的四重意蕴',
-    description: '从理论层面理解高质量发展的核心逻辑，兼顾现实政策与长期战略。',
-    image: defaultImage,
-    link: 'https://theory.people.com.cn/n1/2026/0129/c40531-40655062.html',
-    date: '2026-03-09',
-    source: '人民网理论频道',
-    category: 'theory'
-  },
-  {
-    id: 'pool-4',
     title: '走好中国式现代化关键一程',
     description: '从阶段任务和总体目标两方面切入，梳理当前时政与发展重点。',
-    image: defaultImage,
+    image: 'https://www.qstheory.cn/20260306/90f8b0af2f9a489081837716cb6d227f/2026030690f8b0af2f9a489081837716cb6d227f_20260306a0ad2c40677e4e11ad8e97b61fcb4beb.jpeg',
     link: 'https://www.qstheory.cn/20260306/90f8b0af2f9a489081837716cb6d227f/c.html',
     date: '2026-03-08',
     source: '求是网',
     category: 'politics'
   },
   {
-    id: 'pool-5',
+    id: 'pool-4',
     title: '两会现场速递丨教育部部长：持续提升高等教育服务能力',
     description: '聚焦教育治理和人才培养改革，关注政策导向与校园实践连接。',
-    image: defaultImage,
+    image: 'https://www.news.cn/politics/20260312/59573588d09544a38c504b883a9724fe/31f4f502a38a44b1bc5a40613641a703.jpg',
     link: 'https://www.news.cn/politics/2026lh/index.html',
     date: '2026-03-07',
     source: '新华网',
     category: 'politics'
   },
   {
-    id: 'pool-6',
+    id: 'pool-5',
     title: '政策解读：加快建设高质量教育体系',
     description: '围绕教育体系建设中的关键指标和实施路径，提供可参考的政策脉络。',
-    image: defaultImage,
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&h=560&fit=crop',
     link: 'https://www.gov.cn/zhengce/',
     date: '2026-03-06',
     source: '中国政府网',
     category: 'politics'
   },
   {
-    id: 'pool-7',
+    id: 'pool-6',
     title: '理论学习：坚持系统观念推进教育现代化',
     description: '从系统观念切入教育改革，强调改革协同和治理效能同步提升。',
-    image: defaultImage,
+    image: 'https://imgtheory.gmw.cn/attachement/jpg/site2/20260311/00d86168b9e92b1b506e01.jpg',
     link: 'https://theory.gmw.cn/',
     date: '2026-03-05',
     source: '光明网理论频道',
     category: 'theory'
   },
   {
-    id: 'pool-8',
+    id: 'pool-7',
     title: '时政观察：科技创新与产业升级的协同路径',
     description: '聚焦科技政策与产业结构调整，在时政背景下理解高质量发展动力。',
-    image: defaultImage,
+    image: 'https://p2.img.cctvpic.com/photoAlbum/page/performance/img/2026/3/13/1773360585457_210.jpg',
     link: 'https://news.cctv.com/china/',
     date: '2026-03-04',
     source: '央视网',
@@ -701,159 +690,119 @@ const curatedArticlePool = [
   },
   {
     id: 'pool-9',
-    title: '校园动态：思政实践课程优秀案例交流会举行',
-    description: '围绕课程建设与实践育人经验开展交流，提升课堂与实践协同质量。',
-    image: defaultImage,
-    link: 'https://dean.xjtu.edu.cn/jxxx/jxdt.htm',
-    date: '2026-03-03',
-    source: '西安交通大学教务处',
-    category: 'campus'
-  },
-  {
-    id: 'pool-10',
     title: '通知公告：本学期理论学习专题讲座安排发布',
     description: '聚焦理论学习专题讲座的时间安排和参与方式，便于师生统一规划。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=924614370,3519021296&fm=253&fmt=auto&app=138&f=JPEG?w=668&h=500',
     link: 'https://dean.xjtu.edu.cn/jxxx/jxtz2.htm',
     date: '2026-03-02',
     source: '西安交通大学教务处',
     category: 'notice'
   },
   {
-    id: 'pool-11',
+    id: 'pool-10',
     title: '国际交流：马克思主义理论国际传播专题论坛举行',
     description: '论坛围绕理论传播与国际对话展开，强调学术交流与实践应用结合。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=3679603550,1184924002&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=667',
     link: 'https://news.xjtu.edu.cn/gjjl.htm',
     date: '2026-03-01',
     source: '西安交通大学新闻网',
     category: 'campus'
   },
   {
-    id: 'pool-12',
-    title: '理论导读：在调查研究中提升政策理解力与执行力',
-    description: '从调研方法与政策落实关系出发，强调在实践中增强问题解决能力。',
-    image: defaultImage,
-    link: 'https://theory.people.com.cn/',
-    date: '2026-02-28',
-    source: '人民网',
-    category: 'theory'
-  },
-  {
-    id: 'pool-13',
+    id: 'pool-11',
     title: '时政聚焦：统筹发展和安全，提升治理现代化水平',
     description: '结合当前时政重点，分析治理体系现代化的现实任务和推进节奏。',
-    image: defaultImage,
+    image: 'https://www.news.cn/politics/20260313/12961d8656f14c8fb43e000b0d5d1bf3/9073f871a5fa4d01917a9b0e8510bdc0.jpg',
     link: 'https://www.news.cn/politics/',
     date: '2026-02-27',
     source: '新华网',
     category: 'politics'
   },
   {
-    id: 'pool-14',
+    id: 'pool-12',
     title: '理论学习参考：马克思主义基本原理与现实问题分析',
     description: '突出原理学习和现实分析的结合方式，适合作为课程拓展阅读材料。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=2283400669,3449105295&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=710',
     link: 'https://www.qstheory.cn/',
     date: '2026-02-26',
     source: '求是网',
     category: 'theory'
   },
   {
-    id: 'pool-15',
+    id: 'pool-13',
     title: '教育时评：以课程思政推动专业教育与价值教育同向同行',
     description: '通过课程思政案例梳理，展示专业课程与价值引导的协同路径。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=600248021,1291322259&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500',
     link: 'https://theory.gmw.cn/',
     date: '2026-02-25',
     source: '光明网',
     category: 'theory'
   },
   {
-    id: 'pool-16',
-    title: '学习动态：面向青年群体优化理论学习资源供给',
-    description: '强调内容供给与学习场景匹配，让理论学习更具连续性和实践性。',
-    image: defaultImage,
-    link: 'https://theory.people.com.cn/',
-    date: '2026-02-24',
-    source: '人民网理论频道',
-    category: 'theory'
-  },
-  {
-    id: 'pool-17',
+    id: 'pool-14',
     title: '理论研习：坚持和发展马克思主义必须同中国具体实际相结合',
     description: '围绕理论创新与实践创新的统一关系，梳理学习中应把握的关键方法论。',
-    image: defaultImage,
+    image: 'https://www.qstheory.cn/20260301/8f54778ab990490194998c4007abe151/0065fa82e0d14729beec1014306c97bc.jpg',
     link: 'https://www.qstheory.cn/',
     date: '2026-02-23',
     source: '求是网',
     category: 'theory'
   },
   {
-    id: 'pool-18',
-    title: '理论观察：人民立场是思想政治教育的根本遵循',
-    description: '从群众观点和群众路线出发，讨论高校思想政治工作中“以学生为中心”的实施路径。',
-    image: defaultImage,
-    link: 'https://theory.people.com.cn/',
-    date: '2026-02-22',
-    source: '人民网理论频道',
-    category: 'theory'
-  },
-  {
-    id: 'pool-19',
+    id: 'pool-15',
     title: '读原著学原文：历史唯物主义视角下的教育治理现代化',
     description: '聚焦历史唯物主义的分析框架，结合教育治理场景开展专题学习。',
-    image: defaultImage,
+    image: 'https://imgtheory.gmw.cn/attachement/jpg/site2/20251210/00d86168b9e92aa35dff10.jpg',
     link: 'https://theory.gmw.cn/',
     date: '2026-02-21',
     source: '光明网理论频道',
     category: 'theory'
   },
   {
-    id: 'pool-20',
+    id: 'pool-16',
     title: '课程思政专题：推进大中小学思政课一体化建设',
     description: '关注课程体系衔接、教学资源协同与育人目标一致性，提升思政教育系统性。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=1946381301,2442956829&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1131',
     link: 'https://www.news.cn/politics/',
     date: '2026-02-20',
     source: '新华网',
     category: 'theory'
   },
   {
-    id: 'pool-21',
+    id: 'pool-17',
     title: '时政解读：以高水平安全保障高质量发展',
     description: '围绕安全与发展的统筹关系，分析当前政策部署中的结构性重点。',
-    image: defaultImage,
+    image: 'https://www.news.cn/politics/20260313/95df58a298c441fab96aace11a2d816b/8c59f38253e74ca78072f3d65af94b62.jpg',
     link: 'https://www.gov.cn/zhengce/',
     date: '2026-02-19',
     source: '中国政府网',
     category: 'politics'
   },
   {
-    id: 'pool-22',
+    id: 'pool-18',
     title: '政策跟踪：就业优先与青年发展支持政策协同发力',
     description: '聚焦青年就业、教育衔接与人才培养政策在基层场景中的协同落地。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=3525945493,1769353242&fm=253&fmt=auto&app=138&f=JPEG?w=353&h=353',
     link: 'https://www.news.cn/politics/',
     date: '2026-02-18',
     source: '新华网',
     category: 'politics'
   },
   {
-    id: 'pool-23',
+    id: 'pool-19',
     title: '国际观察：多边合作框架下的全球治理议题持续推进',
     description: '从国际政治视角梳理主要治理议题，帮助理解外部环境对国内发展的影响。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=1309155134,3273602223&fm=253&app=138&f=JPEG?w=642&h=428',
     link: 'https://www.cnn.com/politics',
     date: '2026-02-17',
     source: 'CNN Politics',
     category: 'politics'
   },
   {
-    id: 'pool-24',
+    id: 'pool-20',
     title: '时政观察：科技创新、产业升级与区域协调发展',
     description: '结合近期政策取向，分析创新驱动与区域协同在现代化建设中的作用。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=3218560768,916984242&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=1082',
     link: 'https://news.cctv.com/china/',
     date: '2026-02-16',
     source: '央视网',
@@ -863,7 +812,7 @@ const curatedArticlePool = [
     id: 'pool-25',
     title: '政策纵览：教育、科技、人才一体推进的实施路径',
     description: '梳理教育强国、科技强国、人才强国战略协同推进的政策逻辑与重点任务。',
-    image: defaultImage,
+    image: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=900&h=560&fit=crop',
     link: 'https://www.gov.cn/zhengce/',
     date: '2026-02-15',
     source: '中国政府网',
@@ -873,7 +822,7 @@ const curatedArticlePool = [
     id: 'pool-26',
     title: '校园动态：人物风采栏目更新青年教师育人事迹',
     description: '聚焦教师教学创新与育人实践，展示校园思政和专业教育协同成果。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=2544266381,894101798&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1132',
     link: 'https://news.xjtu.edu.cn/rwfc.htm',
     date: '2026-02-14',
     source: '西安交通大学新闻网',
@@ -883,7 +832,7 @@ const curatedArticlePool = [
     id: 'pool-27',
     title: '校园服务：书院育人活动与学生发展支持持续推进',
     description: '围绕学生成长支持体系，关注校园服务与思想引导相结合的实践模式。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=4230194853,1363299472&fm=253&fmt=auto&app=138&f=JPEG?w=667&h=500',
     link: 'https://news.xjtu.edu.cn/shfw1/shfw.htm',
     date: '2026-02-13',
     source: '西安交通大学新闻网',
@@ -893,7 +842,7 @@ const curatedArticlePool = [
     id: 'pool-28',
     title: '科研要闻：交叉学科团队发布阶段性研究进展',
     description: '聚焦科研组织与平台建设，体现学校在关键技术与基础研究方面的协同能力。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=2566008261,939771566&fm=253&fmt=auto&app=120&f=JPEG?w=666&h=500',
     link: 'https://news.xjtu.edu.cn/kxyj.htm',
     date: '2026-02-12',
     source: '西安交通大学新闻网',
@@ -903,7 +852,7 @@ const curatedArticlePool = [
     id: 'pool-29',
     title: '校园动态：实践教学专题交流会面向全校开放报名',
     description: '围绕实践教学改革与教学能力建设，推动学院间经验互鉴与资源共享。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=3361199049,499651772&fm=253&fmt=auto&app=120&f=JPEG?w=1216&h=800',
     link: 'https://dean.xjtu.edu.cn/jxxx/jxdt.htm',
     date: '2026-02-11',
     source: '西安交通大学教务处',
@@ -913,7 +862,7 @@ const curatedArticlePool = [
     id: 'pool-30',
     title: '校园纪实：服务保障与学术活动联动机制持续完善',
     description: '关注校园保障体系与学术环境建设，提升师生学习科研体验。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=573396008,393706888&fm=253&fmt=auto&app=120&f=JPEG?w=750&h=500',
     link: 'https://news.xjtu.edu.cn/shfw1/shfw.htm',
     date: '2026-02-10',
     source: '西安交通大学新闻网',
@@ -923,7 +872,7 @@ const curatedArticlePool = [
     id: 'pool-31',
     title: '通知公告：本学期课程调整与选课安排说明发布',
     description: '明确课程计划调整节点、选课规则与时间窗口，便于学生做好学习规划。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=2027685074,2868328010&fm=253&fmt=auto&app=120&f=JPEG?w=504&h=500',
     link: 'https://dean.xjtu.edu.cn/jxxx/jxtz2.htm',
     date: '2026-02-09',
     source: '西安交通大学教务处',
@@ -933,7 +882,7 @@ const curatedArticlePool = [
     id: 'pool-32',
     title: '通知公告：实践环节教学管理要求与提交流程更新',
     description: '围绕实践教学过程管理，更新材料提交规范和时间要求。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=2511413771,1963515496&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=544',
     link: 'https://dean.xjtu.edu.cn/jxxx/jxtz2.htm',
     date: '2026-02-08',
     source: '西安交通大学教务处',
@@ -943,7 +892,7 @@ const curatedArticlePool = [
     id: 'pool-33',
     title: '培养方案：专业培养方案修订意见征集通知',
     description: '组织各学院围绕培养目标、课程体系和能力导向开展修订建议征集。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=794048847,4056136889&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=707',
     link: 'https://dean.xjtu.edu.cn/jxxx/pyfa.htm',
     date: '2026-02-07',
     source: '西安交通大学教务处',
@@ -953,7 +902,7 @@ const curatedArticlePool = [
     id: 'pool-34',
     title: '通知公告：教学运行周报与课堂质量反馈通道开放',
     description: '完善教学运行反馈闭环，提升教学管理的响应效率与透明度。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=360442235,1414608687&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=375',
     link: 'https://dean.xjtu.edu.cn/jxxx/jxdt.htm',
     date: '2026-02-06',
     source: '西安交通大学教务处',
@@ -963,7 +912,7 @@ const curatedArticlePool = [
     id: 'pool-35',
     title: '培养方案：跨学科模块课程设置与修读建议发布',
     description: '结合培养方案要求，明确跨学科课程修读逻辑与能力培养目标。',
-    image: defaultImage,
+    image: 'https://img0.baidu.com/it/u=2470396497,4145540846&fm=253&fmt=auto&app=138&f=JPEG?w=555&h=500',
     link: 'https://dean.xjtu.edu.cn/jxxx/pyfa.htm',
     date: '2026-02-05',
     source: '西安交通大学教务处',
@@ -973,7 +922,7 @@ const curatedArticlePool = [
     id: 'pool-36',
     title: '理论学习：坚持用马克思主义立场观点方法观察时代问题',
     description: '围绕立场观点方法的现实运用展开，强调理论学习与实际工作的统一。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=176226891,2767313969&fm=253&fmt=auto&app=138&f=JPEG?w=750&h=500',
     link: 'https://www.qstheory.cn/#study-20260204',
     date: '2026-02-04',
     source: '求是网',
@@ -983,27 +932,17 @@ const curatedArticlePool = [
     id: 'pool-37',
     title: '理论前沿：推动党的创新理论进入课堂、进入头脑',
     description: '从课程建设与学习组织两方面讨论理论传播的有效机制，提升学习覆盖与质量。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=674473153,567156973&fm=253&fmt=auto&app=120&f=JPEG?w=762&h=500',
     link: 'https://theory.people.com.cn/#study-20260203',
     date: '2026-02-03',
     source: '人民网理论频道',
     category: 'theory'
   },
   {
-    id: 'pool-38',
-    title: '思想观察：在调查研究中把握社会主要矛盾的新变化',
-    description: '聚焦调查研究方法和问题导向，提升对现实问题的辨析与政策理解能力。',
-    image: defaultImage,
-    link: 'https://theory.gmw.cn/#study-20260202',
-    date: '2026-02-02',
-    source: '光明网理论频道',
-    category: 'theory'
-  },
-  {
     id: 'pool-39',
     title: '理论导读：历史唯物主义视角下的中国式现代化实践',
     description: '围绕生产力与生产关系、经济基础与上层建筑关系，解析现代化建设实践逻辑。',
-    image: defaultImage,
+    image: 'https://img1.baidu.com/it/u=2655365851,793219508&fm=253&fmt=auto&app=138&f=JPEG?w=683&h=389',
     link: 'https://www.qstheory.cn/#study-20260201',
     date: '2026-02-01',
     source: '求是网',
@@ -1013,7 +952,7 @@ const curatedArticlePool = [
     id: 'pool-40',
     title: '时政热点：稳中求进总基调下的宏观政策协同发力',
     description: '围绕财政、产业与民生政策协同，梳理阶段性重点任务和预期目标。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=4154405297,1767596960&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=1282',
     link: 'https://www.news.cn/politics/#focus-20260131',
     date: '2026-01-31',
     source: '新华网',
@@ -1023,7 +962,7 @@ const curatedArticlePool = [
     id: 'pool-41',
     title: '政策解读：教育强国建设中的基础能力与制度保障',
     description: '聚焦教育治理现代化关键环节，讨论制度建设与执行效能的协同推进。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=1782384953,3639139647&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=707',
     link: 'https://www.gov.cn/zhengce/#focus-20260130',
     date: '2026-01-30',
     source: '中国政府网',
@@ -1033,7 +972,7 @@ const curatedArticlePool = [
     id: 'pool-42',
     title: '时政追踪：科技创新与实体经济深度融合持续提速',
     description: '从产业链升级与创新链协同角度，关注高质量发展的结构性动力变化。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=2722188567,4168744522&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1130',
     link: 'https://news.cctv.com/china/#focus-20260129',
     date: '2026-01-29',
     source: '央视网',
@@ -1043,32 +982,12 @@ const curatedArticlePool = [
     id: 'pool-43',
     title: '国际观察：全球治理议题下的合作与发展新动向',
     description: '聚焦国际规则、发展倡议与地区合作，帮助理解外部环境对国内治理的影响。',
-    image: defaultImage,
+    image: 'https://img2.baidu.com/it/u=802115112,3500638982&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=1176',
     link: 'https://www.reuters.com/world/#focus-20260128',
     date: '2026-01-28',
     source: 'Reuters World',
     category: 'politics'
   },
-  {
-    id: 'pool-44',
-    title: '校园动态：思政主题实践周活动总结与案例发布',
-    description: '围绕实践育人成果与课程联动案例，展示学院协同推进思政建设的具体做法。',
-    image: defaultImage,
-    link: 'https://news.xjtu.edu.cn/rwfc.htm#campus-20260127',
-    date: '2026-01-27',
-    source: '西安交通大学新闻网',
-    category: 'campus'
-  },
-  {
-    id: 'pool-45',
-    title: '通知公告：理论学习专题研讨会报名与安排说明',
-    description: '明确研讨会报名流程、参与对象与学习要求，便于师生按计划参加学习活动。',
-    image: defaultImage,
-    link: 'https://dean.xjtu.edu.cn/jxxx/jxtz2.htm#notice-20260126',
-    date: '2026-01-26',
-    source: '西安交通大学教务处',
-    category: 'notice'
-  }
 ]
 
 const categoryKeywords = {
@@ -1238,7 +1157,7 @@ const displayedArticles = computed(() => {
 })
 
 const showAllPagination = computed(() => (
-  !loading.value && activeCategory.value === 'all' && filteredArticles.value.length > ALL_PAGE_SIZE
+    !loading.value && activeCategory.value === 'all' && filteredArticles.value.length > ALL_PAGE_SIZE
 ))
 
 const allPaginationItems = computed(() => {
