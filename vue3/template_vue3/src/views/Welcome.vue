@@ -85,8 +85,8 @@
 
 <script>
 // 【重要】请保持这四个视频路径正确
-import heroFwdPath from '../assets/splash.mp4'
-import heroRevPath from '../assets/re-splash.mp4'
+import heroFwdPath from '../assets/创新港.mp4'
+import heroRevPath from '../assets/创新港2.mp4'
 import sideFwdPath from '../assets/splash.mp4'
 import sideRevPath from '../assets/re-splash.mp4'
 
