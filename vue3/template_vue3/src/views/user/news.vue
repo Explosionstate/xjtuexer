@@ -6,36 +6,34 @@
           <h1 class="hero-title">新闻资讯</h1>
           <p class="hero-subtitle">Marxism Cloud Platform News</p>
         </div>
+        <a
+            class="hero-source-link"
+            href="https://news.xjtu.edu.cn/zyxw.htm"
+            target="_blank"
+            rel="noreferrer"
+        >
+          <span class="hero-source-link-main">
+            <span class="hero-source-link-title">西安交通大学新闻网</span>
+            <span class="hero-source-link-desc">权威发布校园要闻、学术动态与专题报道</span>
+          </span>
+          <span class="hero-source-link-action">进入官网</span>
+        </a>
 
-        <div class="hero-actions">
-          <button class="publish-btn" :disabled="loading" @click="refreshNews">
-            <span class="refresh-icon">↻</span>
-            {{ loading ? '正在刷新' : '刷新新闻' }}
-          </button>
-          <a
-              class="secondary-btn"
-              href="https://news.xjtu.edu.cn/zyxw.htm"
-              target="_blank"
-              rel="noreferrer"
-          >
-            西安交通大学新闻网
-          </a>
-        </div>
-
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <span class="hero-stat-label">实时资讯</span>
-            <strong class="hero-stat-value">{{ articles.length }}</strong>
+        <section class="hero-learning-widget">
+          <div class="hero-learning-header">
+            <h3 class="hero-learning-title">每日一学</h3>
+            <button class="hero-learning-refresh" type="button" @click="refreshDailyQuote">
+              换一条
+            </button>
           </div>
-          <div class="hero-stat">
-            <span class="hero-stat-label">本周更新</span>
-            <strong class="hero-stat-value">{{ weeklyCount }}</strong>
+          <div class="hero-learning-content">
+            <p class="hero-learning-text">“{{ dailyQuote.text }}”</p>
+            <div class="hero-learning-source-box">
+              <span class="hero-learning-dash">——</span>
+              <span class="hero-learning-source">{{ dailyQuote.source }}</span>
+            </div>
           </div>
-          <div class="hero-stat">
-            <span class="hero-stat-label">最近刷新</span>
-            <strong class="hero-stat-value">{{ lastUpdateTime }}</strong>
-          </div>
-        </div>
+        </section>
       </div>
 
       <div class="hero-carousel">
@@ -291,24 +289,6 @@
           </div>
         </section>
 
-        <section class="sidebar-widget quote-widget">
-          <div class="widget-header">
-            <h3 class="widget-title">每日一学</h3>
-            <button class="widget-link widget-action-btn" type="button" @click="refreshDailyQuote">
-              换一条
-            </button>
-          </div>
-          <div class="quote-content">
-            <p class="quote-text">
-              “{{ dailyQuote.text }}”
-            </p>
-            <div class="quote-source-box">
-              <span class="quote-dash">——</span>
-              <span class="quote-source">{{ dailyQuote.source }}</span>
-            </div>
-          </div>
-        </section>
-
       </aside>
     </section>
   </div>
@@ -322,7 +302,7 @@ const defaultImage = 'https://images.unsplash.com/photo-1552664730-d307ca884978?
 
 const FIXED_NEWS_COUNT = 4
 const LOCAL_DYNAMIC_COUNT = 26
-const HOT_NEWS_COUNT = 6
+const HOT_NEWS_COUNT = 8
 const ALL_PAGE_SIZE = 5
 const CATEGORY_BASE_PICK_COUNT = 4
 
@@ -460,6 +440,26 @@ const hotNewsPool = [
     title: '国际观察：地区安全与发展议题进入政策协调阶段',
     source: 'Reuters World',
     link: 'https://www.reuters.com/world/'
+  },
+  {
+    title: '两会热点追踪：教育数字化与人才培养体系持续升级',
+    source: '新华网',
+    link: 'https://www.news.cn/politics/'
+  },
+  {
+    title: '政策观察：完善高校思政课程体系与实践协同机制',
+    source: '求是网',
+    link: 'https://www.qstheory.cn/'
+  },
+  {
+    title: '权威解读：推动高校科研创新与服务国家战略同向发力',
+    source: '人民网',
+    link: 'https://theory.people.com.cn/'
+  },
+  {
+    title: '教育资讯：新学期学风建设与课堂质量提升重点发布',
+    source: '央视网',
+    link: 'https://news.cctv.com/china/'
   }
 ]
 
@@ -492,17 +492,12 @@ const studentFaqs = [
   {
     id: 'faq-3',
     question: '新闻无法打开怎么办？',
-    answer: '可以先点击本页“刷新新闻”重新获取内容；如果外链打不开，建议稍后重试或切换浏览器访问。'
+    answer: '请先检查网络连接和浏览器拦截设置；若外链暂时无法访问，建议稍后重试或切换浏览器。'
   },
   {
     id: 'faq-4',
     question: '如何查看个人学习信息？',
     answer: '登录后可通过左侧菜单进入“在线学习”或“个人中心”，查看课程学习情况和个人基础信息。'
-  },
-  {
-    id: 'faq-5',
-    question: '如何联系管理员？',
-    answer: '遇到账户、权限或页面异常问题时，请整理账号信息、问题描述和截图，通过班级通知渠道或系统管理员联系方式反馈。'
   }
 ]
 
@@ -1186,18 +1181,12 @@ const allCurrentPage = ref(1)
 const loading = ref(false)
 const error = ref(null)
 const articles = ref([])
-const lastUpdateTime = ref('--:--')
 const openFaqId = ref(studentFaqs[0]?.id || '')
 const hotNewsItems = ref(buildHotNewsItems())
 const dailyQuote = ref(buildRandomQuote())
 
 const refreshDailyQuote = () => {
   dailyQuote.value = buildRandomQuote(dailyQuote.value.text)
-}
-
-const refreshSidebarContent = () => {
-  hotNewsItems.value = buildHotNewsItems()
-  refreshDailyQuote()
 }
 
 const mergeArticles = (remoteItems = []) => {
@@ -1288,14 +1277,6 @@ const allPaginationItems = computed(() => {
   return items
 })
 
-const weeklyCount = computed(() => {
-  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
-  return articles.value.filter((article) => {
-    const articleTime = new Date(article.date).getTime()
-    return !Number.isNaN(articleTime) && articleTime > oneWeekAgo
-  }).length
-})
-
 const getCategoryName = (categoryId) => {
   const category = categories.find((item) => item.id === categoryId)
   return category ? category.name : '校园动态'
@@ -1316,7 +1297,6 @@ const changeCategory = (categoryId) => {
 const loadDefaultData = () => {
   articles.value = sortByDateDesc(buildLocalArticles())
   allCurrentPage.value = 1
-  updateLastRefreshTime()
 }
 
 const fetchNews = async () => {
@@ -1342,56 +1322,12 @@ const fetchNews = async () => {
 
     articles.value = mergeArticles(data.data)
     allCurrentPage.value = 1
-    updateLastRefreshTime()
   } catch (err) {
     console.error('获取新闻失败:', err)
     loadDefaultData()
   } finally {
     loading.value = false
   }
-}
-
-const refreshNews = async () => {
-  if (loading.value) {
-    return
-  }
-
-  loading.value = true
-  error.value = null
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/news/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error('刷新请求失败，请稍后再试。')
-    }
-
-    const data = await response.json()
-    if (!data.success || !Array.isArray(data.data)) {
-      throw new Error(data.message || '刷新新闻失败。')
-    }
-
-    articles.value = mergeArticles(data.data)
-    allCurrentPage.value = 1
-    updateLastRefreshTime()
-  } catch (err) {
-    console.error('刷新新闻失败:', err)
-    error.value = `刷新失败：${err.message}`
-    loadDefaultData()
-  } finally {
-    refreshSidebarContent()
-    loading.value = false
-  }
-}
-
-const updateLastRefreshTime = () => {
-  const now = new Date()
-  lastUpdateTime.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
 }
 
 const toggleFaq = (faqId) => {
@@ -1508,8 +1444,8 @@ onMounted(() => {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 24px;
+  justify-content: flex-start;
+  gap: 14px;
 }
 
 .hero-copy-main {
@@ -1546,14 +1482,123 @@ onMounted(() => {
   font-weight: 600;
 }
 
-.hero-actions {
+.hero-source-link {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: #1f2f44;
+  background: #fff;
+  padding: 18px 18px;
+  min-height: 96px;
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.publish-btn,
-.secondary-btn,
+.hero-source-link-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hero-source-link-title {
+  font-size: 21px;
+  line-height: 1.35;
+  font-weight: 600;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+}
+
+.hero-source-link-desc {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #5c6c80;
+}
+
+.hero-source-link-action {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: #5f6f82;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.hero-source-link:hover {
+  border-color: #aab4c2;
+  color: #122236;
+  background: #f7f9fc;
+}
+
+.hero-learning-widget {
+  margin-top: auto;
+  border: 1px solid var(--line);
+  border-left: 3px solid #c0cee0;
+  border-radius: 2px;
+  background: #f8fafd;
+  padding: 12px 12px 10px;
+}
+
+.hero-learning-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-learning-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2d40;
+  font-family: 'Noto Serif SC', 'Source Han Serif SC', 'Songti SC', 'STSong', serif;
+}
+
+.hero-learning-refresh {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #365a86;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.hero-learning-content {
+  padding: 2px 0 0;
+}
+
+.hero-learning-text {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #33475e;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+
+.hero-learning-source-box {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  color: #5f6f82;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.hero-learning-dash {
+  color: #a0aebc;
+}
+
 .retry-btn {
   border-radius: 2px;
   padding: 10px 16px;
@@ -1562,72 +1607,6 @@ onMounted(() => {
   cursor: pointer;
   text-decoration: none;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-
-.publish-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid var(--accent);
-  color: #fff;
-  background: var(--accent);
-}
-
-.publish-btn:hover {
-  border-color: var(--accent-dark);
-  background: var(--accent-dark);
-}
-
-.publish-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.76;
-}
-
-.publish-btn:disabled .refresh-icon {
-  animation: spin 1s linear infinite;
-}
-
-.secondary-btn {
-  border: 1px solid var(--line-strong);
-  color: #1f2f44;
-  background: #fff;
-}
-
-.secondary-btn:hover {
-  border-color: #aab4c2;
-  color: #122236;
-}
-
-.refresh-icon {
-  font-size: 15px;
-  line-height: 1;
-}
-
-.hero-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  border-top: 1px solid var(--line);
-}
-
-.hero-stat {
-  padding: 14px 10px;
-}
-
-.hero-stat + .hero-stat {
-  border-left: 1px solid var(--line);
-}
-
-.hero-stat-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 12px;
-  color: #738093;
-}
-
-.hero-stat-value {
-  font-size: 26px;
-  font-weight: 700;
-  color: #172536;
 }
 
 .hero-carousel {
@@ -2199,14 +2178,6 @@ onMounted(() => {
   color: #16212f;
 }
 
-.widget-action-btn {
-  border: none;
-  background: transparent;
-  padding: 0;
-  font-family: inherit;
-  cursor: pointer;
-}
-
 .sidebar-news-list,
 .faq-list {
   display: flex;
@@ -2216,7 +2187,7 @@ onMounted(() => {
 .sidebar-news-item {
   display: flex;
   gap: 12px;
-  padding: 10px 0;
+  padding: 9px 0;
   border-top: 1px solid var(--line);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -2257,7 +2228,7 @@ onMounted(() => {
 .sidebar-news-title {
   margin: 0 0 4px;
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.52;
   color: #253346;
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -2308,7 +2279,7 @@ onMounted(() => {
   border: none;
   border-top: 1px solid var(--line);
   background: transparent;
-  padding: 12px 0;
+  padding: 10px 0;
   cursor: pointer;
   text-align: left;
 }
@@ -2326,7 +2297,7 @@ onMounted(() => {
 }
 
 .faq-question {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: #253346;
 }
@@ -2346,7 +2317,8 @@ onMounted(() => {
 
 .section-link:focus-visible,
 .widget-link:focus-visible,
-.widget-action-btn:focus-visible,
+.hero-source-link:focus-visible,
+.hero-learning-refresh:focus-visible,
 .pagination-btn:focus-visible,
 .card-image-link:focus-visible,
 .card-title-link:focus-visible,
@@ -2355,35 +2327,6 @@ onMounted(() => {
 .campus-link:focus-visible {
   outline: 2px solid #6f8fb7;
   outline-offset: 2px;
-}
-
-.quote-widget {
-  border-color: var(--line-strong);
-}
-
-.quote-content {
-  padding: 4px 0 2px;
-}
-
-.quote-text {
-  margin: 0 0 12px;
-  font-family: 'Noto Serif SC', 'Source Han Serif SC', serif;
-  font-size: 14px;
-  line-height: 1.75;
-  color: #2b3a4d;
-}
-
-.quote-source-box {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  font-size: 13px;
-  color: #5a6b7c;
-  font-weight: 600;
-}
-
-.quote-dash {
-  color: #a0aebc;
 }
 
 @media (max-width: 1200px) {
@@ -2437,13 +2380,39 @@ onMounted(() => {
     font-size: 34px;
   }
 
-  .hero-stats {
-    grid-template-columns: 1fr;
+  .hero-source-link {
+    gap: 10px;
+    padding: 14px 14px;
+    min-height: 82px;
   }
 
-  .hero-stat + .hero-stat {
-    border-top: 1px solid var(--line);
-    border-left: none;
+  .hero-source-link-title {
+    font-size: 17px;
+  }
+
+  .hero-source-link-desc {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .hero-source-link-action {
+    font-size: 11px;
+  }
+
+  .hero-learning-widget {
+    padding: 10px 11px 9px;
+  }
+
+  .hero-learning-title {
+    font-size: 15px;
+  }
+
+  .hero-learning-text {
+    font-size: 12px;
+  }
+
+  .hero-learning-source-box {
+    font-size: 11px;
   }
 
   .hero-slide {
