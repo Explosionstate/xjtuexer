@@ -320,7 +320,7 @@ const heroSlides = [
     summary: '聚焦权威时政报道与两会专题解读，适合作为页面顶部焦点资讯入口，快速掌握当前重要政策议题。',
     source: '新华网',
     link: 'https://www.news.cn/politics/',
-    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1600&h=900&fit=crop',
+    image: 'https://img2.baidu.com/it/u=3173549564,1514066771&fm=253&fmt=auto&app=138&f=JPEG?w=763&h=500',
     focalPoint: 'center center'
   },
   {
@@ -328,7 +328,7 @@ const heroSlides = [
     summary: '围绕理论阐释、思想引领和实践转化组织内容，更贴合当前页面的理论学习与思想政治资讯定位。',
     source: '求是网',
     link: 'https://www.qstheory.cn/',
-    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1600&h=900&fit=crop',
+    image: 'https://img1.baidu.com/it/u=2205595552,1505893496&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=667',
     focalPoint: 'center 42%'
   },
   {
@@ -336,7 +336,7 @@ const heroSlides = [
     summary: '聚合理论频道中的权威评论和学习文章，强化思政、理论与教育协同的内容氛围，保持页面整体主题一致。',
     source: '人民网理论频道',
     link: 'https://theory.people.com.cn/',
-    image: 'https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=1600&h=900&fit=crop',
+    image: 'https://img2.baidu.com/it/u=675422831,4156642598&fm=253&fmt=auto&app=138&f=JPEG?w=880&h=373',
     focalPoint: 'center center'
   },
   {
@@ -344,7 +344,7 @@ const heroSlides = [
     summary: '以政策发布、权威解读和制度安排为核心，补足页面在时政政策维度上的信息感和专业感。',
     source: '中国政府网',
     link: 'https://www.gov.cn/zhengce/',
-    image: 'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=1600&h=900&fit=crop',
+    image: 'https://mediabluk.cnr.cn/img/cnr/CNRCDP/2025/1219/d8bd1a8430366176610830204319513110.png?auth=4505791332cf1dfbed801b348ca4ca7c',
     focalPoint: 'center 38%'
   }
 ]
