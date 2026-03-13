@@ -1,3 +1,4 @@
+
 <template>
   <div class="news-container">
     <section class="hero-section">

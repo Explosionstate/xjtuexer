@@ -41,7 +41,7 @@ const aiRecommendations = ref([
 ])
 
 const recentUsage = ref([
-  { id: 1, name: '学生成长助手 - 成绩分析' },
+  { id: 1, title: '学生成长助手 - 成绩分析' },
   { id: 2, title: '思政知识问答 - 理论学习' },
   { id: 3, title: '学情报告助手 - 月度总结' }
 ])
