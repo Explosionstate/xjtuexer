@@ -364,7 +364,8 @@ const handleClose = (key, keyPath) => {
 
     /* 品牌背景融合 */
     background-image:
-        linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(75, 108, 183, 0.85) 100%),
+        /* 修改点：透明度降低至 0.45，解决背景图不显示的问题 */
+        linear-gradient(135deg, rgba(44, 62, 80, 0.45) 0%, rgba(75, 108, 183, 0.45) 100%),
         var(--header-bg);
     background-size: cover;
     background-position: center;
@@ -380,9 +381,8 @@ const handleClose = (key, keyPath) => {
 
     .logo-wrapper {
       background: rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      width: 74px;
-      height: 74px;
+      width: 100px;
+      height: 85px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -391,10 +391,9 @@ const handleClose = (key, keyPath) => {
       backdrop-filter: blur(4px);
 
       .brand-logo {
-        /* 修改点：稍微缩小Logo以适应新的外框 */
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
 
