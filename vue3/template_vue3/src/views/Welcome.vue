@@ -4,7 +4,7 @@
     <div class="virtual-scroll-track" :style="{ height: '500vh' }"></div>
 
     <header class="global-header" :class="{ 'is-scrolled': smoothScrollY > 50 }">
-      <h1 class="title">思政云平台</h1>
+      <h1 class="title">精准思政云平台</h1>
       <div class="butt">
         <button class="particle-btn" @click="goToLogin">
           <div class="btn-glow"></div>
@@ -63,11 +63,11 @@
 
           <div class="features-list-viewport">
             <div
-              v-for="(item, index) in features"
-              :key="index"
-              class="feature-block"
-              :class="{ 'is-active': activeIndex === index }"
-              :style="getFeatureStyle(index)"
+                v-for="(item, index) in features"
+                :key="index"
+                class="feature-block"
+                :class="{ 'is-active': activeIndex === index }"
+                :style="getFeatureStyle(index)"
             >
               <div class="feature-num">0{{ index + 1 }}</div>
               <h3 class="feature-title">{{ item.title }}</h3>

@@ -27,7 +27,7 @@ const ROLE_DEFAULT_PATH = {
 }
 
 const ROLE_ALLOW_ROUTES = {
-  admin: new Set(['/user/list']),
+  admin: new Set(['/user/list', '/user/count']),
   teacher: new Set([
     '/news',
     '/user/count',

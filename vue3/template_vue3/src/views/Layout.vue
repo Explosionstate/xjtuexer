@@ -20,6 +20,9 @@ import {
   Message
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
+import platformLogo from '@/assets/logo.png'
+// 假设背景图名为 background.png
+import headerBg from '@/assets/background.png'
 import { useUserInfoStore } from '@/stores/userInfo'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -130,13 +133,13 @@ watch(() => roleCode.value, () => {
 const handleCommand = async (command) => {
   if (command === 'logout') {
     ElMessageBox.confirm(
-      '你确认要退出吗？',
-      '温馨提示',
-      {
-        confirmButtonText: '确认',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
+        '你确认要退出吗？',
+        '温馨提示',
+        {
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }
     ).then(async () => {
       userInfoStore.removeUserInfo()
       ElMessage.success('退出成功')
@@ -163,12 +166,12 @@ const handleClose = (key, keyPath) => {
 <template>
   <el-container class="layout-container">
     <el-menu
-      default-active="2"
-      class="el-menu-vertical-demo"
-      :collapse="isCollapse"
-      @open="handleOpen"
-      @close="handleClose"
-      router
+        default-active="2"
+        class="el-menu-vertical-demo"
+        :collapse="isCollapse"
+        @open="handleOpen"
+        @close="handleClose"
+        router
     >
       <el-menu-item v-if="showNews" index="/news">
         <el-tooltip :content="isCollapse ? '新闻资讯' : ''" placement="right">
@@ -232,7 +235,7 @@ const handleClose = (key, keyPath) => {
       <el-sub-menu v-if="showAnalysis" index="analysis">
         <template #title>
           <el-tooltip :content="isCollapse ? '学情分析' : ''" placement="right">
-            <el-icon><Search /></el-icon>
+            <el-icon><TrendCharts /></el-icon>
           </el-tooltip>
           <span>学情分析</span>
         </template>
@@ -276,34 +279,41 @@ const handleClose = (key, keyPath) => {
       </el-radio-group>
     </el-menu>
 
-    <el-container>
-      <el-header>
-        <div>欢迎：<strong>{{ userInfoStore.userInfo.loginName }}</strong></div>
-        <el-dropdown placement="bottom-end" @command="handleCommand">
-          <span class="el-dropdown__box">
-            <el-avatar :src="userInfoStore.userInfo.advater ? userInfoStore.userInfo.advater : avatar" />
-            <el-icon><CaretBottom /></el-icon>
-          </span>
-          <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item
-                v-if="showPersonalCenter"
-                command="info"
-                :icon="User"
-              >
-                基本资料
-              </el-dropdown-item>
-              <el-dropdown-item
-                v-if="showPersonalCenter"
-                command="resetPassword"
-                :icon="EditPen"
-              >
-                重置密码
-              </el-dropdown-item>
-              <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
-            </el-dropdown-menu>
-          </template>
-        </el-dropdown>
+    <!-- 主布局容器 -->
+    <el-container class="main-content-wrapper">
+      <!-- 顶部品牌栏 -->
+      <el-header
+          class="global-brand-header"
+          :style="{ '--header-bg': `url(${headerBg})` }"
+      >
+        <div class="brand-left-area">
+          <div class="logo-wrapper">
+            <img :src="platformLogo" alt="Platform Logo" class="brand-logo" />
+          </div>
+          <div class="brand-info">
+            <h1 class="brand-title">马克思主义学院精准思政云平台</h1>
+            <span class="brand-subtitle">Marxism Cloud Platform</span>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <div class="welcome-text">
+            欢迎：<strong>{{ userInfoStore.userInfo.name || userInfoStore.userInfo.username }}</strong>
+          </div>
+          <el-dropdown placement="bottom-end" @command="handleCommand" trigger="click">
+            <div class="user-profile-trigger">
+              <el-avatar :size="36" :src="userInfoStore.userInfo.avatar ? userInfoStore.userInfo.avatar : avatar" />
+              <el-icon class="user-dropdown-icon"><CaretBottom /></el-icon>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="info">个人中心</el-dropdown-item>
+                <el-dropdown-item command="resetPassword">修改密码</el-dropdown-item>
+                <el-dropdown-item divided command="logout" style="color: #f56c6c;">退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </el-header>
 
       <el-main>
@@ -318,52 +328,184 @@ const handleClose = (key, keyPath) => {
 <style lang="scss" scoped>
 .layout-container {
   height: 100vh;
+  display: flex;
 
-  .el-aside {
-    background-color: #232323;
+  /* 侧边菜单基础样式 */
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: 220px;
+    min-height: 400px;
+  }
+  .el-menu {
+    border-right: none;
+    background-color: #fff;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+    z-index: 10;
+  }
 
-    &__logo {
-      height: 120px;
-      background: url('../assets/login_title.png') no-repeat center / 120px auto;
+  .main-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    background-color: #f5f7fa; /* 整体背景色偏灰，突出Header */
+    overflow: hidden;
+  }
+
+  /* =========== 顶部品牌栏核心样式 =========== */
+  .global-brand-header {
+    height: 85px; /* 修改点：调低高度 (原100px) */
+    padding: 0 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #fff;
+    z-index: 100;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+
+    /* 品牌背景融合 */
+    background-image:
+        linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(75, 108, 183, 0.85) 100%),
+        var(--header-bg);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .brand-left-area {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    position: relative;
+    z-index: 2;
+
+    .logo-wrapper {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      width: 74px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.2);
+      backdrop-filter: blur(4px);
+
+      .brand-logo {
+        /* 修改点：稍微缩小Logo以适应新的外框 */
+        width: 60px;
+        height: 60px;
+        object-fit: contain;
+      }
     }
 
-    .el-menu {
-      border-right: none;
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+
+      .brand-title {
+        font-size: 26px; /* 修改点：微调字号 */
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: 2px;
+        line-height: 1.2;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      }
+
+      .brand-subtitle {
+        font-size: 13px;
+        opacity: 0.9;
+        font-weight: 300;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-top: 5px;
+        color: rgba(255,255,255,0.85);
+      }
     }
   }
 
-  .el-header {
-    background-color: #fff;
+  .header-actions {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
 
-    .el-dropdown__box {
-      display: flex;
-      align-items: center;
+    .welcome-text {
+      font-size: 15px;
+      color: rgba(255, 255, 255, 0.95);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 
-      .el-icon {
-        color: #999;
-        margin-left: 10px;
-      }
-
-      &:active,
-      &:focus {
-        outline: none;
+      strong {
+        color: #fff;
+        font-weight: 600;
+        margin-left: 4px;
       }
     }
+
+    .user-profile-trigger {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 12px;
+      border-radius: 30px;
+      transition: all 0.3s;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.1);
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.25);
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      }
+
+      .user-dropdown-icon {
+        color: rgba(255,255,255,0.9);
+        font-size: 14px;
+      }
+    }
+  }
+
+  .el-main {
+    padding: 20px;
+    overflow-y: auto;
   }
 
   .el-footer {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 14px;
-    color: #666;
+    font-size: 12px;
+    color: #909399;
+    background-color: #fff;
+    border-top: 1px solid #e4e7ed;
+    height: 40px;
   }
-}
-.el-menu-vertical-demo:not(.el-menu--collapse) {
-  width: 200px;
-  min-height: 400px;
+
+  /* 响应式适配 */
+  @media (max-width: 768px) {
+    .global-brand-header {
+      height: 70px;
+      padding: 0 20px;
+    }
+    .brand-subtitle {
+      display: none;
+    }
+    .brand-title {
+      font-size: 18px !important;
+    }
+    .welcome-text {
+      display: none;
+    }
+    /* 移动端缩小logo */
+    .brand-left-area .logo-wrapper {
+      width: 50px;
+      height: 50px;
+    }
+    .brand-left-area .logo-wrapper .brand-logo {
+      width: 40px;
+      height: 40px;
+    }
+  }
 }
 </style>
