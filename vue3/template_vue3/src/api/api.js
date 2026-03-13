@@ -143,3 +143,5 @@ export const pageStudents = (query) => request.get("/api/student/listPage", { pa
 export const pageUserss = (query) => request.get("/api/users/listPage", { params: query });
 export const removeUsersById = (user) => request.get("/api/users/removeById", { params: user });
 export const updateUsers = (user) => request.post("/api/users/updateById", user);
+
+export const getSsoTicket = () => request.get("/api/sso/ticket");

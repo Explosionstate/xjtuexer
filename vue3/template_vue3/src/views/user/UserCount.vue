@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import image1 from '@/assets/lunbo-1.jpg'
 import image2 from '@/assets/lunbo-2.jpg'
 import image3 from '@/assets/lunbo-3.jpg'
 import image4 from '@/assets/lunbo-4.jpg'
+import { getSsoTicket } from '@/api/api'
 import {
   User,
   DataAnalysis,
@@ -16,6 +18,7 @@ import {
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const redirectingToAi = ref(false)
 
 const carouselItems = ref([
   { id: 1, image: image1 },
@@ -67,6 +70,27 @@ const navigateToCard = (cardId: number) => {
 const navigateToDetail = (item: any) => {
   console.log('查看详情:', item)
 }
+
+const jumpToAiAssistant = async () => {
+  if (redirectingToAi.value) {
+    return
+  }
+  redirectingToAi.value = true
+  try {
+    const res = await getSsoTicket()
+    const ticket = res?.data?.ticket
+    if (!ticket) {
+      ElMessage.error('获取AI登录票据失败')
+      redirectingToAi.value = false
+      return
+    }
+    window.location.href = `http://127.0.0.1:5174/?sso_ticket=${encodeURIComponent(ticket)}`
+  } catch (error) {
+    ElMessage.error('跳转AI系统失败，请稍后重试')
+    redirectingToAi.value = false
+  }
+}
+
 </script>
 
 <template>
@@ -92,6 +116,12 @@ const navigateToDetail = (item: any) => {
         <div class="section-title">
           <h2>智能体中心</h2>
           <span class="subtitle">AI-Powered Agents</span>
+        </div>
+
+        <div class="ai-jump-row">
+          <el-button type="primary" :loading="redirectingToAi" @click="jumpToAiAssistant">
+            {{ redirectingToAi ? '正在跳转 AI 助手...' : '进入 AI 助手（单点登录）' }}
+          </el-button>
         </div>
 
         <div class="cards-grid">
@@ -252,6 +282,10 @@ const navigateToDetail = (item: any) => {
     text-transform: uppercase;
     letter-spacing: 1px;
   }
+}
+
+.ai-jump-row {
+  margin-bottom: 20px;
 }
 
 /* --- 卡片网格 --- */
