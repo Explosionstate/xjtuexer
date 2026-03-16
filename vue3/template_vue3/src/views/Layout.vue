@@ -17,7 +17,8 @@ import {
   DArrowRight,
   DArrowLeft,
   Odometer,
-  Message
+  Message,
+  ChatDotRound
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import platformLogo from '@/assets/logo.png'
@@ -40,7 +41,7 @@ const ROLE_DEFAULT_PATH = {
 }
 
 const ROLE_ALLOW_ROUTES = {
-  admin: new Set(['/user/list']),
+  admin: new Set(['/user/list', '/admin/agent-center']),
   teacher: new Set([
     '/news',
     '/user/count',
@@ -74,6 +75,7 @@ const roleCode = computed(() => {
 })
 
 const showUserManagement = computed(() => roleCode.value === 'admin')
+const showAdminAgentCenter = computed(() => roleCode.value === 'admin')
 const showNews = computed(() => roleCode.value !== 'admin')
 const showAi = computed(() => roleCode.value !== 'admin')
 const showCockpit = computed(() => roleCode.value === 'teacher')
@@ -81,6 +83,12 @@ const showPersonalCenter = computed(() => roleCode.value !== 'admin')
 const showOnlineLearning = computed(() => roleCode.value !== 'admin')
 const showWarning = computed(() => roleCode.value === 'teacher')
 const showAnalysis = computed(() => roleCode.value === 'teacher')
+const activeMenuIndex = computed(() => {
+  if (route.path.startsWith('/admin/agent-center')) {
+    return '/admin/agent-center'
+  }
+  return route.path
+})
 
 const isCollapse = ref(true)
 
@@ -91,6 +99,9 @@ const clearAuthState = () => {
 }
 
 const canAccessPath = (path) => {
+  if (roleCode.value === 'admin' && path.startsWith('/admin/agent-center/workbench/')) {
+    return true
+  }
   const allowSet = ROLE_ALLOW_ROUTES[roleCode.value] || ROLE_ALLOW_ROUTES.admin
   return allowSet.has(path)
 }
@@ -176,7 +187,7 @@ const handleClose = (key, keyPath) => {
 <template>
   <el-container class="layout-container">
     <el-menu
-        default-active="2"
+        :default-active="activeMenuIndex"
         class="el-menu-vertical-demo"
         :collapse="isCollapse"
         @open="handleOpen"
@@ -195,6 +206,13 @@ const handleClose = (key, keyPath) => {
           <el-icon><Promotion /></el-icon>
         </el-tooltip>
         <span>用户管理</span>
+      </el-menu-item>
+
+      <el-menu-item v-if="showAdminAgentCenter" index="/admin/agent-center">
+        <el-tooltip :content="isCollapse ? '智能体管理中心' : ''" placement="right">
+          <el-icon><ChatDotRound /></el-icon>
+        </el-tooltip>
+        <span>智能体管理中心</span>
       </el-menu-item>
 
       <el-menu-item v-if="showAi" index="/user/count">

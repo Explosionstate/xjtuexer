@@ -15,6 +15,8 @@ import InteractionAnalytics from '@/views/user/InteractionAnalytics.vue'
 import CourseVisitAnalytics from '@/views/user/CourseVisitAnalytics.vue'
 import ScoreAnalytics from '@/views/user/ScoreAnalytics.vue'
 import CourseAvgScores from '@/views/user/CourseAvgScores.vue'
+import AdminAgentCenter from '@/views/user/AdminAgentCenter.vue'
+import AdminAgentWorkbench from '@/views/user/AdminAgentWorkbench.vue'
 import Welcome from '@/views/Welcome.vue'
 import Register from '@/views/Register.vue'
 import CourseInsert from '@/views/user/CourseInsert.vue'
@@ -27,7 +29,7 @@ const ROLE_DEFAULT_PATH = {
 }
 
 const ROLE_ALLOW_ROUTES = {
-  admin: new Set(['/user/list', '/user/count']),
+  admin: new Set(['/user/list', '/user/count', '/admin/agent-center']),
   teacher: new Set([
     '/news',
     '/user/count',
@@ -75,6 +77,12 @@ const routes = [
       { path: '/user/avgscore', component: CourseAvgScores },
       { path: '/user/learning', name: 'OnlineLearning', component: OnlineLearning },
       { path: '/user/courseinsert', component: CourseInsert },
+      { path: '/admin/agent-center', component: AdminAgentCenter },
+      {
+        path: '/admin/agent-center/workbench/:agentKey',
+        name: 'AdminAgentWorkbench',
+        component: AdminAgentWorkbench
+      },
       { path: '/news', component: News }
     ]
   }
@@ -102,6 +110,12 @@ router.beforeEach((to, from, next) => {
   const role = (userInfoStore.userInfo?.role === 'teacher' || userInfoStore.userInfo?.role === 'student')
     ? userInfoStore.userInfo.role
     : 'admin'
+
+  const isAdminWorkbenchPath = to.path.startsWith('/admin/agent-center/workbench/')
+  if (role === 'admin' && isAdminWorkbenchPath) {
+    next()
+    return
+  }
 
   const allowSet = ROLE_ALLOW_ROUTES[role] || ROLE_ALLOW_ROUTES.admin
   if (!allowSet.has(to.path)) {
