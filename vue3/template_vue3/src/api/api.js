@@ -111,6 +111,10 @@ export const userLogin = (user) => {
    return request.post("/api/user/login", user);
 };
 
+export const userLogout = () => {
+   return request.post("/api/user/logout");
+};
+
 export function userRegister(data) {
    return request({
       url: '/api/user/register',

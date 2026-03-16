@@ -11,6 +11,11 @@ const userInfoStore = useUserInfoStore();
 const username = ref("");
 const password = ref("");
 const validRoles = ["teacher", "student", "admin"];
+const credentialErrorKeywords = [
+  "用户名或密码错误",
+  "Invalid loginName or password",
+  "Invalid loginName/password",
+];
 
 const resolveLoginRole = (rawUser) => {
   const role = rawUser?.role;
@@ -32,13 +37,18 @@ const resolveHomePathByRole = (role) => {
 
 const isValidLoginRole = (role) => validRoles.includes(role);
 
-const shouldShowCredentialError = (error) => {
-  const message = error?.message || error?.data?.message || "";
-  return [
-    "用户名或密码错误",
-    "Invalid loginName or password",
-    "Invalid loginName/password",
-  ].some((text) => message.includes(text));
+const extractErrorMessage = (errorLike) => {
+  return (
+    errorLike?.message ||
+    errorLike?.data?.message ||
+    errorLike?.response?.data?.message ||
+    ""
+  );
+};
+
+const shouldShowCredentialError = (errorLike) => {
+  const message = extractErrorMessage(errorLike);
+  return credentialErrorKeywords.some((text) => message.includes(text));
 };
 
 const showCredentialError = () => {
@@ -49,6 +59,14 @@ const showCredentialError = () => {
   });
 };
 
+const showLoginFailedMessage = (message) => {
+  ElMessage.closeAll();
+  ElMessage({
+    message: message || "登录失败，请稍后重试",
+    type: "error",
+  });
+};
+
 const login = () => {
   const user = {
     loginName: username.value,
@@ -56,10 +74,23 @@ const login = () => {
   };
   userLogin(user)
       .then((res) => {
+        if (res?.status === false) {
+          if (shouldShowCredentialError(res)) {
+            showCredentialError();
+          } else {
+            showLoginFailedMessage(res?.message);
+          }
+          return;
+        }
+
         const loginData = res.data;
         const resolvedRole = resolveLoginRole(loginData);
         if (loginData == null || !resolvedRole) {
-          showCredentialError();
+          if (shouldShowCredentialError(res)) {
+            showCredentialError();
+          } else {
+            showLoginFailedMessage(res?.message);
+          }
           return;
         }
 
@@ -77,6 +108,8 @@ const login = () => {
       .catch((error) => {
         if (shouldShowCredentialError(error)) {
           showCredentialError();
+        } else {
+          showLoginFailedMessage(extractErrorMessage(error));
         }
       });
 };

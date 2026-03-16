@@ -11,6 +11,7 @@ import com.example.mybatisplusdemo.model.dto.PageDTO;
 import com.example.mybatisplusdemo.model.dto.QueryDTO;
 import com.example.mybatisplusdemo.service.IUserService;
 import com.example.mybatisplusdemo.service.IUsersService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,6 +74,22 @@ public class UserController {
                 throw new RuntimeException("Invalid loginName or password");
             }
         }
+    }
+
+    @PostMapping("logout")
+    public JsonResponse logout(HttpServletRequest request) {
+        SessionUtils.clearAdmin();
+        SessionUtils.clearBiz();
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.removeAttribute("sessionAdminMenus");
+            session.removeAttribute("sessionAdminPermissions");
+            session.removeAttribute("sessionBizMenus");
+            session.removeAttribute("sessionBizPermissions");
+            session.invalidate();
+        }
+        return JsonResponse.success(true);
     }
 
     @GetMapping("getInfo")

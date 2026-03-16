@@ -26,7 +26,7 @@ import headerBg from '@/assets/background.png'
 import { useUserInfoStore } from '@/stores/userInfo'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getCurUser } from '@/api/api'
+import { getCurUser, userLogout } from '@/api/api'
 import { computed, ref, watch } from 'vue'
 
 const userInfoStore = useUserInfoStore()
@@ -84,6 +84,12 @@ const showAnalysis = computed(() => roleCode.value === 'teacher')
 
 const isCollapse = ref(true)
 
+const clearAuthState = () => {
+  userInfoStore.removeUserInfo()
+  localStorage.removeItem('userInfo')
+  sessionStorage.removeItem('userInfo')
+}
+
 const canAccessPath = (path) => {
   const allowSet = ROLE_ALLOW_ROUTES[roleCode.value] || ROLE_ALLOW_ROUTES.admin
   return allowSet.has(path)
@@ -109,15 +115,15 @@ const getUserInfo = async () => {
         message: '暂未登录请先登录',
         type: 'warning'
       })
-      userInfoStore.removeUserInfo()
-      await router.push({ path: '/login' })
+      clearAuthState()
+      await router.replace({ path: '/login' })
       return
     }
     userInfoStore.setUserInfo(res.data)
     redirectToRoleDefaultIfNeeded()
   } catch (e) {
-    userInfoStore.removeUserInfo()
-    await router.push({ path: '/login' })
+    clearAuthState()
+    await router.replace({ path: '/login' })
   }
 }
 getUserInfo()
@@ -141,9 +147,13 @@ const handleCommand = async (command) => {
           type: 'warning'
         }
     ).then(async () => {
-      userInfoStore.removeUserInfo()
+      try {
+        await userLogout()
+      } catch (_) {
+      }
+      clearAuthState()
       ElMessage.success('退出成功')
-      await router.push('/login')
+      await router.replace('/login')
     })
     return
   }
@@ -330,7 +340,6 @@ const handleClose = (key, keyPath) => {
   height: 100vh;
   display: flex;
 
-  /* 侧边菜单基础样式 */
   .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 220px;
     min-height: 400px;
@@ -345,13 +354,12 @@ const handleClose = (key, keyPath) => {
   .main-content-wrapper {
     display: flex;
     flex-direction: column;
-    background-color: #f5f7fa; /* 整体背景色偏灰，突出Header */
+    background-color: #f5f7fa;
     overflow: hidden;
   }
 
-  /* =========== 顶部品牌栏核心样式 =========== */
   .global-brand-header {
-    height: 85px; /* 修改点：调低高度 (原100px) */
+    height: 85px;
     padding: 0 40px;
     display: flex;
     justify-content: space-between;
