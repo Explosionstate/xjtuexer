@@ -26,13 +26,18 @@ const isShow = ref(false);
 const isCreate = ref(false);
 const dialogTitle = ref("编辑用户");
 const selectUser = ref({});
+const getRowLoginName = (row = {}) => row.loginName ?? row.login_name ?? "";
+const getRowName = (row = {}) => row.name ?? "";
 
 const getUsers = () => {
+  const normalizedLoginName = (loginName.value || "").trim();
+  const normalizedName = (name.value || "").trim();
   const query = {
     pageNum: pageNum.value,
     pageSize: pageSize.value,
-    loginName: loginName.value,
-    name: name.value,
+    loginName: normalizedLoginName,
+    login_name: normalizedLoginName,
+    name: normalizedName,
   };
   pageUserss(query).then((res) => {
     users.value = res.data?.records || [];
@@ -55,6 +60,7 @@ const openCreateDialog = () => {
   dialogTitle.value = "新增用户";
   selectUser.value = {
     loginName: "",
+    login_name: "",
     name: "",
     password: "",
     role: "student",
@@ -66,18 +72,30 @@ const openCreateDialog = () => {
 const showEditDialog = (row) => {
   isCreate.value = false;
   dialogTitle.value = "编辑用户";
+  const clonedRow = JSON.parse(JSON.stringify(row || {}));
+  const resolvedLoginName = getRowLoginName(clonedRow);
   selectUser.value = {
-    ...JSON.parse(JSON.stringify(row)),
-    role: row.role || "student",
-    originalRole: row.role || null,
+    ...clonedRow,
+    loginName: resolvedLoginName,
+    login_name: resolvedLoginName,
+    name: getRowName(clonedRow),
+    role: clonedRow.role || "student",
+    originalRole: clonedRow.role || null,
     password: "",
   };
   isShow.value = true;
 };
 
 const saveUser = () => {
-  if (!selectUser.value.loginName) {
-    ElMessage.error("请输入用户名");
+  const normalizedLoginName = getRowLoginName(selectUser.value).trim();
+  const normalizedName = (selectUser.value.name || "").trim();
+
+  if (!normalizedLoginName) {
+    ElMessage.error("请输入账号");
+    return;
+  }
+  if (!normalizedName) {
+    ElMessage.error("请输入姓名");
     return;
   }
   if (isCreate.value && !selectUser.value.password) {
@@ -91,9 +109,10 @@ const saveUser = () => {
 
   const user = {
     id: selectUser.value.id,
-    loginName: selectUser.value.loginName,
+    loginName: normalizedLoginName,
+    login_name: normalizedLoginName,
     password: selectUser.value.password,
-    name: selectUser.value.name,
+    name: normalizedName,
     role: selectUser.value.role,
     originalRole: selectUser.value.originalRole,
   };
@@ -159,10 +178,10 @@ getUsers();
     </template>
 
     <el-form :inline="true" class="demo-form-inline">
-      <el-form-item label="用户名">
-        <el-input v-model="loginName" placeholder="请输入用户名" clearable />
+      <el-form-item label="账号">
+        <el-input v-model="loginName" placeholder="请输入账号" clearable />
       </el-form-item>
-      <el-form-item label="姓名">
+      <el-form-item label="姓名（name）">
         <el-input v-model="name" placeholder="请输入姓名" clearable />
       </el-form-item>
       <el-form-item>
@@ -172,7 +191,11 @@ getUsers();
 
     <el-table :data="users" style="width: 100%">
       <el-table-column prop="id" label="ID" />
-      <el-table-column prop="loginName" label="用户名" />
+      <el-table-column label="账号">
+        <template #default="scope">
+          {{ scope.row.loginName || scope.row.login_name || "-" }}
+        </template>
+      </el-table-column>
       <el-table-column prop="name" label="姓名" />
       <el-table-column label="角色职责">
         <template #default="scope">
@@ -200,7 +223,7 @@ getUsers();
 
     <el-dialog v-model="isShow" :title="dialogTitle" width="500">
       <el-form label-width="88px" style="max-width: 600px">
-        <el-form-item label="用户名">
+        <el-form-item label="账号">
           <el-input v-model="selectUser.loginName" />
         </el-form-item>
         <el-form-item label="角色职责">

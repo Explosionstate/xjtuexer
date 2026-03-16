@@ -7,7 +7,8 @@ import request from '@/utils/request';
 import platformLogo from "@/assets/logo.png";
 
 const router = useRouter();
-const username = ref('');
+const loginName = ref('');
+const name = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 
@@ -16,6 +17,34 @@ const login = () => {
 };
 
 const register = () => {
+  if (!loginName.value || !loginName.value.trim()) {
+    ElMessage({
+      message: '请输入账号',
+      type: 'warning',
+    });
+    return;
+  }
+  if (!name.value || !name.value.trim()) {
+    ElMessage({
+      message: '请输入姓名',
+      type: 'warning',
+    });
+    return;
+  }
+  if (!password.value) {
+    ElMessage({
+      message: '请输入密码',
+      type: 'warning',
+    });
+    return;
+  }
+  if (!confirmPassword.value) {
+    ElMessage({
+      message: '请再次输入密码',
+      type: 'warning',
+    });
+    return;
+  }
   if (password.value !== confirmPassword.value) {
     ElMessage({
       message: '两次输入的密码不一致',
@@ -24,8 +53,12 @@ const register = () => {
     return;
   }
 
+  const normalizedLoginName = loginName.value.trim();
+  const normalizedName = name.value.trim();
   const user = {
-    loginName: username.value,
+    loginName: normalizedLoginName,
+    login_name: normalizedLoginName,
+    name: normalizedName,
     password: password.value
   };
   request({
@@ -43,11 +76,12 @@ const register = () => {
         message: '注册成功',
         type: 'success',
       });
-      username.value = '';
+      loginName.value = '';
+      name.value = '';
       password.value = '';
       confirmPassword.value = '';
     }
-  }).catch(error => {
+  }).catch(() => {
     ElMessage({
       message: '注册失败',
       type: 'error',
@@ -151,11 +185,18 @@ onMounted(() => {
       </div>
       <div class="formdata">
         <el-form ref="form">
-          <el-form-item prop="username">
+          <el-form-item prop="login_name">
             <el-input
-                v-model="username"
+                v-model="loginName"
                 clearable
                 placeholder="请输入账号"
+            ></el-input>
+          </el-form-item>
+          <el-form-item prop="name">
+            <el-input
+                v-model="name"
+                clearable
+                placeholder="请输入姓名"
             ></el-input>
           </el-form-item>
           <el-form-item prop="password">

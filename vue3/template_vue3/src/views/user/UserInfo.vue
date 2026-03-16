@@ -9,6 +9,9 @@
         <el-form-item label="用户名">
           <el-input v-model="user.loginName" disabled />
         </el-form-item>
+        <el-form-item label="姓名">
+          <el-input v-model="user.name" />
+        </el-form-item>
         <el-form-item label="最后登录时间">
           <el-input v-model="user.lastLoginTime" disabled />
         </el-form-item>
@@ -39,7 +42,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { getCurUser, updateUser } from '@/api/api';
+import { getCurUser, updateUsers } from '@/api/api';
 import { ElMessage } from 'element-plus';
 import { Plus } from '@element-plus/icons-vue';
 
@@ -52,7 +55,12 @@ const fetchUserInfo = async () => {
     const response = await getCurUser();
     console.log('getCurUser Response:', response);
     if (response.status === true && response.code === 0 && response.data) {
-      user.value = response.data;
+      const rawUser = response.data;
+      user.value = {
+        ...rawUser,
+        loginName: rawUser.loginName || rawUser.login_name || '',
+        name: rawUser.name || '',
+      };
     } else if (response.code === 70005) {
       ElMessage.error('请先登录');
       this.$router.push('/login');
@@ -89,15 +97,24 @@ const handleAvatarSuccess = (response, uploadFile) => {
 };
 
 const saveUser = async () => {
+  const normalizedName = (user.value?.name || '').trim();
+  if (!normalizedName) {
+    ElMessage.error('姓名不能为空');
+    return;
+  }
   try {
     const updateData = {
       id: user.value.id,
+      loginName: user.value.loginName,
+      login_name: user.value.loginName,
+      name: normalizedName,
       remark: user.value.remark,
       advater: user.value.advater,
     };
-    const response = await updateUser(updateData);
-    console.log('updateUser Response:', response);
+    const response = await updateUsers(updateData);
+    console.log('updateUsers Response:', response);
     if (response.status === true && response.code === 0 && response.data) {
+      user.value.name = normalizedName;
       ElMessage.success('用户信息更新成功');
     } else if (response.code === 70005) {
       ElMessage.error('请先登录');

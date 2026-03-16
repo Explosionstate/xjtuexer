@@ -12,6 +12,17 @@ const username = ref("");
 const password = ref("");
 const validRoles = ["teacher", "student", "admin"];
 
+const resolveLoginRole = (rawUser) => {
+  const role = rawUser?.role;
+  if (isValidLoginRole(role)) {
+    return role;
+  }
+  if (!role) {
+    return "admin";
+  }
+  return null;
+};
+
 const resolveHomePathByRole = (role) => {
   if (role === "teacher" || role === "student") {
     return "/news";
@@ -45,13 +56,18 @@ const login = () => {
   };
   userLogin(user)
       .then((res) => {
-        if (res.data == null || !isValidLoginRole(res.data.role)) {
+        const loginData = res.data;
+        const resolvedRole = resolveLoginRole(loginData);
+        if (loginData == null || !resolvedRole) {
           showCredentialError();
           return;
         }
 
-        userInfoStore.setUserInfo(res.data);
-        const targetPath = resolveHomePathByRole(res.data.role);
+        userInfoStore.setUserInfo({
+          ...loginData,
+          role: resolvedRole,
+        });
+        const targetPath = resolveHomePathByRole(resolvedRole);
         ElMessage({
           message: "登录成功",
           type: "success",
