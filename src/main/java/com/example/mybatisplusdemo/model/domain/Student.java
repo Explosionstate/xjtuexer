@@ -77,4 +77,132 @@ public class Student implements Serializable {
     @ApiModelProperty(value = "Average Course Scores")
     @TableField("average_course_scores")
     private BigDecimal averageCourseScores;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getStudentId() {
+        return studentId;
+    }
+
+    public void setStudentId(Long studentId) {
+        this.studentId = studentId;
+    }
+
+    public String getStudentNo() {
+        return studentNo;
+    }
+
+    public void setStudentNo(String studentNo) {
+        this.studentNo = studentNo;
+    }
+
+    public String getCollege() {
+        return college;
+    }
+
+    public void setCollege(String college) {
+        this.college = college;
+    }
+
+    public Long getCollegeId() {
+        return collegeId;
+    }
+
+    public void setCollegeId(Long collegeId) {
+        this.collegeId = collegeId;
+    }
+
+    public Long getMajorId() {
+        return majorId;
+    }
+
+    public void setMajorId(Long majorId) {
+        this.majorId = majorId;
+    }
+
+    public Long getClassId() {
+        return classId;
+    }
+
+    public void setClassId(Long classId) {
+        this.classId = classId;
+    }
+
+    public Integer getGradeYear() {
+        return gradeYear;
+    }
+
+    public void setGradeYear(Integer gradeYear) {
+        this.gradeYear = gradeYear;
+    }
+
+    public String getMajorName() {
+        return majorName;
+    }
+
+    public void setMajorName(String majorName) {
+        this.majorName = majorName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public BigDecimal getLearningIndex() {
+        return learningIndex;
+    }
+
+    public void setLearningIndex(BigDecimal learningIndex) {
+        this.learningIndex = learningIndex;
+    }
+
+    public BigDecimal getComparisonLastMonth() {
+        return comparisonLastMonth;
+    }
+
+    public void setComparisonLastMonth(BigDecimal comparisonLastMonth) {
+        this.comparisonLastMonth = comparisonLastMonth;
+    }
+
+    public Integer getTotalWarnings() {
+        return totalWarnings;
+    }
+
+    public void setTotalWarnings(Integer totalWarnings) {
+        this.totalWarnings = totalWarnings;
+    }
+
+    public Integer getResolvedWarnings() {
+        return resolvedWarnings;
+    }
+
+    public void setResolvedWarnings(Integer resolvedWarnings) {
+        this.resolvedWarnings = resolvedWarnings;
+    }
+
+    public BigDecimal getLearningScores() {
+        return learningScores;
+    }
+
+    public void setLearningScores(BigDecimal learningScores) {
+        this.learningScores = learningScores;
+    }
+
+    public BigDecimal getAverageCourseScores() {
+        return averageCourseScores;
+    }
+
+    public void setAverageCourseScores(BigDecimal averageCourseScores) {
+        this.averageCourseScores = averageCourseScores;
+    }
 }

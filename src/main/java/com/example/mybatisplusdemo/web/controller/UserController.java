@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -66,12 +67,16 @@ public class UserController {
             return JsonResponse.success(userService.login(user));
         } catch (RuntimeException ex) {
             Users req = new Users();
-            req.setLoginName(user.getLoginName());
-            req.setPassword(user.getPassword());
+            writeField(req, "loginName", readStringField(user, "loginName"));
+            writeField(req, "password", readStringField(user, "password"));
             try {
                 return JsonResponse.success(usersService.login(req));
             } catch (RuntimeException ex2) {
-                throw new RuntimeException("Invalid loginName or password");
+                String msg = ex2.getMessage();
+                if (msg == null || msg.isBlank()) {
+                    msg = "Invalid loginName or password";
+                }
+                return JsonResponse.error(msg);
             }
         }
     }
@@ -150,16 +155,18 @@ public class UserController {
             return JsonResponse.error("Not logged in");
         }
 
-        Long targetId = user.getId() != null ? user.getId() : currentBiz.getId();
-        if (!targetId.equals(currentBiz.getId())) {
+        Long userId = readLongField(user, "id");
+        Long currentBizId = readLongField(currentBiz, "id");
+        Long targetId = userId != null ? userId : currentBizId;
+        if (targetId == null || currentBizId == null || !targetId.equals(currentBizId)) {
             return JsonResponse.error("only self can update");
         }
 
         Users patch = new Users();
-        patch.setId(targetId);
-        patch.setLoginName(user.getLoginName());
-        patch.setPassword(user.getPassword());
-        patch.setAvatar(user.getAvatar());
+        writeField(patch, "id", targetId);
+        writeField(patch, "loginName", readStringField(user, "loginName"));
+        writeField(patch, "password", readStringField(user, "password"));
+        writeField(patch, "avatar", readStringField(user, "avatar"));
         boolean ok = usersService.updateById(patch);
         return JsonResponse.success(ok);
     }
@@ -300,5 +307,56 @@ public class UserController {
             return (List<String>) value;
         }
         return List.of();
+    }
+
+    private String readStringField(Object target, String fieldName) {
+        Object value = readField(target, fieldName);
+        return value == null ? null : String.valueOf(value);
+    }
+
+    private Long readLongField(Object target, String fieldName) {
+        Object value = readField(target, fieldName);
+        if (value instanceof Number number) {
+            return number.longValue();
+        }
+        return null;
+    }
+
+    private Object readField(Object target, String fieldName) {
+        if (target == null || fieldName == null || fieldName.isBlank()) {
+            return null;
+        }
+        Class<?> type = target.getClass();
+        while (type != null) {
+            try {
+                Field field = type.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                return field.get(target);
+            } catch (NoSuchFieldException ignored) {
+                type = type.getSuperclass();
+            } catch (IllegalAccessException ignored) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    private void writeField(Object target, String fieldName, Object value) {
+        if (target == null || fieldName == null || fieldName.isBlank()) {
+            return;
+        }
+        Class<?> type = target.getClass();
+        while (type != null) {
+            try {
+                Field field = type.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                field.set(target, value);
+                return;
+            } catch (NoSuchFieldException ignored) {
+                type = type.getSuperclass();
+            } catch (IllegalAccessException ignored) {
+                return;
+            }
+        }
     }
 }

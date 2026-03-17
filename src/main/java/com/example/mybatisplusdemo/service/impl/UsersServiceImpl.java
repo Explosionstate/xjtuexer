@@ -143,7 +143,11 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
 
         db.setLastLoginTime(LocalDateTime.now());
         usersMapper.updateById(db);
-        enrichBizUserProfile(db);
+        try {
+            enrichBizUserProfile(db);
+        } catch (Exception ignored) {
+            // Keep login path available even if profile extension tables are not aligned.
+        }
 
         SessionUtils.clearAdmin();
         clearSessionKey("sessionAdminMenus");

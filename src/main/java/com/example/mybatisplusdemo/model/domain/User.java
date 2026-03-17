@@ -70,4 +70,85 @@ public class User implements Serializable {
     public void setAdvater(String advater) {
         this.avatar = advater;
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User setId(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getLoginName() {
+        return loginName;
+    }
+
+    public User setLoginName(String loginName) {
+        this.loginName = loginName;
+        return this;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public User setPassword(String password) {
+        this.password = password;
+        return this;
+    }
+
+    public LocalDateTime getLastLoginTime() {
+        return lastLoginTime;
+    }
+
+    public User setLastLoginTime(LocalDateTime lastLoginTime) {
+        this.lastLoginTime = lastLoginTime;
+        return this;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public User setRemark(String remark) {
+        this.remark = remark;
+        return this;
+    }
+
+    public Boolean getDeleted() {
+        return deleted;
+    }
+
+    public User setDeleted(Boolean deleted) {
+        this.deleted = deleted;
+        return this;
+    }
+
+    public LocalDateTime getGmtCreated() {
+        return gmtCreated;
+    }
+
+    public User setGmtCreated(LocalDateTime gmtCreated) {
+        this.gmtCreated = gmtCreated;
+        return this;
+    }
+
+    public LocalDateTime getGmtModified() {
+        return gmtModified;
+    }
+
+    public User setGmtModified(LocalDateTime gmtModified) {
+        this.gmtModified = gmtModified;
+        return this;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public User setAvatar(String avatar) {
+        this.avatar = avatar;
+        return this;
+    }
 }

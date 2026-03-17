@@ -21,6 +21,8 @@ const errorMessage = ref('')
 const workspaceUrl = ref('')
 const actionLogs = ref([])
 
+const LOCAL_DEBUG_KEY_PREFIX = 'xjtuexer_admin_agent_debug'
+
 const debugForm = reactive({
   useQwen: true,
   useWs: false,
@@ -30,6 +32,46 @@ const debugForm = reactive({
   alpha: 0.6,
   initialPrompt: ''
 })
+
+const getDebugStorageKey = (agentKey) => `${LOCAL_DEBUG_KEY_PREFIX}:${agentKey}`
+
+const loadLocalDebugSettings = (agentKey) => {
+  if (!agentKey) return null
+  try {
+    const raw = localStorage.getItem(getDebugStorageKey(agentKey))
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+const saveLocalDebugSettings = (agentKey) => {
+  if (!agentKey) return
+  const payload = {
+    useQwen: debugForm.useQwen,
+    useWs: debugForm.useWs,
+    retrievalTopK: debugForm.retrievalTopK,
+    scoreThreshold: debugForm.scoreThreshold,
+    fusionMode: debugForm.fusionMode,
+    alpha: debugForm.alpha,
+    initialPrompt: debugForm.initialPrompt
+  }
+  localStorage.setItem(getDebugStorageKey(agentKey), JSON.stringify(payload))
+}
+
+const applyRawDefaults = (agent) => {
+  const defaults = agent.debugDefaults
+  debugForm.useQwen = defaults.useQwen
+  debugForm.useWs = defaults.useWs
+  debugForm.retrievalTopK = defaults.retrievalTopK
+  debugForm.scoreThreshold = defaults.scoreThreshold
+  debugForm.fusionMode = defaults.fusionMode
+  debugForm.alpha = defaults.alpha
+  debugForm.initialPrompt = defaults.initialPrompt
+}
 
 const isAdmin = computed(() => {
   const role = userInfoStore.userInfo?.role
@@ -62,14 +104,24 @@ const applyAgentDefaults = () => {
     return
   }
   const defaults = agent.debugDefaults
-  debugForm.useQwen = defaults.useQwen
-  debugForm.useWs = defaults.useWs
-  debugForm.retrievalTopK = defaults.retrievalTopK
-  debugForm.scoreThreshold = defaults.scoreThreshold
-  debugForm.fusionMode = defaults.fusionMode
-  debugForm.alpha = defaults.alpha
-  debugForm.initialPrompt = defaults.initialPrompt
-  pushLog(`已加载 ${agent.title} 默认调试参数`)
+  const localSaved = loadLocalDebugSettings(agent.key)
+  const merged = {
+    useQwen: localSaved?.useQwen ?? defaults.useQwen,
+    useWs: localSaved?.useWs ?? defaults.useWs,
+    retrievalTopK: Number(localSaved?.retrievalTopK ?? defaults.retrievalTopK),
+    scoreThreshold: Number(localSaved?.scoreThreshold ?? defaults.scoreThreshold),
+    fusionMode: localSaved?.fusionMode || defaults.fusionMode,
+    alpha: Number(localSaved?.alpha ?? defaults.alpha),
+    initialPrompt: localSaved?.initialPrompt || defaults.initialPrompt
+  }
+  debugForm.useQwen = merged.useQwen
+  debugForm.useWs = merged.useWs
+  debugForm.retrievalTopK = merged.retrievalTopK
+  debugForm.scoreThreshold = merged.scoreThreshold
+  debugForm.fusionMode = merged.fusionMode
+  debugForm.alpha = merged.alpha
+  debugForm.initialPrompt = merged.initialPrompt
+  pushLog(localSaved ? `已加载 ${agent.title} 本地调试参数` : `已加载 ${agent.title} 默认调试参数`)
 }
 
 const buildWorkspaceUrl = (ticket) => {
@@ -129,6 +181,9 @@ const handleFrameLoaded = () => {
 }
 
 const applyDebugSettings = async () => {
+  if (currentAgent.value?.key) {
+    saveLocalDebugSettings(currentAgent.value.key)
+  }
   await loadWorkspace('应用调试参数')
 }
 
@@ -139,7 +194,11 @@ const runTestCase = async (caseText) => {
 }
 
 const resetToDefaults = async () => {
-  applyAgentDefaults()
+  if (currentAgent.value?.key) {
+    localStorage.removeItem(getDebugStorageKey(currentAgent.value.key))
+    applyRawDefaults(currentAgent.value)
+  }
+  pushLog(`已恢复 ${currentAgent.value?.title || '当前智能体'} 默认参数`)
   await loadWorkspace('恢复默认参数')
 }
 

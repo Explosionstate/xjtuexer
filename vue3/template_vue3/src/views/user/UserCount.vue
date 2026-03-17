@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import image1 from '@/assets/lunbo-1.jpg'
 import image2 from '@/assets/lunbo-2.jpg'
@@ -8,17 +7,17 @@ import image3 from '@/assets/lunbo-3.jpg'
 import image4 from '@/assets/lunbo-4.jpg'
 import { getSsoTicket } from '@/api/api'
 import { AGENT_WORKSPACE_BASE_URL } from '@/constants/adminAgents'
+import { getAdminAgentByKey } from '@/constants/adminAgents'
 import {
   User,
   DataAnalysis,
-  Edit,
-  Warning,
+  EditPen,
+  WarnTriangleFilled,
   DocumentCopy,
   ChatDotRound,
   ArrowRight
 } from '@element-plus/icons-vue'
 
-const router = useRouter()
 const redirectingToAi = ref(false)
 
 const carouselItems = ref([
@@ -29,12 +28,12 @@ const carouselItems = ref([
 ])
 
 const centerCards = ref([
-  { id: 1, icon: 'User', title: '学生成长助手', subtitle: '学习建议 · 生活指导', color: '#667eea' },
-  { id: 2, icon: 'DataAnalysis', title: '教师助教助手', subtitle: '教学辅助 · 课堂分析', color: '#764ba2' },
-  { id: 3, icon: 'Edit', title: '辅导员思政助手', subtitle: '思想引导 · 学生管理', color: '#f093fb' },
-  { id: 4, icon: 'Warning', title: '学情预警助手', subtitle: '风险识别 · 预警分析', color: '#ff6b6b' },
-  { id: 5, icon: 'DocumentCopy', title: '学情报告助手', subtitle: '数据统计 · 报告生成', color: '#4ecdc4' },
-  { id: 6, icon: 'ChatDotRound', title: '思政知识问答', subtitle: '政策解读 · 知识问答', color: '#ffa502' }
+  { id: 1, agentKey: 'student-growth', icon: 'User', title: '学生成长助手', subtitle: '学习建议 · 生活指导', color: '#667eea' },
+  { id: 2, agentKey: 'teacher-assistant', icon: 'DataAnalysis', title: '教师助教助手', subtitle: '教学辅助 · 课堂分析', color: '#764ba2' },
+  { id: 3, agentKey: 'counselor-ideology', icon: 'EditPen', title: '辅导员思政助手', subtitle: '思想引导 · 学生管理', color: '#f093fb' },
+  { id: 4, agentKey: 'risk-warning', icon: 'WarnTriangleFilled', title: '学情预警助手', subtitle: '风险识别 · 预警分析', color: '#ff6b6b' },
+  { id: 5, agentKey: 'report-assistant', icon: 'DocumentCopy', title: '学情报告助手', subtitle: '数据统计 · 报告生成', color: '#4ecdc4' },
+  { id: 6, agentKey: 'policy-qa', icon: 'ChatDotRound', title: '思政知识问答', subtitle: '政策解读 · 知识问答', color: '#ffa502' }
 ])
 
 const aiRecommendations = ref([
@@ -53,8 +52,8 @@ const recentUsage = ref([
 const iconComponentMap = {
   'User': User,
   'DataAnalysis': DataAnalysis,
-  'Edit': Edit,
-  'Warning': Warning,
+  'EditPen': EditPen,
+  'WarnTriangleFilled': WarnTriangleFilled,
   'DocumentCopy': DocumentCopy,
   'ChatDotRound': ChatDotRound
 } as const
@@ -63,16 +62,15 @@ const getIconComponent = (iconName: string) => {
   return iconComponentMap[iconName as keyof typeof iconComponentMap] || User
 }
 
-const navigateToCard = (cardId: number) => {
-  console.log('导航到卡片:', cardId)
-  // router.push(`/agent/${cardId}`)
+const navigateToCard = (agentKey: string) => {
+  jumpToAiAssistant(agentKey)
 }
 
 const navigateToDetail = (item: any) => {
   console.log('查看详情:', item)
 }
 
-const jumpToAiAssistant = async () => {
+const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
   if (redirectingToAi.value) {
     return
   }
@@ -85,13 +83,21 @@ const jumpToAiAssistant = async () => {
       redirectingToAi.value = false
       return
     }
+    const agent = getAdminAgentByKey(agentKey)
     const url = new URL(AGENT_WORKSPACE_BASE_URL)
     url.searchParams.set('sso_ticket', ticket)
     url.searchParams.set('entry', 'xjtuexer-user-count')
-    url.searchParams.set('agent_key', 'student-growth')
-    url.searchParams.set('agent_title', '学业分析助手')
-    url.searchParams.set('agent_empty_title', '你好，我是学业分析助手')
-    url.searchParams.set('agent_empty_desc', '我可以提供成绩分析、同维度对比、趋势预警与学习建议。')
+    url.searchParams.set('agent_key', agent?.key || 'student-growth')
+    url.searchParams.set('agent_title', `${agent?.title || '西交 AI 智能体'}工作台`)
+    url.searchParams.set('agent_empty_title', `你好，我是${agent?.title || '西交 AI 智能体'}`)
+    url.searchParams.set('agent_empty_desc', agent?.description || '我可以根据知识库提供结构化分析与建议。')
+    url.searchParams.set('preset_question', agent?.debugDefaults?.initialPrompt || '请结合知识库给出结构化建议。')
+    url.searchParams.set('use_qwen', agent?.debugDefaults?.useQwen ? '1' : '0')
+    url.searchParams.set('use_ws', agent?.debugDefaults?.useWs ? '1' : '0')
+    url.searchParams.set('retrieval_top_k', String(agent?.debugDefaults?.retrievalTopK || 8))
+    url.searchParams.set('score_threshold', String(agent?.debugDefaults?.scoreThreshold || 0.2))
+    url.searchParams.set('fusion_mode', agent?.debugDefaults?.fusionMode || 'weighted')
+    url.searchParams.set('alpha', String(agent?.debugDefaults?.alpha || 0.6))
     window.location.href = url.toString()
   } catch (error) {
     ElMessage.error('跳转AI系统失败，请稍后重试')
@@ -127,7 +133,7 @@ const jumpToAiAssistant = async () => {
         </div>
 
         <div class="ai-jump-row">
-          <el-button type="primary" :loading="redirectingToAi" @click="jumpToAiAssistant">
+          <el-button type="primary" :loading="redirectingToAi" @click="jumpToAiAssistant('student-growth')">
             {{ redirectingToAi ? '正在跳转 AI 助手...' : '进入 AI 助手（单点登录）' }}
           </el-button>
         </div>
@@ -137,8 +143,8 @@ const jumpToAiAssistant = async () => {
             v-for="card in centerCards"
             :key="card.id"
             class="card-item"
-            @click="navigateToCard(card.id)"
-          >
+              @click="navigateToCard(card.agentKey)"
+            >
             <div class="card-icon-wrapper" :style="{ '--theme-color': card.color }">
               <component :is="getIconComponent(card.icon)" class="card-icon"></component>
             </div>
