@@ -7,6 +7,7 @@ import image2 from '@/assets/lunbo-2.jpg'
 import image3 from '@/assets/lunbo-3.jpg'
 import image4 from '@/assets/lunbo-4.jpg'
 import { getSsoTicket } from '@/api/api'
+import { AGENT_WORKSPACE_BASE_URL } from '@/constants/adminAgents'
 import {
   User,
   DataAnalysis,
@@ -84,7 +85,14 @@ const jumpToAiAssistant = async () => {
       redirectingToAi.value = false
       return
     }
-    window.location.href = `http://127.0.0.1:5174/?sso_ticket=${encodeURIComponent(ticket)}`
+    const url = new URL(AGENT_WORKSPACE_BASE_URL)
+    url.searchParams.set('sso_ticket', ticket)
+    url.searchParams.set('entry', 'xjtuexer-user-count')
+    url.searchParams.set('agent_key', 'student-growth')
+    url.searchParams.set('agent_title', '学业分析助手')
+    url.searchParams.set('agent_empty_title', '你好，我是学业分析助手')
+    url.searchParams.set('agent_empty_desc', '我可以提供成绩分析、同维度对比、趋势预警与学习建议。')
+    window.location.href = url.toString()
   } catch (error) {
     ElMessage.error('跳转AI系统失败，请稍后重试')
     redirectingToAi.value = false

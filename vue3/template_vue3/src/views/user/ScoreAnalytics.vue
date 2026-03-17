@@ -1,63 +1,68 @@
-<template>
-  <div class="p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-2xl font-bold mb-6">学习成绩情况</h1>
+﻿<template>
+  <div class="analytics-page">
+    <div class="analytics-wrapper">
+      <header class="page-header">
+        <h1 class="page-title">学习成绩情况</h1>
+        <p class="page-desc">支持按课程、学院、日期筛选，查看本群体与全校平均成绩对比。</p>
+      </header>
 
-    <!-- 筛选条件 -->
-    <el-card class="mb-6">
-      <h2 class="text-xl font-bold mb-4">学习成绩分析</h2>
-      <div class="mb-4 flex items-center">
-        <el-input v-model="course" placeholder="课程名称" class="mr-4 w-1/4" />
-        <el-input v-model="college" placeholder="学院名称" class="mr-4 w-1/4" />
-        <el-date-picker v-model="startDate" type="date" placeholder="开始日期" class="mr-4" />
-        <el-date-picker v-model="endDate" type="date" placeholder="结束日期" />
-      </div>
+      <el-card class="panel-card" shadow="never">
+        <template #header>
+          <div class="card-header">
+            <h2>学习成绩分析</h2>
+          </div>
+        </template>
 
-      <!-- 平均综合成绩 -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">平均综合成绩</h3>
-        <div id="totalScoreChart" style="width: 100%; height: 400px;"></div>
-      </div>
+        <div class="filter-grid">
+          <el-input v-model="course" placeholder="课程名称" clearable />
+          <el-input v-model="college" placeholder="学院名称" clearable />
+          <el-date-picker v-model="startDate" type="date" placeholder="开始日期" value-format="YYYY-MM-DD" />
+          <el-date-picker v-model="endDate" type="date" placeholder="结束日期" value-format="YYYY-MM-DD" />
+        </div>
 
-      <!-- 作业平均分 -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">作业平均分</h3>
-        <div id="assignmentScoreChart" style="width: 100%; height: 400px;"></div>
-      </div>
+        <div class="chart-grid">
+          <section class="chart-panel">
+            <h3>平均综合成绩</h3>
+            <div id="totalScoreChart" class="chart-box"></div>
+          </section>
 
-      <!-- 考试平均分 -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">考试平均分</h3>
-        <div id="examScoreChart" style="width: 100%; height: 400px;"></div>
-      </div>
+          <section class="chart-panel">
+            <h3>作业平均分</h3>
+            <div id="assignmentScoreChart" class="chart-box"></div>
+          </section>
 
-      <!-- 章节测验平均分 -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">章节测验平均分</h3>
-        <div id="quizScoreChart" style="width: 100%; height: 400px;"></div>
-      </div>
+          <section class="chart-panel">
+            <h3>考试平均分</h3>
+            <div id="examScoreChart" class="chart-box"></div>
+          </section>
 
-      <!-- 课程积分 -->
-      <div class="mb-6">
-        <h3 class="text-lg font-semibold mb-2">课程积分</h3>
-        <div id="courseCreditChart" style="width: 100%; height: 400px;"></div>
-      </div>
+          <section class="chart-panel">
+            <h3>章节测验平均分</h3>
+            <div id="quizScoreChart" class="chart-box"></div>
+          </section>
 
-      <!-- 数据表格 -->
-      <el-table :data="scoreData" style="width: 100%" class="mt-4" v-if="scoreData.length">
-        <el-table-column prop="courseName" label="课程名称" />
-        <el-table-column prop="avgTotalScore" label="平均综合成绩" :formatter="row => row.avgTotalScore.toFixed(2)" />
-        <el-table-column prop="schoolAvgTotalScore" label="全校平均综合成绩" :formatter="row => row.schoolAvgTotalScore.toFixed(2)" />
-        <el-table-column prop="avgAssignmentScore" label="作业平均分" :formatter="row => row.avgAssignmentScore.toFixed(2)" />
-        <el-table-column prop="schoolAvgAssignmentScore" label="全校作业平均分" :formatter="row => row.schoolAvgAssignmentScore.toFixed(2)" />
-        <el-table-column prop="avgExamScore" label="考试平均分" :formatter="row => row.avgExamScore.toFixed(2)" />
-        <el-table-column prop="schoolAvgExamScore" label="全校考试平均分" :formatter="row => row.schoolAvgExamScore.toFixed(2)" />
-        <el-table-column prop="avgQuizScore" label="章节测验平均分" :formatter="row => row.avgQuizScore.toFixed(2)" />
-        <el-table-column prop="schoolAvgQuizScore" label="全校章节测验平均分" :formatter="row => row.schoolAvgQuizScore.toFixed(2)" />
-        <el-table-column prop="courseCredit" label="课程积分" :formatter="row => row.courseCredit.toFixed(2)" />
-        <el-table-column prop="schoolAvgCourseCredit" label="全校平均课程积分" :formatter="row => row.schoolAvgCourseCredit.toFixed(2)" />
-      </el-table>
-      <div v-else>暂无数据</div>
-    </el-card>
+          <section class="chart-panel chart-panel-full">
+            <h3>课程积分</h3>
+            <div id="courseCreditChart" class="chart-box chart-box-wide"></div>
+          </section>
+        </div>
+
+        <el-table v-if="scoreData.length" :data="scoreData" border stripe class="table-box">
+          <el-table-column prop="courseName" label="课程名称" min-width="220" fixed="left" />
+          <el-table-column prop="avgTotalScore" label="平均综合成绩" :formatter="(row) => row.avgTotalScore.toFixed(2)" min-width="130" />
+          <el-table-column prop="schoolAvgTotalScore" label="全校平均综合成绩" :formatter="(row) => row.schoolAvgTotalScore.toFixed(2)" min-width="150" />
+          <el-table-column prop="avgAssignmentScore" label="作业平均分" :formatter="(row) => row.avgAssignmentScore.toFixed(2)" min-width="120" />
+          <el-table-column prop="schoolAvgAssignmentScore" label="全校作业平均分" :formatter="(row) => row.schoolAvgAssignmentScore.toFixed(2)" min-width="140" />
+          <el-table-column prop="avgExamScore" label="考试平均分" :formatter="(row) => row.avgExamScore.toFixed(2)" min-width="120" />
+          <el-table-column prop="schoolAvgExamScore" label="全校考试平均分" :formatter="(row) => row.schoolAvgExamScore.toFixed(2)" min-width="140" />
+          <el-table-column prop="avgQuizScore" label="章节测验平均分" :formatter="(row) => row.avgQuizScore.toFixed(2)" min-width="140" />
+          <el-table-column prop="schoolAvgQuizScore" label="全校章节测验平均分" :formatter="(row) => row.schoolAvgQuizScore.toFixed(2)" min-width="170" />
+          <el-table-column prop="courseCredit" label="课程积分" :formatter="(row) => row.courseCredit.toFixed(2)" min-width="100" />
+          <el-table-column prop="schoolAvgCourseCredit" label="全校平均课程积分" :formatter="(row) => row.schoolAvgCourseCredit.toFixed(2)" min-width="150" />
+        </el-table>
+        <div v-else class="empty-block">暂无数据</div>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -90,28 +95,33 @@ export default {
     };
 
     const setChartOption = (chartInstance, title, groupField, schoolField) => {
+      if (!chartInstance) {
+        return;
+      }
       chartInstance.setOption({
         title: { text: title, left: 'center' },
         tooltip: { trigger: 'axis' },
         legend: { data: ['本群体', '全校平均'], top: 30 },
         xAxis: {
           type: 'category',
-          data: scoreData.value.map(item => item.courseName),
-          axisLabel: { rotate: 45, interval: 0 },
+          data: scoreData.value.map((item) => item.courseName),
+          axisLabel: { rotate: 30, interval: 0 },
         },
         yAxis: { type: 'value', name: '分数', max: groupField.includes('Credit') ? 5 : 100 },
         series: [
           {
             name: '本群体',
             type: 'bar',
-            data: scoreData.value.map(item => item[groupField]),
+            data: scoreData.value.map((item) => item[groupField]),
             itemStyle: { color: '#4B5EAA' },
+            barMaxWidth: 38,
           },
           {
             name: '全校平均',
             type: 'bar',
-            data: scoreData.value.map(item => item[schoolField]),
+            data: scoreData.value.map((item) => item[schoolField]),
             itemStyle: { color: '#F4A261' },
+            barMaxWidth: 38,
           },
         ],
       });
@@ -142,7 +152,7 @@ export default {
           ElMessage.error(response.data.message || '获取学习成绩数据失败');
         }
       } catch (error) {
-        ElMessage.error('请求失败: ' + error.message);
+        ElMessage.error(`请求失败: ${error.message}`);
       }
     };
 
@@ -172,12 +182,124 @@ export default {
 };
 </script>
 
-
 <style scoped>
-.el-card {
-  margin-bottom: 20px;
+.analytics-page {
+  min-height: calc(100vh - 125px);
+  background: #f5f7fb;
+  padding: 24px;
 }
-h2, h3 {
-  margin-bottom: 20px;
+
+.analytics-wrapper {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 18px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.page-desc {
+  margin: 8px 0 0;
+  color: #5f6b7a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.panel-card {
+  border-radius: 12px;
+  border: 1px solid #e4e9f2;
+  box-shadow: 0 6px 18px rgba(31, 45, 61, 0.05);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.chart-panel {
+  border: 1px solid #edf1f7;
+  background: #fafcff;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.chart-panel h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  color: #364152;
+}
+
+.chart-panel-full {
+  grid-column: 1 / -1;
+}
+
+.chart-box {
+  width: 100%;
+  height: 320px;
+}
+
+.chart-box-wide {
+  height: 360px;
+}
+
+.table-box {
+  margin-top: 16px;
+}
+
+.empty-block {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #f7f9fc;
+  color: #8b96a6;
+  text-align: center;
+}
+
+@media (max-width: 1200px) {
+  .filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 23px;
+  }
+
+  .filter-grid,
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-box,
+  .chart-box-wide {
+    height: 300px;
+  }
 }
 </style>

@@ -9,6 +9,9 @@ public class StudentDTO extends Student {
     private Integer pageSize=1;
     private String name;
     private String college;
+    private String majorName;
+    private String className;
+    private Integer gradeYear;
     private Long studentId;
     private String sortField;
     private String sortOrder;

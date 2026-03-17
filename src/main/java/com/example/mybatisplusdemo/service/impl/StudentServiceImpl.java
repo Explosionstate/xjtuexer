@@ -97,6 +97,12 @@ public class StudentServiceImpl extends ServiceImpl<StudentMapper, Student> impl
                 column = "learning_index";
             } else if ("comparisonLastMonth".equals(column)) {
                 column = "comparison_last_month";
+            } else if ("totalWarnings".equals(column)) {
+                column = "total_warnings";
+            } else if ("resolvedWarnings".equals(column)) {
+                column = "resolved_warnings";
+            } else if ("gradeYear".equals(column)) {
+                column = "grade_year";
             }
             OrderItem orderItem = new OrderItem();
             orderItem.setColumn(column);

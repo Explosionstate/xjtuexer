@@ -7,6 +7,11 @@ spring:
   mvc:
     format:
       date: yyyy-MM-dd
+  messages:
+    encoding: UTF-8
+  thymeleaf:
+    encoding: UTF-8
+    mode: HTML
   servlet:
     multipart:
       max-file-size: 100MB

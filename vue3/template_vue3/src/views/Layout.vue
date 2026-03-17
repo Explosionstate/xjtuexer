@@ -216,10 +216,10 @@ const handleClose = (key, keyPath) => {
       </el-menu-item>
 
       <el-menu-item v-if="showAi" index="/user/count">
-        <el-tooltip :content="isCollapse ? 'AI助理教学' : ''" placement="right">
+        <el-tooltip :content="isCollapse ? 'AI助力教学' : ''" placement="right">
           <el-icon><User /></el-icon>
         </el-tooltip>
-        <span>AI助理教学</span>
+        <span>AI助力教学</span>
       </el-menu-item>
 
       <el-menu-item v-if="showCockpit" index="/user/jiashicang">
@@ -260,7 +260,7 @@ const handleClose = (key, keyPath) => {
         <span>学情预警</span>
       </el-menu-item>
 
-      <el-sub-menu v-if="showAnalysis" index="analysis">
+      <el-sub-menu v-if="showAnalysis" index="analysis" class="analysis-sub-menu">
         <template #title>
           <el-tooltip :content="isCollapse ? '学情分析' : ''" placement="right">
             <el-icon><TrendCharts /></el-icon>
@@ -505,6 +505,31 @@ const handleClose = (key, keyPath) => {
     background-color: #fff;
     border-top: 1px solid #e4e7ed;
     height: 40px;
+  }
+
+  .analysis-sub-menu {
+    :deep(.el-sub-menu__title) {
+      min-height: 48px;
+      line-height: 48px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+    }
+
+    :deep(.el-menu-item) {
+      min-height: 46px;
+      line-height: 46px;
+      padding-right: 18px !important;
+      padding-left: 56px !important;
+    }
+
+    :deep(.el-menu-item .el-icon) {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+
+    :deep(.el-menu-item span) {
+      letter-spacing: 0.2px;
+    }
   }
 
   @media (max-width: 768px) {

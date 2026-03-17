@@ -1,5 +1,5 @@
 <script setup>
-import {ref, computed, onMounted} from "vue";
+import {ref, computed, onMounted, onBeforeUnmount} from "vue";
 import { pageStudents } from "@/api/student";
 import * as XLSX from "xlsx";
 
@@ -14,10 +14,8 @@ const sortField = ref('');
 const sortOrder = ref('');
 //预警与标识
 const currentPeriod = ref('day');
-const warningCount = ref(0);
 const currentDateTime = ref('');
-const changeCount = ref(0);
-const isPositive = ref(true);
+const clockTimer = ref(null);
 //查看详情
 const showDetailModal = ref(false);
 const selectedStudent = ref({});
@@ -50,16 +48,30 @@ const exportExcel = () => {
   XLSX.writeFile(workbook, "学生学情表.xlsx");
 };
 
-const getRandomInRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-const periodConfig = {
-  day: { warning: [30, 80], change: [1, 10] },
-  weak: { warning: [200, 300], change: [10, 50] },
-  month: { warning: [500, 600], change: [100, 150] },
-  year: { warning: [800, 1000], change: [300, 400] }
+const toNumber = (value, fallback = 0) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : fallback;
 };
-//日期显示模块
+
+const unresolvedCount = (student) => {
+  const totalWarnings = toNumber(student?.totalWarnings, 0);
+  const resolvedWarnings = toNumber(student?.resolvedWarnings, 0);
+  return Math.max(0, totalWarnings - resolvedWarnings);
+};
+
+const warningCount = computed(() => (
+  students.value.filter((student) => unresolvedCount(student) > 0).length
+));
+
+const changeCount = computed(() => (
+  students.value.reduce((sum, student) => sum + unresolvedCount(student), 0)
+));
+
+const isPositive = computed(() => changeCount.value > 0);
+
+// 日期显示模块
 onMounted(() => {
-  function updateDateTime() {
+  const updateDateTime = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -69,10 +81,17 @@ onMounted(() => {
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
     currentDateTime.value = `${year}-${month}-${day} 星期${weekday} ${hours}:${minutes}:${seconds}`;
-  }
-  //初始化并每秒更新时间
+  };
+
   updateDateTime();
-  const interval = setInterval(updateDateTime, 1000);
+  clockTimer.value = window.setInterval(updateDateTime, 1000);
+});
+
+onBeforeUnmount(() => {
+  if (clockTimer.value) {
+    window.clearInterval(clockTimer.value);
+    clockTimer.value = null;
+  }
 });
 
 const warningText = computed(() => {
@@ -80,21 +99,18 @@ const warningText = computed(() => {
   return `${periodMap[currentPeriod.value]}预警人数：${warningCount.value} 人`;
 });
 
-const changeText = computed(() => {
-  const prevPeriodMap = { day: '上日', weak: '上周', month: '上月', year: '上年' };
-  const sign = isPositive.value ? '+' : '-';
-  return `较${prevPeriodMap[currentPeriod.value]}${sign}${Math.abs(changeCount.value)}人`;
-});
+const changeText = computed(() => `当前未解除预警：${changeCount.value} 人次`);
 
 const changePeriod = (period) => {
   currentPeriod.value = period;
-  const config = periodConfig[period];
-  warningCount.value = getRandomInRange(...config.warning);
-  changeCount.value = getRandomInRange(...config.change);
-  isPositive.value = Math.random() > 0.5;
 };
 
 changePeriod('day');
+
+const formatScore = (value) => {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed.toFixed(2) : '--';
+};
 
 const getStudents = () => {
   const query = {
@@ -105,12 +121,10 @@ const getStudents = () => {
     sortField: sortField.value,
     sortOrder: sortOrder.value,
   };
-  pageStudents(query).then(
-      res => {
-        students.value = res.data.records
-        total.value = res.data.total;
-      }
-  )
+  pageStudents(query).then((res) => {
+    students.value = res?.data?.records || [];
+    total.value = res?.data?.total || 0;
+  });
 };
 
 const handleSortChange = ({ prop, order }) => {
@@ -252,9 +266,9 @@ getStudents();
           <div style="display: flex; align-items: center; justify-content: center;">
       <span
           class="learning-index-circle"
-          :class="{'low-score': parseFloat(row.learningIndex) < 4, 'high-score': parseFloat(row.learningIndex) >= 4}"
+          :class="{'low-score': toNumber(row.learningIndex, 0) < 4, 'high-score': toNumber(row.learningIndex, 0) >= 4}"
       ></span>
-            <span style="margin-left: 8px;">{{ parseFloat(row.learningIndex).toFixed(2) }}</span>
+            <span style="margin-left: 8px;">{{ formatScore(row.learningIndex) }}</span>
           </div>
         </template>
       </el-table-column>
@@ -266,9 +280,9 @@ getStudents();
         </template>
         <template #default="{row}">
           <div style="display: flex; align-items: center; justify-content: center;">
-            <span v-if="parseFloat(row.comparisonLastMonth) > 0" style="color: green;">▲ {{ parseFloat(row.comparisonLastMonth).toFixed(2) }}</span>
-            <span v-else-if="parseFloat(row.comparisonLastMonth) < 0" style="color: red;">▼ {{ parseFloat(Math.abs(row.comparisonLastMonth)).toFixed(2) }}</span>
-            <span v-else>{{ parseFloat(row.comparisonLastMonth).toFixed(2) }}</span>
+            <span v-if="toNumber(row.comparisonLastMonth, 0) > 0" style="color: green;">▲ {{ formatScore(row.comparisonLastMonth) }}</span>
+            <span v-else-if="toNumber(row.comparisonLastMonth, 0) < 0" style="color: red;">▼ {{ formatScore(Math.abs(toNumber(row.comparisonLastMonth, 0))) }}</span>
+            <span v-else>{{ formatScore(row.comparisonLastMonth) }}</span>
             <span style="margin-left: 4px;">%</span>
           </div>
         </template>
@@ -295,21 +309,24 @@ getStudents();
         <p>姓名: {{ selectedStudent.name }}</p>
         <p>学号: {{ selectedStudent.studentId }}</p>
         <p>学院: {{ selectedStudent.college }}</p>
-        <p>学情指数: {{ parseFloat(selectedStudent.learningIndex).toFixed(2) }}</p>
+        <p>专业: {{ selectedStudent.majorName || '--' }}</p>
+        <p>班级: {{ selectedStudent.className || '--' }}</p>
+        <p>年级: {{ selectedStudent.gradeYear || '--' }}</p>
+        <p>学情指数: {{ formatScore(selectedStudent.learningIndex) }}</p>
         <p>
           对比上月:
-          <span v-if="parseFloat(selectedStudent.comparisonLastMonth) > 0" style="color: green;">
-            +{{ parseFloat(selectedStudent.comparisonLastMonth).toFixed(2) }}%
+          <span v-if="toNumber(selectedStudent.comparisonLastMonth, 0) > 0" style="color: green;">
+            +{{ formatScore(selectedStudent.comparisonLastMonth) }}%
           </span>
-          <span v-else-if="parseFloat(selectedStudent.comparisonLastMonth) < 0" style="color: red;">
-            -{{ parseFloat(Math.abs(selectedStudent.comparisonLastMonth)).toFixed(2) }}%
+          <span v-else-if="toNumber(selectedStudent.comparisonLastMonth, 0) < 0" style="color: red;">
+            -{{ formatScore(Math.abs(toNumber(selectedStudent.comparisonLastMonth, 0))) }}%
           </span>
           <span v-else>
-            {{ parseFloat(selectedStudent.comparisonLastMonth).toFixed(2) }}%
+            {{ formatScore(selectedStudent.comparisonLastMonth) }}%
           </span>
         </p>
-        <p>学习成绩: {{ parseFloat(selectedStudent.learningScores).toFixed(2) }}</p>
-        <p>课程平均分: {{ parseFloat(selectedStudent.averageCourseScores).toFixed(2) }}</p>
+        <p>学习成绩: {{ formatScore(selectedStudent.learningScores) }}</p>
+        <p>课程平均分: {{ formatScore(selectedStudent.averageCourseScores) }}</p>
       </div>
       <template #footer>
         <el-button @click="showDetailModal = false">关闭</el-button>

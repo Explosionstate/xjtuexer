@@ -1,33 +1,37 @@
-<template>
-  <div class="p-6 bg-gray-100 min-h-screen">
-    <h1 class="text-2xl font-bold mb-6">课程平均分</h1>
-    <el-card class="mb-6">
-      <h2 class="text-xl font-bold mb-4">课程平均分对比</h2>
-      <div class="mb-4 flex items-center">
-        <el-select
-            v-model="college"
-            placeholder="选择学院"
-            clearable
-            class="mr-4 w-1/4"
-        >
-          <el-option label="全部学院" value="" />
-          <el-option label="计算机学院" value="计算机学院" />
-          <el-option label="外国语学院" value="外国语学院" />
-          <el-option label="自动化学院" value="自动化学院" />
-          <el-option label="经济管理学院" value="经济管理学院" />
-        </el-select>
-        <el-select
-            v-model="semester"
-            placeholder="选择学期"
-            class="w-1/4"
-        >
-          <el-option label="2024-2025秋" value="2024-2025秋" />
-          <el-option label="2024-2025春" value="2024-2025春" />
-          <el-option label="2023-2024秋" value="2023-2024秋" />
-        </el-select>
-      </div>
-      <div id="scoreChart" style="width: 100%; height: 450px;"></div>
-    </el-card>
+﻿<template>
+  <div class="analytics-page">
+    <div class="analytics-wrapper">
+      <header class="page-header">
+        <h1 class="page-title">课程平均分</h1>
+        <p class="page-desc">按学院与学期查看课程均分对比，支持本群体与全校平均的横向分析。</p>
+      </header>
+
+      <el-card class="panel-card" shadow="never">
+        <template #header>
+          <div class="card-header">
+            <h2>课程平均分对比</h2>
+          </div>
+        </template>
+
+        <div class="filter-row">
+          <el-select v-model="college" placeholder="选择学院" clearable>
+            <el-option label="全部学院" value="" />
+            <el-option label="计算机学院" value="计算机学院" />
+            <el-option label="外国语学院" value="外国语学院" />
+            <el-option label="自动化学院" value="自动化学院" />
+            <el-option label="经济管理学院" value="经济管理学院" />
+          </el-select>
+
+          <el-select v-model="semester" placeholder="选择学期">
+            <el-option label="2024-2025秋" value="2024-2025秋" />
+            <el-option label="2024-2025春" value="2024-2025春" />
+            <el-option label="2023-2024秋" value="2023-2024秋" />
+          </el-select>
+        </div>
+
+        <div id="scoreChart" class="chart-box"></div>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -40,8 +44,8 @@ import { getCourseAvgScores } from '@/api/api';
 export default {
   name: 'CourseAvgScores',
   setup() {
-    const college = ref(''); // 默认空，表示全部学院
-    const semester = ref('2024-2025秋'); // 默认最新学期
+    const college = ref('');
+    const semester = ref('2024-2025秋');
     const scoreData = ref([]);
     let scoreChartInstance = null;
 
@@ -50,29 +54,33 @@ export default {
     };
 
     const setScoreChartOption = () => {
-      // 课程名称列表
+      if (!scoreChartInstance) {
+        return;
+      }
+
       const courses = [
         '毛泽东思想和中国特色社会主义理论体系概论',
-        '形式与政策课',
+        '形势与政策课',
         '马克思主义基本原理概论',
-        '思想道德休养与法律基础'
+        '思想道德修养与法律基础',
       ];
 
-      // 按学院分组数据
       const colleges = college.value ? [college.value] : ['计算机学院', '外国语学院', '自动化学院', '经济管理学院'];
-      const schoolData = scoreData.value.filter(item => item.college === '全校');
+      const schoolData = scoreData.value.filter((item) => item.college === '全校');
 
-      // 构造本群体平均分（按学院聚合）
-      const groupScores = courses.map(course => {
-        const collegeData = scoreData.value.filter(item => colleges.includes(item.college) && item.courseName === course);
-        if (collegeData.length === 0) return 0;
+      const groupScores = courses.map((courseName) => {
+        const collegeData = scoreData.value.filter(
+          (item) => colleges.includes(item.college) && item.courseName === courseName
+        );
+        if (collegeData.length === 0) {
+          return 0;
+        }
         const totalScore = collegeData.reduce((sum, item) => sum + (item.avgScoreGroup || 0), 0);
-        return Math.round((totalScore / collegeData.length) * 100) / 100; // 保留两位小数
+        return Math.round((totalScore / collegeData.length) * 100) / 100;
       });
 
-      // 构造全校平均分
-      const schoolScores = courses.map(course => {
-        const record = schoolData.find(item => item.courseName === course) || {};
+      const schoolScores = courses.map((courseName) => {
+        const record = schoolData.find((item) => item.courseName === courseName) || {};
         return record.avgScoreSchool || 0;
       });
 
@@ -80,18 +88,18 @@ export default {
         title: { text: '课程平均分对比', left: 'center' },
         tooltip: {
           trigger: 'axis',
-          formatter: params => {
-            const course = params[0].name;
-            let result = `${course}<br/>`;
-            params.forEach(item => {
-              result += `${item.seriesName}: ${item.value.toFixed(2)}<br/>`;
+          formatter: (params) => {
+            const courseName = params[0].name;
+            let result = `${courseName}<br/>`;
+            params.forEach((item) => {
+              result += `${item.seriesName}: ${Number(item.value).toFixed(2)}<br/>`;
             });
             return result;
           },
         },
         legend: { data: ['本群体', '全校平均'], top: 30 },
         grid: {
-          bottom: 150, // 底部高度，确保长名称完整显示
+          bottom: 130,
           left: 50,
           right: 50,
           containLabel: true,
@@ -101,9 +109,9 @@ export default {
           data: courses,
           axisLabel: {
             interval: 0,
-            rotate: 0, // 水平显示
-            fontSize: 9, // 减小字体大小
-            // 移除截断逻辑，确保完整显示
+            rotate: 0,
+            fontSize: 11,
+            lineHeight: 16,
           },
         },
         yAxis: { type: 'value', name: '分数', max: 100, min: 0 },
@@ -113,14 +121,14 @@ export default {
             type: 'bar',
             data: groupScores,
             itemStyle: { color: '#4B5EAA' },
-            barWidth: '40%',
+            barWidth: '34%',
           },
           {
             name: '全校平均',
             type: 'bar',
             data: schoolScores,
             itemStyle: { color: '#F4A261' },
-            barWidth: '40%',
+            barWidth: '34%',
             barGap: '10%',
           },
         ],
@@ -140,7 +148,7 @@ export default {
           ElMessage.error(response.data.message || '获取课程平均分数据失败');
         }
       } catch (error) {
-        ElMessage.error('请求失败: ' + error.message);
+        ElMessage.error(`请求失败: ${error.message}`);
       }
     };
 
@@ -150,7 +158,9 @@ export default {
     });
 
     onUnmounted(() => {
-      if (scoreChartInstance) scoreChartInstance.dispose();
+      if (scoreChartInstance) {
+        scoreChartInstance.dispose();
+      }
     });
 
     watch([college, semester], fetchCourseAvgScores);
@@ -164,10 +174,79 @@ export default {
 </script>
 
 <style scoped>
-.el-card {
-  margin-bottom: 20px;
+.analytics-page {
+  min-height: calc(100vh - 125px);
+  background: #f5f7fb;
+  padding: 24px;
 }
-h2 {
-  margin-bottom: 20px;
+
+.analytics-wrapper {
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 18px;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.page-desc {
+  margin: 8px 0 0;
+  color: #5f6b7a;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.panel-card {
+  border-radius: 12px;
+  border: 1px solid #e4e9f2;
+  box-shadow: 0 6px 18px rgba(31, 45, 61, 0.05);
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.filter-row :deep(.el-select) {
+  width: 240px;
+}
+
+.chart-box {
+  width: 100%;
+  height: 470px;
+}
+
+@media (max-width: 768px) {
+  .analytics-page {
+    padding: 16px;
+  }
+
+  .page-title {
+    font-size: 23px;
+  }
+
+  .filter-row :deep(.el-select) {
+    width: 100%;
+  }
+
+  .chart-box {
+    height: 380px;
+  }
 }
 </style>

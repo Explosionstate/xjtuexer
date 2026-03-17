@@ -1,56 +1,80 @@
 package com.example.mybatisplusdemo.model.domain;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
 
 @Data
 @TableName("student")
 public class Student implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "姓名")
+    @ApiModelProperty(value = "Name")
     @TableField("name")
     private String name;
 
-    @ApiModelProperty(value = "学号")
+    @ApiModelProperty(value = "Student ID")
     @TableId(value = "student_id", type = IdType.INPUT)
     private Long studentId;
 
     @TableField("student_no")
     private String studentNo;
 
-    @ApiModelProperty(value = "学院")
+    @ApiModelProperty(value = "College")
     @TableField("college")
     private String college;
 
-    @ApiModelProperty(value = "学情分析")
+    @ApiModelProperty(value = "College ID")
+    @TableField("college_id")
+    private Long collegeId;
+
+    @ApiModelProperty(value = "Major ID")
+    @TableField("major_id")
+    private Long majorId;
+
+    @ApiModelProperty(value = "Class ID")
+    @TableField("class_id")
+    private Long classId;
+
+    @ApiModelProperty(value = "Grade Year")
+    @TableField("grade_year")
+    private Integer gradeYear;
+
+    @ApiModelProperty(value = "Major Name")
+    @TableField(exist = false)
+    private String majorName;
+
+    @ApiModelProperty(value = "Class Name")
+    @TableField(exist = false)
+    private String className;
+
+    @ApiModelProperty(value = "Learning Index")
     @TableField("learning_index")
     private BigDecimal learningIndex;
 
-    @ApiModelProperty(value = "对比上月")
+    @ApiModelProperty(value = "Comparison Last Month")
     @TableField("comparison_last_month")
     private BigDecimal comparisonLastMonth;
 
-    @ApiModelProperty(value = "累计预警次数")
+    @ApiModelProperty(value = "Total Warnings")
     @TableField("total_warnings")
     private Integer totalWarnings;
 
-    @ApiModelProperty(value = "累计解除次数")
+    @ApiModelProperty(value = "Resolved Warnings")
     @TableField("resolved_warnings")
     private Integer resolvedWarnings;
 
-    @ApiModelProperty(value = "学习成绩")
+    @ApiModelProperty(value = "Learning Scores")
     @TableField("learning_scores")
     private BigDecimal learningScores;
 
-    @ApiModelProperty(value = "课程平均分")
+    @ApiModelProperty(value = "Average Course Scores")
     @TableField("average_course_scores")
     private BigDecimal averageCourseScores;
 }
