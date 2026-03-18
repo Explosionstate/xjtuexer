@@ -88,8 +88,16 @@
             <el-table v-if="liveSessions.length" :data="liveSessions" border stripe class="compact-table">
               <el-table-column prop="courseName" label="课程名称" min-width="160" />
               <el-table-column prop="teacher" label="教师" min-width="120" />
-              <el-table-column prop="startTime" label="开始时间" min-width="160" />
-              <el-table-column prop="status" label="状态" min-width="100" />
+              <el-table-column prop="startTime" label="开始时间" min-width="160">
+                <template #default="{ row }">
+                  {{ formatLiveSessionStartTime(row.startTime) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="status" label="状态" min-width="100">
+                <template #default="{ row }">
+                  {{ formatLiveSessionStatus(row.status) }}
+                </template>
+              </el-table-column>
             </el-table>
             <div v-else class="empty-block">暂无直播课数据</div>
           </el-card>
@@ -429,6 +437,22 @@ let resizeHandler = null;
 const formatScore = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed.toFixed(2) : '--';
+};
+
+const formatLiveSessionStatus = (status) => {
+  const statusMap = {
+    ended: '已结束',
+    scheduled: '未开始',
+    live: '直播中',
+  };
+  return statusMap[status] || status || '--';
+};
+
+const formatLiveSessionStartTime = (value) => {
+  if (!value) {
+    return '--';
+  }
+  return String(value).replace('T', ' ');
 };
 
 const statCards = computed(() => [
