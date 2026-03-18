@@ -21,8 +21,11 @@ import com.example.mybatisplusdemo.service.IDashboardService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements IDashboardService {
@@ -71,15 +74,16 @@ public class DashboardServiceImpl implements IDashboardService {
 
     @Override
     public List<LearningIndexDTO> getLearningIndex() {
-        Long totalStudents = usersMapper.selectCount(new QueryWrapper<Users>()
-                .eq("is_deleted", 0)
-                .eq("role", "student"));
+        List<Users> students = usersMapper.selectListMy().stream()
+                .filter(this::isActiveStudent)
+                .collect(Collectors.toList());
+        long totalStudents = students.size();
         List<LearningIndexDTO> result = new ArrayList<>();
-        result.add(createLearningIndexDTO("极差 (0-2)", 0.0, 2.0, totalStudents, false));
-        result.add(createLearningIndexDTO("较差 (2-4)", 2.0, 4.0, totalStudents, false));
-        result.add(createLearningIndexDTO("一般 (4-6)", 4.0, 6.0, totalStudents, false));
-        result.add(createLearningIndexDTO("较好 (6-8)", 6.0, 8.0, totalStudents, false));
-        result.add(createLearningIndexDTO("极好 (8-10)", 8.0, 10.0, totalStudents, true));
+        result.add(createLearningIndexDTO(students, "极差 (0-2)", 0.0, 2.0, totalStudents, false));
+        result.add(createLearningIndexDTO(students, "较差 (2-4)", 2.0, 4.0, totalStudents, false));
+        result.add(createLearningIndexDTO(students, "一般 (4-6)", 4.0, 6.0, totalStudents, false));
+        result.add(createLearningIndexDTO(students, "较好 (6-8)", 6.0, 8.0, totalStudents, false));
+        result.add(createLearningIndexDTO(students, "极好 (8-10)", 8.0, 10.0, totalStudents, true));
         return result;
     }
 
@@ -87,17 +91,23 @@ public class DashboardServiceImpl implements IDashboardService {
     public Page<Users> getLearningIndexList(Double min, Double max, PageDTO page) {
         long pageNum = resolvePageNum(page);
         long pageSize = resolvePageSize(page);
-        Page<Users> resultPage = new Page<>(pageNum, pageSize);
-        QueryWrapper<Users> queryWrapper = new QueryWrapper<Users>()
-                .eq("is_deleted", 0)
-                .eq("role", "student")
-                .ge("learning_index", min);
-        if (max != null && max >= 10.0) {
-            queryWrapper.le("learning_index", max);
-        } else {
-            queryWrapper.lt("learning_index", max);
-        }
-        return usersMapper.selectPage(resultPage, queryWrapper);
+        List<Users> students = usersMapper.selectListMy().stream()
+                .filter(this::isActiveStudent)
+                .filter(item -> inRange(item.getLearningIndex(), min, max))
+                .sorted(Comparator.comparing(
+                        Users::getLearningIndex,
+                        Comparator.nullsLast(Comparator.reverseOrder())
+                ))
+                .collect(Collectors.toList());
+
+        int total = students.size();
+        int from = (int) Math.max(0, (pageNum - 1) * pageSize);
+        int to = (int) Math.min(total, from + pageSize);
+        List<Users> records = from >= to ? new ArrayList<>() : students.subList(from, to);
+
+        Page<Users> resultPage = new Page<>(pageNum, pageSize, total);
+        resultPage.setRecords(records);
+        return resultPage;
     }
 
     @Override
@@ -136,18 +146,15 @@ public class DashboardServiceImpl implements IDashboardService {
         return result;
     }
 
-    private LearningIndexDTO createLearningIndexDTO(String label, Double min, Double max,
-                                                    Long totalStudents, boolean includeUpperBound) {
-        QueryWrapper<Users> queryWrapper = new QueryWrapper<Users>()
-                .eq("is_deleted", 0)
-                .eq("role", "student")
-                .ge("learning_index", min);
-        if (includeUpperBound) {
-            queryWrapper.le("learning_index", max);
-        } else {
-            queryWrapper.lt("learning_index", max);
-        }
-        Long count = usersMapper.selectCount(queryWrapper);
+    private LearningIndexDTO createLearningIndexDTO(List<Users> students,
+                                                     String label,
+                                                     Double min,
+                                                     Double max,
+                                                     Long totalStudents,
+                                                     boolean includeUpperBound) {
+        long count = students.stream()
+                .filter(item -> inRange(item.getLearningIndex(), min, max, includeUpperBound))
+                .count();
         LearningIndexDTO dto = new LearningIndexDTO();
         dto.setLabel(label);
         dto.setCount(count);
@@ -185,5 +192,30 @@ public class DashboardServiceImpl implements IDashboardService {
 
     private long safeTaskPointCount(Course course) {
         return course != null && course.getTaskPoints() != null ? course.getTaskPoints().size() : 0L;
+    }
+
+    private boolean isActiveStudent(Users user) {
+        if (user == null) {
+            return false;
+        }
+        return "student".equalsIgnoreCase(user.getRole())
+                && (user.getIsDeleted() == null || user.getIsDeleted() == 0);
+    }
+
+    private boolean inRange(BigDecimal value, Double min, Double max) {
+        return inRange(value, min, max, max != null && max >= 10.0);
+    }
+
+    private boolean inRange(BigDecimal value, Double min, Double max, boolean includeUpperBound) {
+        if (value == null) {
+            return false;
+        }
+        double minVal = min == null ? 0.0 : min;
+        double maxVal = max == null ? Double.MAX_VALUE : max;
+        boolean geMin = value.compareTo(BigDecimal.valueOf(minVal)) >= 0;
+        boolean upperOk = includeUpperBound
+                ? value.compareTo(BigDecimal.valueOf(maxVal)) <= 0
+                : value.compareTo(BigDecimal.valueOf(maxVal)) < 0;
+        return geMin && upperOk;
     }
 }

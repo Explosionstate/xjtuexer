@@ -139,6 +139,7 @@ export default {
 
     onMounted(() => {
       initCharts();
+      fetchDurations();
     });
 
     onUnmounted(() => {

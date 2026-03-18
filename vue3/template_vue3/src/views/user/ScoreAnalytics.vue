@@ -49,16 +49,16 @@
 
         <el-table v-if="scoreData.length" :data="scoreData" border stripe class="table-box">
           <el-table-column prop="courseName" label="课程名称" min-width="220" fixed="left" />
-          <el-table-column prop="avgTotalScore" label="平均综合成绩" :formatter="(row) => row.avgTotalScore.toFixed(2)" min-width="130" />
-          <el-table-column prop="schoolAvgTotalScore" label="全校平均综合成绩" :formatter="(row) => row.schoolAvgTotalScore.toFixed(2)" min-width="150" />
-          <el-table-column prop="avgAssignmentScore" label="作业平均分" :formatter="(row) => row.avgAssignmentScore.toFixed(2)" min-width="120" />
-          <el-table-column prop="schoolAvgAssignmentScore" label="全校作业平均分" :formatter="(row) => row.schoolAvgAssignmentScore.toFixed(2)" min-width="140" />
-          <el-table-column prop="avgExamScore" label="考试平均分" :formatter="(row) => row.avgExamScore.toFixed(2)" min-width="120" />
-          <el-table-column prop="schoolAvgExamScore" label="全校考试平均分" :formatter="(row) => row.schoolAvgExamScore.toFixed(2)" min-width="140" />
-          <el-table-column prop="avgQuizScore" label="章节测验平均分" :formatter="(row) => row.avgQuizScore.toFixed(2)" min-width="140" />
-          <el-table-column prop="schoolAvgQuizScore" label="全校章节测验平均分" :formatter="(row) => row.schoolAvgQuizScore.toFixed(2)" min-width="170" />
-          <el-table-column prop="courseCredit" label="课程积分" :formatter="(row) => row.courseCredit.toFixed(2)" min-width="100" />
-          <el-table-column prop="schoolAvgCourseCredit" label="全校平均课程积分" :formatter="(row) => row.schoolAvgCourseCredit.toFixed(2)" min-width="150" />
+          <el-table-column prop="avgTotalScore" label="平均综合成绩" :formatter="(row) => formatScore(row.avgTotalScore)" min-width="130" />
+          <el-table-column prop="schoolAvgTotalScore" label="全校平均综合成绩" :formatter="(row) => formatScore(row.schoolAvgTotalScore)" min-width="150" />
+          <el-table-column prop="avgAssignmentScore" label="作业平均分" :formatter="(row) => formatScore(row.avgAssignmentScore)" min-width="120" />
+          <el-table-column prop="schoolAvgAssignmentScore" label="全校作业平均分" :formatter="(row) => formatScore(row.schoolAvgAssignmentScore)" min-width="140" />
+          <el-table-column prop="avgExamScore" label="考试平均分" :formatter="(row) => formatScore(row.avgExamScore)" min-width="120" />
+          <el-table-column prop="schoolAvgExamScore" label="全校考试平均分" :formatter="(row) => formatScore(row.schoolAvgExamScore)" min-width="140" />
+          <el-table-column prop="avgQuizScore" label="章节测验平均分" :formatter="(row) => formatScore(row.avgQuizScore)" min-width="140" />
+          <el-table-column prop="schoolAvgQuizScore" label="全校章节测验平均分" :formatter="(row) => formatScore(row.schoolAvgQuizScore)" min-width="170" />
+          <el-table-column prop="courseCredit" label="课程积分" :formatter="(row) => formatScore(row.courseCredit)" min-width="100" />
+          <el-table-column prop="schoolAvgCourseCredit" label="全校平均课程积分" :formatter="(row) => formatScore(row.schoolAvgCourseCredit)" min-width="150" />
         </el-table>
         <div v-else class="empty-block">暂无数据</div>
       </el-card>
@@ -156,6 +156,11 @@ export default {
       }
     };
 
+    const formatScore = (value) => {
+      const num = Number(value);
+      return Number.isFinite(num) ? num.toFixed(2) : '0.00';
+    };
+
     onMounted(() => {
       initCharts();
       fetchCourseScores();
@@ -177,6 +182,7 @@ export default {
       startDate,
       endDate,
       scoreData,
+      formatScore,
     };
   },
 };

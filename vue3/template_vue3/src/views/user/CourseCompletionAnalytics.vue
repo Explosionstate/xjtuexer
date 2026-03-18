@@ -18,14 +18,15 @@
             <div class="filter-row">
               <el-select v-model="group1College" placeholder="选择学院" clearable>
                 <el-option label="全校" value="全校" />
-                <el-option label="电气学院" value="电气学院" />
-                <el-option label="机械学院" value="机械学院" />
-                <el-option label="外语学院" value="外语学院" />
+                <el-option label="电气工程学院" value="电气工程学院" />
+                <el-option label="机械工程学院" value="机械工程学院" />
+                <el-option label="外国语学院" value="外国语学院" />
               </el-select>
               <el-select v-model="group1Course" placeholder="选择课程" clearable>
-                <el-option label="高等数学" value="高等数学" />
-                <el-option label="大学英语" value="大学英语" />
-                <el-option label="大学生职业规划" value="大学生职业规划" />
+                <el-option label="思想道德与法治" value="思想道德与法治" />
+                <el-option label="中国近现代史纲要" value="中国近现代史纲要" />
+                <el-option label="形势与政策" value="形势与政策" />
+                <el-option label="马克思主义基本原理" value="马克思主义基本原理" />
               </el-select>
               <el-select v-model="group1Semester" placeholder="选择学期">
                 <el-option label="2024-2025学年" value="2024-2025学年" />
@@ -38,14 +39,15 @@
             <div class="filter-row">
               <el-select v-model="group2College" placeholder="选择学院" clearable>
                 <el-option label="全校" value="全校" />
-                <el-option label="电气学院" value="电气学院" />
-                <el-option label="机械学院" value="机械学院" />
-                <el-option label="外语学院" value="外语学院" />
+                <el-option label="电气工程学院" value="电气工程学院" />
+                <el-option label="机械工程学院" value="机械工程学院" />
+                <el-option label="外国语学院" value="外国语学院" />
               </el-select>
               <el-select v-model="group2Course" placeholder="选择课程" clearable>
-                <el-option label="高等数学" value="高等数学" />
-                <el-option label="大学英语" value="大学英语" />
-                <el-option label="大学生职业规划" value="大学生职业规划" />
+                <el-option label="思想道德与法治" value="思想道德与法治" />
+                <el-option label="中国近现代史纲要" value="中国近现代史纲要" />
+                <el-option label="形势与政策" value="形势与政策" />
+                <el-option label="马克思主义基本原理" value="马克思主义基本原理" />
               </el-select>
               <el-select v-model="group2Semester" placeholder="选择学期">
                 <el-option label="2024-2025学年" value="2024-2025学年" />

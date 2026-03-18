@@ -25,10 +25,18 @@ public class CourseAvgScoresServiceImpl implements ICourseAvgScoresService {
     public List<CourseAvgScoreDTO> getCourseAvgScores(String college, String semester) {
         String normalizedCollege = normalize(college);
         String normalizedSemester = normalize(semester);
-        if (schemaInspectorService.hasTable("fact_course_score")) {
-            return avgScoresMapper.selectCourseAvgScoresFromFact(normalizedCollege, normalizedSemester);
+        boolean useFact = schemaInspectorService.hasTable("fact_course_score");
+        try {
+            if (useFact) {
+                return avgScoresMapper.selectCourseAvgScoresFromFact(normalizedCollege, normalizedSemester);
+            }
+            return avgScoresMapper.selectCourseAvgScores(normalizedCollege, normalizedSemester);
+        } catch (Exception ignored) {
+            if (useFact) {
+                return avgScoresMapper.selectCourseAvgScores(normalizedCollege, normalizedSemester);
+            }
+            throw ignored;
         }
-        return avgScoresMapper.selectCourseAvgScores(normalizedCollege, normalizedSemester);
     }
 
     private String normalize(String value) {

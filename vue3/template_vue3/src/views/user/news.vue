@@ -297,7 +297,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 
-const API_BASE_URL = import.meta.env.VITE_NEWS_API_URL || import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const API_BASE_URL = import.meta.env.VITE_NEWS_API_URL || import.meta.env.VITE_API_URL || ''
 const defaultImage = 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=900&h=560&fit=crop'
 
 const FIXED_NEWS_COUNT = 4
@@ -1295,6 +1295,11 @@ const fetchNews = async () => {
   error.value = null
 
   try {
+    if (!API_BASE_URL) {
+      loadDefaultData()
+      return
+    }
+
     const response = await fetch(`${API_BASE_URL}/api/news`, {
       method: 'GET',
       headers: {

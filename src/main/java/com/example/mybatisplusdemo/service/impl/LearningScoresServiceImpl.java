@@ -29,30 +29,46 @@ public class LearningScoresServiceImpl implements ILearningScoresService {
         String normalizedEndDate = normalize(endDate);
         boolean useFactScoreTable = schemaInspectorService.hasTable("fact_course_score");
 
-        List<ScoreDTO> scores = useFactScoreTable
-                ? learningScoresMapper.selectCourseScoresFromFact(
-                normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate)
-                : learningScoresMapper.selectCourseScores(
-                normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate);
+        List<ScoreDTO> scores;
+        List<ScoreDTO> schoolScores;
+        try {
+            scores = useFactScoreTable
+                    ? learningScoresMapper.selectCourseScoresFromFact(
+                    normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate)
+                    : learningScoresMapper.selectCourseScores(
+                    normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate);
 
-        List<ScoreDTO> schoolScores = useFactScoreTable
-                ? learningScoresMapper.selectCourseScoresFromFact(
-                normalizedCourse, null, normalizedStartDate, normalizedEndDate)
-                : learningScoresMapper.selectCourseScores(
-                normalizedCourse, null, normalizedStartDate, normalizedEndDate);
+            schoolScores = useFactScoreTable
+                    ? learningScoresMapper.selectCourseScoresFromFact(
+                    normalizedCourse, null, normalizedStartDate, normalizedEndDate)
+                    : learningScoresMapper.selectCourseScores(
+                    normalizedCourse, null, normalizedStartDate, normalizedEndDate);
+        } catch (Exception ignored) {
+            scores = learningScoresMapper.selectCourseScores(
+                    normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate);
+            schoolScores = learningScoresMapper.selectCourseScores(
+                    normalizedCourse, null, normalizedStartDate, normalizedEndDate);
+        }
 
-        scores.forEach(dto -> {
-            schoolScores.stream()
-                    .filter(s -> s.getCourseName().equals(dto.getCourseName()))
-                    .findFirst()
-                    .ifPresent(s -> {
-                        dto.setSchoolAvgTotalScore(s.getAvgTotalScore());
-                        dto.setSchoolAvgAssignmentScore(s.getAvgAssignmentScore());
-                        dto.setSchoolAvgExamScore(s.getAvgExamScore());
-                        dto.setSchoolAvgQuizScore(s.getAvgQuizScore());
-                        dto.setSchoolAvgCourseCredit(s.getCourseCredit());
-                    });
-        });
+        for (ScoreDTO dto : scores) {
+            if (dto == null || dto.getCourseName() == null) {
+                continue;
+            }
+            for (ScoreDTO school : schoolScores) {
+                if (school == null || school.getCourseName() == null) {
+                    continue;
+                }
+                if (!dto.getCourseName().equals(school.getCourseName())) {
+                    continue;
+                }
+                dto.setSchoolAvgTotalScore(school.getAvgTotalScore());
+                dto.setSchoolAvgAssignmentScore(school.getAvgAssignmentScore());
+                dto.setSchoolAvgExamScore(school.getAvgExamScore());
+                dto.setSchoolAvgQuizScore(school.getAvgQuizScore());
+                dto.setSchoolAvgCourseCredit(school.getCourseCredit());
+                break;
+            }
+        }
 
         return scores;
     }

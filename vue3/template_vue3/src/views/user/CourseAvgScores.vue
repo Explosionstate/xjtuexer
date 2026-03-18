@@ -16,16 +16,20 @@
         <div class="filter-row">
           <el-select v-model="college" placeholder="选择学院" clearable>
             <el-option label="全部学院" value="" />
-            <el-option label="计算机学院" value="计算机学院" />
+            <el-option label="马克思主义学院" value="马克思主义学院" />
+            <el-option label="计算机科学与技术学院" value="计算机科学与技术学院" />
+            <el-option label="软件学院" value="软件学院" />
             <el-option label="外国语学院" value="外国语学院" />
-            <el-option label="自动化学院" value="自动化学院" />
-            <el-option label="经济管理学院" value="经济管理学院" />
+            <el-option label="电气工程学院" value="电气工程学院" />
+            <el-option label="机械工程学院" value="机械工程学院" />
           </el-select>
 
-          <el-select v-model="semester" placeholder="选择学期">
-            <el-option label="2024-2025秋" value="2024-2025秋" />
-            <el-option label="2024-2025春" value="2024-2025春" />
-            <el-option label="2023-2024秋" value="2023-2024秋" />
+          <el-select v-model="semester" placeholder="选择学期" clearable>
+            <el-option label="全部学期" value="" />
+            <el-option label="2024-2025学年第一学期" value="2024-2025学年第一学期" />
+            <el-option label="2024-2025学年第二学期" value="2024-2025学年第二学期" />
+            <el-option label="2025-2026学年第一学期" value="2025-2026学年第一学期" />
+            <el-option label="2025-2026学年第二学期" value="2025-2026学年第二学期" />
           </el-select>
         </div>
 
@@ -45,7 +49,7 @@ export default {
   name: 'CourseAvgScores',
   setup() {
     const college = ref('');
-    const semester = ref('2024-2025秋');
+    const semester = ref('');
     const scoreData = ref([]);
     let scoreChartInstance = null;
 
@@ -58,12 +62,11 @@ export default {
         return;
       }
 
-      const courses = [
-        '毛泽东思想和中国特色社会主义理论体系概论',
-        '形势与政策课',
-        '马克思主义基本原理概论',
-        '思想道德修养与法律基础',
-      ];
+      const courses = [...new Set(scoreData.value.map((item) => item.courseName))];
+      if (!courses.length) {
+        scoreChartInstance.clear();
+        return;
+      }
 
       const colleges = college.value ? [college.value] : ['计算机学院', '外国语学院', '自动化学院', '经济管理学院'];
       const schoolData = scoreData.value.filter((item) => item.college === '全校');
