@@ -109,9 +109,12 @@
     </select>
 
     <select id="selectDepartmentRanking" resultType="com.example.mybatisplusdemo.model.dto.DepartmentRankingDTO">
-        SELECT u.department_name AS name, COUNT(*) AS visits
-        FROM `user` u
-        WHERE u.is_deleted = 0 AND u.department_name IS NOT NULL
+        SELECT u.department_name AS name, COUNT(lr.record_id) AS visits
+        FROM learning_record lr
+        JOIN `user` u ON u.id = lr.user_id
+        WHERE u.is_deleted = 0
+          AND u.role = 'student'
+          AND u.department_name IS NOT NULL
         GROUP BY u.department_name
         ORDER BY visits DESC
         LIMIT 10

@@ -18,56 +18,54 @@ import com.example.mybatisplusdemo.model.dto.LiveSessionDTO;
 import com.example.mybatisplusdemo.model.dto.PageDTO;
 import com.example.mybatisplusdemo.model.dto.StatsDTO;
 import com.example.mybatisplusdemo.service.IDashboardService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DashboardServiceImpl implements IDashboardService {
 
-    @Autowired
-    private UsersMapper usersMapper;
-    @Autowired
-    private CourseMapper courseMapper;
-    @Autowired
-    private LearningRecordMapper learningRecordMapper;
-    @Autowired
-    private LiveSessionMapper liveSessionMapper;
-    @Autowired
-    private TeacherMapper teacherMapper;
+    private final UsersMapper usersMapper;
+    private final CourseMapper courseMapper;
+    private final LearningRecordMapper learningRecordMapper;
+    private final LiveSessionMapper liveSessionMapper;
+    private final TeacherMapper teacherMapper;
+
+    public DashboardServiceImpl(UsersMapper usersMapper,
+                                CourseMapper courseMapper,
+                                LearningRecordMapper learningRecordMapper,
+                                LiveSessionMapper liveSessionMapper,
+                                TeacherMapper teacherMapper) {
+        this.usersMapper = usersMapper;
+        this.courseMapper = courseMapper;
+        this.learningRecordMapper = learningRecordMapper;
+        this.liveSessionMapper = liveSessionMapper;
+        this.teacherMapper = teacherMapper;
+    }
 
     @Override
     public StatsDTO getStats() {
         StatsDTO stats = new StatsDTO();
-        setFieldValue(stats, "checkInCompleted", learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
+        stats.setCheckInCompleted(learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
                 .isNotNull("check_in_time")));
-        setFieldValue(stats, "onlineUsers", learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
+        stats.setOnlineUsers(learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
                 .eq("is_online", 1)));
-        setFieldValue(stats, "totalUsers", usersMapper.selectCount(new QueryWrapper<Users>()
+        stats.setTotalUsers(usersMapper.selectCount(new QueryWrapper<Users>()
                 .eq("is_deleted", 0)
                 .eq("role", "student")));
-        setFieldValue(stats, "taskPointsCompleted", learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
+        stats.setTaskPointsCompleted(learningRecordMapper.selectCount(new QueryWrapper<LearningRecord>()
                 .isNotNull("task_point_id")));
-        setFieldValue(stats, "teachers", usersMapper.selectCount(new QueryWrapper<Users>()
+        stats.setTeachers(usersMapper.selectCount(new QueryWrapper<Users>()
                 .eq("is_deleted", 0)
                 .eq("role", "teacher")));
 
         List<Course> courses = courseMapper.selectListMy();
-        setFieldValue(stats, "courses", (long) courses.size());
-        setFieldValue(stats, "chapterResources", courses.stream()
-                .mapToLong(course -> sizeOfListField(course, "chapters"))
-                .sum());
-        setFieldValue(stats, "courseMaterials", courses.stream()
-                .mapToLong(course -> sizeOfListField(course, "materials"))
-                .sum());
-        setFieldValue(stats, "taskPoints", courses.stream()
-                .mapToLong(course -> sizeOfListField(course, "taskPoints"))
-                .sum());
+        stats.setCourses((long) courses.size());
+        stats.setChapterResources(courses.stream().mapToLong(this::safeChapterCount).sum());
+        stats.setCourseMaterials(courses.stream().mapToLong(this::safeMaterialCount).sum());
+        stats.setTaskPoints(courses.stream().mapToLong(this::safeTaskPointCount).sum());
         return stats;
     }
 
@@ -76,26 +74,13 @@ public class DashboardServiceImpl implements IDashboardService {
         Long totalStudents = usersMapper.selectCount(new QueryWrapper<Users>()
                 .eq("is_deleted", 0)
                 .eq("role", "student"));
-        return List.of(
-                createLearningIndexDTO("极差 (0-2)", 0.0, 2.0, totalStudents),
-                createLearningIndexDTO("较差 (2-4)", 2.0, 4.0, totalStudents),
-                createLearningIndexDTO("一般 (4-6)", 4.0, 6.0, totalStudents),
-                createLearningIndexDTO("较好 (6-8)", 6.0, 8.0, totalStudents),
-                createLearningIndexDTO("极好 (8-10)", 8.0, 10.0, totalStudents)
-        );
-    }
-
-    private LearningIndexDTO createLearningIndexDTO(String label, Double min, Double max, Long totalStudents) {
-        Long count = usersMapper.selectCount(new QueryWrapper<Users>()
-                .eq("is_deleted", 0)
-                .eq("role", "student")
-                .ge("learning_index", min)
-                .lt("learning_index", max));
-        LearningIndexDTO dto = new LearningIndexDTO();
-        setFieldValue(dto, "label", label);
-        setFieldValue(dto, "count", count);
-        setFieldValue(dto, "percentage", totalStudents > 0 ? Math.round(count * 10000.0 / totalStudents) / 100.0 : 0.0);
-        return dto;
+        List<LearningIndexDTO> result = new ArrayList<>();
+        result.add(createLearningIndexDTO("极差 (0-2)", 0.0, 2.0, totalStudents, false));
+        result.add(createLearningIndexDTO("较差 (2-4)", 2.0, 4.0, totalStudents, false));
+        result.add(createLearningIndexDTO("一般 (4-6)", 4.0, 6.0, totalStudents, false));
+        result.add(createLearningIndexDTO("较好 (6-8)", 6.0, 8.0, totalStudents, false));
+        result.add(createLearningIndexDTO("极好 (8-10)", 8.0, 10.0, totalStudents, true));
+        return result;
     }
 
     @Override
@@ -103,11 +88,16 @@ public class DashboardServiceImpl implements IDashboardService {
         long pageNum = resolvePageNum(page);
         long pageSize = resolvePageSize(page);
         Page<Users> resultPage = new Page<>(pageNum, pageSize);
-        return usersMapper.selectPage(resultPage, new QueryWrapper<Users>()
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<Users>()
                 .eq("is_deleted", 0)
                 .eq("role", "student")
-                .ge("learning_index", min)
-                .lt("learning_index", max));
+                .ge("learning_index", min);
+        if (max != null && max >= 10.0) {
+            queryWrapper.le("learning_index", max);
+        } else {
+            queryWrapper.lt("learning_index", max);
+        }
+        return usersMapper.selectPage(resultPage, queryWrapper);
     }
 
     @Override
@@ -117,127 +107,83 @@ public class DashboardServiceImpl implements IDashboardService {
 
     @Override
     public List<LiveSessionDTO> getLiveSessions() {
-        return liveSessionMapper.selectListMy()
-                .stream()
-                .map(ls -> {
-                    LiveSessionDTO dto = new LiveSessionDTO();
-                    Long sessionId = readLongField(ls, "sessionId");
-                    Long courseId = readLongField(ls, "courseId");
-                    Long teacherId = readLongField(ls, "teacherId");
-                    LocalDateTime startTime = readLocalDateTimeField(ls, "startTime");
-                    String status = readStringField(ls, "status");
-                    setFieldValue(dto, "id", sessionId);
+        List<LiveSessionDTO> result = new ArrayList<>();
+        for (LiveSession liveSession : liveSessionMapper.selectListMy()) {
+            LiveSessionDTO dto = new LiveSessionDTO();
+            dto.setId(liveSession.getSessionId());
 
-                    Course course = courseMapper.selectByIdMy(courseId);
-                    setFieldValue(dto, "courseName", readStringField(course, "title"));
+            Course course = courseMapper.selectByIdMy(liveSession.getCourseId());
+            dto.setCourseName(course == null ? "" : course.getTitle());
 
-                    Teacher teacher = teacherMapper.selectById(teacherId);
-                    Users teacherUser = usersMapper.selectOne(new QueryWrapper<Users>()
-                            .eq("id", teacherId)
-                            .eq("role", "teacher")
-                            .eq("is_deleted", 0));
+            String teacherName = "";
+            Teacher teacher = teacherMapper.selectById(liveSession.getTeacherId());
+            if (teacher != null && StringUtils.hasText(teacher.getName())) {
+                teacherName = teacher.getName();
+            } else {
+                Users teacherUser = usersMapper.selectOne(new QueryWrapper<Users>()
+                        .eq("id", liveSession.getTeacherId())
+                        .eq("role", "teacher")
+                        .eq("is_deleted", 0));
+                if (teacherUser != null && StringUtils.hasText(teacherUser.getName())) {
+                    teacherName = teacherUser.getName();
+                }
+            }
+            dto.setTeacher(teacherName);
+            dto.setStartTime(liveSession.getStartTime());
+            dto.setStatus(liveSession.getStatus());
+            result.add(dto);
+        }
+        return result;
+    }
 
-                    String teacherName = "";
-                    String teacherFromTeacher = readStringField(teacher, "name");
-                    String teacherFromUser = readStringField(teacherUser, "name");
-                    if (StringUtils.hasText(teacherFromTeacher)) {
-                        teacherName = teacherFromTeacher;
-                    } else if (StringUtils.hasText(teacherFromUser)) {
-                        teacherName = teacherFromUser;
-                    }
-
-                    setFieldValue(dto, "teacher", teacherName);
-                    setFieldValue(dto, "startTime", startTime);
-                    setFieldValue(dto, "status", status);
-                    return dto;
-                }).collect(Collectors.toList());
+    private LearningIndexDTO createLearningIndexDTO(String label, Double min, Double max,
+                                                    Long totalStudents, boolean includeUpperBound) {
+        QueryWrapper<Users> queryWrapper = new QueryWrapper<Users>()
+                .eq("is_deleted", 0)
+                .eq("role", "student")
+                .ge("learning_index", min);
+        if (includeUpperBound) {
+            queryWrapper.le("learning_index", max);
+        } else {
+            queryWrapper.lt("learning_index", max);
+        }
+        Long count = usersMapper.selectCount(queryWrapper);
+        LearningIndexDTO dto = new LearningIndexDTO();
+        dto.setLabel(label);
+        dto.setCount(count);
+        dto.setPercentage(totalStudents != null && totalStudents > 0
+                ? Math.round(count * 10000.0 / totalStudents) / 100.0
+                : 0.0);
+        return dto;
     }
 
     private long resolvePageNum(PageDTO page) {
-        Integer pageNum = readIntegerField(page, "pageNum");
+        if (page == null) {
+            return 1L;
+        }
+        Integer pageNum = page.getPageNum();
         if (pageNum == null || pageNum <= 0) {
-            pageNum = readIntegerField(page, "pageNo");
+            pageNum = page.getPageNo();
         }
         return (pageNum == null || pageNum <= 0) ? 1L : pageNum.longValue();
     }
 
     private long resolvePageSize(PageDTO page) {
-        Integer pageSize = readIntegerField(page, "pageSize");
-        return (pageSize == null || pageSize <= 0) ? 10L : pageSize.longValue();
+        if (page == null || page.getPageSize() == null || page.getPageSize() <= 0) {
+            return 10L;
+        }
+        return page.getPageSize().longValue();
     }
 
-    private long sizeOfListField(Object target, String fieldName) {
-        Object value = readFieldValue(target, fieldName);
-        if (value instanceof List<?> list) {
-            return list.size();
-        }
-        return 0L;
+    private long safeChapterCount(Course course) {
+        return course != null && course.getChapters() != null ? course.getChapters().size() : 0L;
     }
 
-    private Long readLongField(Object target, String fieldName) {
-        Object value = readFieldValue(target, fieldName);
-        if (value instanceof Number number) {
-            return number.longValue();
-        }
-        return null;
+    private long safeMaterialCount(Course course) {
+        return course != null && course.getMaterials() != null ? course.getMaterials().size() : 0L;
     }
 
-    private Integer readIntegerField(Object target, String fieldName) {
-        Object value = readFieldValue(target, fieldName);
-        if (value instanceof Number number) {
-            return number.intValue();
-        }
-        return null;
-    }
-
-    private String readStringField(Object target, String fieldName) {
-        Object value = readFieldValue(target, fieldName);
-        return value == null ? "" : String.valueOf(value);
-    }
-
-    private LocalDateTime readLocalDateTimeField(Object target, String fieldName) {
-        Object value = readFieldValue(target, fieldName);
-        if (value instanceof LocalDateTime localDateTime) {
-            return localDateTime;
-        }
-        return null;
-    }
-
-    private Object readFieldValue(Object target, String fieldName) {
-        if (target == null || !StringUtils.hasText(fieldName)) {
-            return null;
-        }
-        Class<?> type = target.getClass();
-        while (type != null) {
-            try {
-                Field field = type.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                return field.get(target);
-            } catch (NoSuchFieldException ignored) {
-                type = type.getSuperclass();
-            } catch (IllegalAccessException ignored) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    private void setFieldValue(Object target, String fieldName, Object value) {
-        if (target == null || !StringUtils.hasText(fieldName)) {
-            return;
-        }
-        Class<?> type = target.getClass();
-        while (type != null) {
-            try {
-                Field field = type.getDeclaredField(fieldName);
-                field.setAccessible(true);
-                field.set(target, value);
-                return;
-            } catch (NoSuchFieldException ignored) {
-                type = type.getSuperclass();
-            } catch (IllegalAccessException ignored) {
-                return;
-            }
-        }
+    private long safeTaskPointCount(Course course) {
+        return course != null && course.getTaskPoints() != null ? course.getTaskPoints().size() : 0L;
     }
 }

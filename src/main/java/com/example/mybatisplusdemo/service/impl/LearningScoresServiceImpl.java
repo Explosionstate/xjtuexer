@@ -3,37 +3,44 @@ package com.example.mybatisplusdemo.service.impl;
 import com.example.mybatisplusdemo.mapper.LearningScoresMapper;
 import com.example.mybatisplusdemo.model.dto.ScoreDTO;
 import com.example.mybatisplusdemo.service.ILearningScoresService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.mybatisplusdemo.service.support.SchemaInspectorService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
 @Service
 public class LearningScoresServiceImpl implements ILearningScoresService {
 
-    @Autowired
-    private LearningScoresMapper learningScoresMapper;
+    private final LearningScoresMapper learningScoresMapper;
+    private final SchemaInspectorService schemaInspectorService;
+
+    public LearningScoresServiceImpl(LearningScoresMapper learningScoresMapper,
+                                     SchemaInspectorService schemaInspectorService) {
+        this.learningScoresMapper = learningScoresMapper;
+        this.schemaInspectorService = schemaInspectorService;
+    }
 
     @Override
     public List<ScoreDTO> getCourseScores(String course, String college, String startDate, String endDate) {
-        // 获取筛选结果的平均成绩
-        List<ScoreDTO> scores = learningScoresMapper.selectCourseScores(
-                course.isEmpty() ? null : course,
-                college.isEmpty() ? null : college,
-                startDate.isEmpty() ? null : startDate,
-                endDate.isEmpty() ? null : endDate
-        );
+        String normalizedCourse = normalize(course);
+        String normalizedCollege = normalize(college);
+        String normalizedStartDate = normalize(startDate);
+        String normalizedEndDate = normalize(endDate);
+        boolean useFactScoreTable = schemaInspectorService.hasTable("fact_course_score");
 
-        // 获取全校平均成绩（无学院筛选）
-        List<ScoreDTO> schoolScores = learningScoresMapper.selectCourseScores(
-                course.isEmpty() ? null : course,
-                null,
-                startDate.isEmpty() ? null : startDate,
-                endDate.isEmpty() ? null : endDate
-        );
+        List<ScoreDTO> scores = useFactScoreTable
+                ? learningScoresMapper.selectCourseScoresFromFact(
+                normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate)
+                : learningScoresMapper.selectCourseScores(
+                normalizedCourse, normalizedCollege, normalizedStartDate, normalizedEndDate);
 
+        List<ScoreDTO> schoolScores = useFactScoreTable
+                ? learningScoresMapper.selectCourseScoresFromFact(
+                normalizedCourse, null, normalizedStartDate, normalizedEndDate)
+                : learningScoresMapper.selectCourseScores(
+                normalizedCourse, null, normalizedStartDate, normalizedEndDate);
 
-        // 合并全校平均成绩到结果中
         scores.forEach(dto -> {
             schoolScores.stream()
                     .filter(s -> s.getCourseName().equals(dto.getCourseName()))
@@ -48,5 +55,12 @@ public class LearningScoresServiceImpl implements ILearningScoresService {
         });
 
         return scores;
+    }
+
+    private String normalize(String value) {
+        if (!StringUtils.hasText(value)) {
+            return null;
+        }
+        return value.trim();
     }
 }
