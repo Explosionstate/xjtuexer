@@ -15,22 +15,24 @@ public interface CourseVisitMapper {
      */
     @Select("""
         SELECT
-            coursename AS courseName,
+            cv.course_id AS courseId,
+            COALESCE(c.title, cv.coursename) AS courseName,
             CASE
-                WHEN #{timeRange} = 'today' THEN today
-                WHEN #{timeRange} = 'week'  THEN thisweek
-                WHEN #{timeRange} = 'month' THEN thismonth
-                WHEN #{timeRange} = 'year'  THEN thisyear
-                ELSE thisyear
+                WHEN #{timeRange} = 'today' THEN cv.today
+                WHEN #{timeRange} = 'week'  THEN cv.thisweek
+                WHEN #{timeRange} = 'month' THEN cv.thismonth
+                WHEN #{timeRange} = 'year'  THEN cv.thisyear
+                ELSE cv.thisyear
             END AS visitCount
-        FROM coursevisit
+        FROM coursevisit cv
+        LEFT JOIN course c ON c.course_id = cv.course_id
         ORDER BY
             CASE
-                WHEN #{timeRange} = 'today' THEN today
-                WHEN #{timeRange} = 'week'  THEN thisweek
-                WHEN #{timeRange} = 'month' THEN thismonth
-                WHEN #{timeRange} = 'year'  THEN thisyear
-                ELSE thisyear
+                WHEN #{timeRange} = 'today' THEN cv.today
+                WHEN #{timeRange} = 'week'  THEN cv.thisweek
+                WHEN #{timeRange} = 'month' THEN cv.thismonth
+                WHEN #{timeRange} = 'year'  THEN cv.thisyear
+                ELSE cv.thisyear
             END DESC
         LIMIT 10
         """)

@@ -2,6 +2,9 @@
 import {ref, computed, onMounted, onBeforeUnmount, watch} from "vue";
 import { pageStudents } from "@/api/student";
 import * as XLSX from "xlsx";
+// 引入 Element Plus 的配置组件和中文语言包
+import { ElConfigProvider } from 'element-plus';
+import zhCn from 'element-plus/es/locale/lang/zh-cn';
 
 // ============= 数据状态 =============
 const students = ref([]);
@@ -100,6 +103,110 @@ const unresolvedCount = (student) => {
   return Math.max(0, totalWarnings - resolvedWarnings);
 };
 
+const validateStudentDataV2 = (student) => {
+  const errors = [];
+  const learningIndex = toNumber(student?.learningIndex, null);
+  const totalWarnings = toNumber(student?.totalWarnings, 0);
+  const resolvedWarnings = toNumber(student?.resolvedWarnings, 0);
+  const comparison = toNumber(student?.comparisonLastMonth, null);
+
+  if (learningIndex === null) {
+    errors.push('学情指数缺失');
+  } else if (learningIndex < 0 || learningIndex > 10) {
+    errors.push(`学情指数超出范围(0-10): ${learningIndex}`);
+  }
+
+  if (resolvedWarnings > totalWarnings) {
+    errors.push(`累计解除(${resolvedWarnings})大于累计预警(${totalWarnings})`);
+  }
+
+  if (comparison !== null && (comparison < -100 || comparison > 100)) {
+    errors.push(`对比上月异常: ${comparison}%`);
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    severity: errors.length > 0 ? (errors.length > 1 ? 'error' : 'warning') : 'success'
+  };
+};
+
+const getLearningIndexLevelV2 = (index) => {
+  const value = toNumber(index, -1);
+  if (value === -1) return 'missing';
+  if (value > 10) return 'invalid';
+  if (value >= 8) return 'excellent';
+  if (value >= 6) return 'good';
+  if (value >= 4) return 'fair';
+  if (value >= 0) return 'poor';
+  return 'invalid';
+};
+
+const getLearningIndexTagType = (index) => {
+  const level = getLearningIndexLevelV2(index);
+  const tagTypeMap = {
+    excellent: 'success',
+    good: '',
+    fair: 'warning',
+    poor: 'danger',
+    missing: 'info',
+    invalid: 'danger',
+  };
+  return tagTypeMap[level] ?? 'info';
+};
+
+const getLearningIndexLevelTextV2 = (index) => {
+  const level = getLearningIndexLevelV2(index);
+  const levelMap = {
+    excellent: '优秀',
+    good: '良好',
+    fair: '一般',
+    poor: '较差',
+    missing: '--',
+    invalid: '数据异常',
+  };
+  return levelMap[level] || '--';
+};
+
+const buildStudentStatus = (student, validation = validateStudentDataV2(student)) => {
+  if (!validation.isValid) {
+    return {
+      text: '数据异常',
+      type: 'danger',
+      reasons: validation.errors,
+      isWarning: false,
+    };
+  }
+
+  const unresolved = unresolvedCount(student);
+  const learningIndex = toNumber(student?.learningIndex, 0);
+  const reasons = [];
+
+  if (learningIndex < 6) {
+    reasons.push(`学情指数偏低 (${formatScore(learningIndex)})`);
+  }
+
+  if (unresolved > 0) {
+    reasons.push(`存在 ${unresolved} 次未解除预警`);
+  }
+
+  if (reasons.length > 0) {
+    return {
+      text: '异常',
+      type: 'danger',
+      reasons,
+      isWarning: true,
+    };
+  }
+
+  return {
+    text: '正常',
+    type: 'success',
+    reasons: [],
+    isWarning: false,
+  };
+};
+
 /**
  * 数据验证函数
  * @param {Object} student - 学生对象
@@ -150,10 +257,11 @@ const warningStatistics = computed(() => {
 
   students.value.forEach((student) => {
     const unresolved = unresolvedCount(student);
-    if (unresolved > 0) {
+    const status = student._status || buildStudentStatus(student, student._validation);
+    if (status.isWarning) {
       stats.studentsWithWarnings += 1;
-      stats.totalUnresolvedWarnings += unresolved;
     }
+    stats.totalUnresolvedWarnings += unresolved;
   });
 
   // 计算预警率
@@ -173,10 +281,10 @@ const learningIndexStatistics = computed(() => {
       average: 0,
       max: 0,
       min: 0,
-      excellent: 0,    // >= 4.5
-      good: 0,         // >= 3.5
-      fair: 0,         // >= 2.5
-      poor: 0,         // < 2.5
+      excellent: 0,    // >= 8
+      good: 0,         // >= 6
+      fair: 0,         // >= 4
+      poor: 0,         // < 4
     };
   }
 
@@ -192,10 +300,10 @@ const learningIndexStatistics = computed(() => {
     average: (indices.reduce((a, b) => a + b) / indices.length).toFixed(2),
     max: Math.max(...indices).toFixed(2),
     min: Math.min(...indices).toFixed(2),
-    excellent: indices.filter(idx => idx >= 4.5).length,
-    good: indices.filter(idx => idx >= 3.5 && idx < 4.5).length,
-    fair: indices.filter(idx => idx >= 2.5 && idx < 3.5).length,
-    poor: indices.filter(idx => idx < 2.5).length,
+    excellent: indices.filter(idx => idx >= 8).length,
+    good: indices.filter(idx => idx >= 6 && idx < 8).length,
+    fair: indices.filter(idx => idx >= 4 && idx < 6).length,
+    poor: indices.filter(idx => idx < 4).length,
   };
 
   return stats;
@@ -267,10 +375,14 @@ const getStudents = () => {
 
   pageStudents(query).then((res) => {
     // 在获取数据后添加验证信息
-    students.value = (res?.data?.records || []).map(student => ({
-      ...student,
-      _validation: validateStudentData(student),  // 添加验证信息
-    }));
+    students.value = (res?.data?.records || []).map(student => {
+      const validation = validateStudentDataV2(student);
+      return {
+        ...student,
+        _validation: validation,
+        _status: buildStudentStatus(student, validation),
+      };
+    });
     total.value = res?.data?.total || 0;
   }).catch((error) => {
     console.error('获取学生列表失败:', error);
@@ -327,7 +439,7 @@ const exportExcel = () => {
     [headers.studentId]: student.studentId,
     [headers.college]: student.college,
     [headers.learningIndex]: formatScore(student.learningIndex),
-    [headers.learningIndexLevel]: getLearningIndexLevelText(student.learningIndex),
+    [headers.learningIndexLevel]: getLearningIndexLevelTextV2(student.learningIndex),
     [headers.comparisonLastMonth]: formatScore(student.comparisonLastMonth),
     [headers.totalWarnings]: student.totalWarnings,
     [headers.resolvedWarnings]: student.resolvedWarnings,
@@ -466,9 +578,6 @@ getStudents();
         </template>
       </el-table-column>
       <el-table-column prop="studentId" label="学号" sortable="custom">
-        <template #header>
-          <div class="cell">学号<span class="caret-wrapper"></span></div>
-        </template>
       </el-table-column>
       <el-table-column prop="college" label="学院">
         <template #header>
@@ -476,13 +585,10 @@ getStudents();
         </template>
       </el-table-column>
       <el-table-column prop="learningIndex" label="学情指数" align="center" sortable="custom" width="120">
-        <template #header>
-          <div class="cell">学情指数<span class="caret-wrapper"></span></div>
-        </template>
         <template #default="{row}">
           <div style="display: flex; align-items: center; justify-content: center;">
             <el-tag
-                :type="getLearningIndexLevel(row.learningIndex)"
+                :type="getLearningIndexTagType(row.learningIndex)"
                 :effect="'light'"
             >
               {{ formatScore(row.learningIndex) }}
@@ -491,9 +597,6 @@ getStudents();
         </template>
       </el-table-column>
       <el-table-column prop="comparisonLastMonth" label="对比上月" align="center" sortable="custom" width="120">
-        <template #header>
-          <div class="cell">对比上月<span class="caret-wrapper"></span></div>
-        </template>
         <template #default="{row}">
           <div style="display: flex; align-items: center; justify-content: center;">
             <span v-if="toNumber(row.comparisonLastMonth, 0) > 0" style="color: green;">
@@ -526,15 +629,9 @@ getStudents();
       </el-table-column>
       <el-table-column label="状态" align="center" width="80">
         <template #default="{row}">
-          <el-tag v-if="row._validation.isValid" type="success">正常</el-tag>
-          <el-tooltip v-else effect="dark" placement="top">
-            <template #content>
-              <div v-for="error in row._validation.errors" :key="error">
-                {{ error }}
-              </div>
-            </template>
-            <el-tag type="danger">异常</el-tag>
-          </el-tooltip>
+          <el-tag :type="getLearningIndexLevelV2(row.learningIndex) === 'poor' ? 'danger' : 'success'">
+            {{ getLearningIndexLevelV2(row.learningIndex) === 'poor' ? '异常' : '正常' }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="120" align="center" fixed="right">
@@ -594,8 +691,8 @@ getStudents();
           <el-col :span="24">
             <div class="detail-item">
               <span class="detail-label">学情指数：</span>
-              <el-tag :type="getLearningIndexLevel(selectedStudent.learningIndex)">
-                {{ formatScore(selectedStudent.learningIndex) }} ({{ getLearningIndexLevelText(selectedStudent.learningIndex) }})
+              <el-tag :type="getLearningIndexTagType(selectedStudent.learningIndex)">
+                {{ formatScore(selectedStudent.learningIndex) }} ({{ getLearningIndexLevelTextV2(selectedStudent.learningIndex) }})
               </el-tag>
             </div>
           </el-col>
@@ -663,18 +760,20 @@ getStudents();
       </template>
     </el-dialog>
 
-    <!-- 分页 -->
-    <el-pagination
-        :background="true"
-        v-model:current-page="pageNum"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="pageNumChange"
-        style="display: flex; justify-content: flex-end; margin-top: 20px;"
-    />
+    <!-- 分页 (使用 ElConfigProvider 进行中文化) -->
+    <el-config-provider :locale="zhCn">
+      <el-pagination
+          :background="true"
+          v-model:current-page="pageNum"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="pageNumChange"
+          style="display: flex; justify-content: flex-end; margin-top: 20px;"
+      />
+    </el-config-provider>
   </el-card>
 </template>
 

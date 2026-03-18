@@ -74,6 +74,23 @@ const roleCode = computed(() => {
   return 'admin'
 })
 
+const welcomeDisplayName = computed(() => {
+  const legacyName = userInfoStore.userInfo?.name || userInfoStore.userInfo?.username || ''
+  const normalizedName = legacyName || userInfoStore.userInfo?.loginName || ''
+
+  if (roleCode.value === 'teacher') {
+    if (!normalizedName) {
+      return normalizedName
+    }
+    return normalizedName.endsWith('老师') ? normalizedName : `${normalizedName}老师`
+  }
+  if (roleCode.value === 'student') {
+    return normalizedName
+  }
+  // 兼容保留 admin 及其他角色原展示逻辑
+  return legacyName
+})
+
 const showUserManagement = computed(() => roleCode.value === 'admin')
 const showAdminAgentCenter = computed(() => roleCode.value === 'admin')
 const showNews = computed(() => roleCode.value !== 'admin')
@@ -326,7 +343,7 @@ const handleClose = (key, keyPath) => {
 
         <div class="header-actions">
           <div class="welcome-text">
-            欢迎：<strong>{{ userInfoStore.userInfo.name || userInfoStore.userInfo.username }}</strong>
+            欢迎：<strong>{{ welcomeDisplayName }}</strong>
           </div>
           <el-dropdown placement="bottom-end" @command="handleCommand" trigger="click">
             <div class="user-profile-trigger">
