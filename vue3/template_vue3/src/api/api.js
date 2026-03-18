@@ -132,6 +132,37 @@ export function insertCourse(course) {
    });
 }
 
+export function getCourseManagementMeta() {
+   return request({
+      url: '/api/course-management/meta',
+      method: 'get'
+   });
+}
+
+export function getCourseStudents(courseId) {
+   return request({
+      url: '/api/course-management/course-students',
+      method: 'get',
+      params: { courseId }
+   });
+}
+
+export function addStudentToCourse(data) {
+   return request({
+      url: '/api/course-management/course-students',
+      method: 'post',
+      data
+   });
+}
+
+export function saveCourseScore(data) {
+   return request({
+      url: '/api/course-management/course-scores',
+      method: 'post',
+      data
+   });
+}
+
 // export const getTop10Visits = (params) => axios.get('/api/coursevisit/top10Visits', { params });
 // export const getDurations = (params) => axios.get('/api/learningduration/durations', { params });
 

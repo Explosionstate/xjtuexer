@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.mybatisplusdemo.mapper.CourseStudentMapper">
+
+    <select id="selectCourseSummaries" resultType="com.example.mybatisplusdemo.model.dto.CourseSummaryDTO">
+        SELECT
+            c.course_id AS courseId,
+            c.title AS title,
+            c.teacher_id AS teacherId,
+            COALESCE(u.name, t.name, CONCAT('教师#', c.teacher_id)) AS teacherName,
+            COUNT(DISTINCT cs.student_id) AS studentCount,
+            COUNT(DISTINCT fcs.score_id) AS scoreCount,
+            c.gmt_created AS gmtCreated
+        FROM course c
+        LEFT JOIN teacher t ON t.teacher_id = c.teacher_id
+        LEFT JOIN `user` u ON u.id = c.teacher_id AND u.role = 'teacher' AND u.is_deleted = 0
+        LEFT JOIN course_student cs ON cs.course_id = c.course_id
+        LEFT JOIN fact_course_score fcs ON fcs.course_id = c.course_id
+        GROUP BY c.course_id, c.title, c.teacher_id, teacherName, c.gmt_created
+        ORDER BY c.gmt_created DESC, c.course_id DESC
+    </select>
+
+    <select id="selectTeacherOptions" resultType="com.example.mybatisplusdemo.model.dto.TeacherOptionDTO">
+        SELECT
+            t.teacher_id AS teacherId,
+            COALESCE(u.name, t.name, CONCAT('教师#', t.teacher_id)) AS teacherName
+        FROM teacher t
+        LEFT JOIN `user` u ON u.id = t.teacher_id AND u.role = 'teacher' AND u.is_deleted = 0
+        ORDER BY t.teacher_id
+    </select>
+
+    <select id="selectCollegeOptions" resultType="string">
+        SELECT DISTINCT department_name
+        FROM `user`
+        WHERE role = 'student'
+          AND is_deleted = 0
+          AND department_name IS NOT NULL
+          AND department_name != ''
+        ORDER BY department_name
+    </select>
+
+    <select id="selectTermOptions" resultType="com.example.mybatisplusdemo.model.dto.TermOptionDTO">
+        SELECT
+            term_id AS termId,
+            term_name AS termName,
+            status
+        FROM dim_term
+        ORDER BY term_id DESC
+    </select>
+
+    <select id="selectCourseStudents" resultType="com.example.mybatisplusdemo.model.dto.CourseStudentDTO">
+        SELECT
+            cs.id AS relationId,
+            cs.course_id AS courseId,
+            cs.student_id AS studentId,
+            s.student_no AS studentNo,
+            COALESCE(u.name, s.name) AS studentName,
+            COALESCE(u.department_name, s.college) AS college,
+            fcs.score_id AS scoreId,
+            fcs.term_id AS termId,
+            dt.term_name AS termName,
+            fcs.usual_score AS usualScore,
+            fcs.final_score AS finalScore,
+            fcs.gpa_point AS gpaPoint,
+            fcs.is_passed AS passed,
+            EXISTS(
+                SELECT 1
+                FROM learning_record lr
+                WHERE lr.user_id = cs.student_id
+                  AND lr.course_id = cs.course_id
+            ) AS linkedLearningRecord
+        FROM course_student cs
+        JOIN student s ON s.student_id = cs.student_id
+        LEFT JOIN `user` u ON u.id = cs.student_id AND u.role = 'student' AND u.is_deleted = 0
+        LEFT JOIN (
+            SELECT inner_fcs.*
+            FROM fact_course_score inner_fcs
+            JOIN (
+                SELECT student_id, course_id, MAX(term_id) AS max_term_id
+                FROM fact_course_score
+                GROUP BY student_id, course_id
+            ) latest
+                ON latest.student_id = inner_fcs.student_id
+               AND latest.course_id = inner_fcs.course_id
+               AND latest.max_term_id = inner_fcs.term_id
+        ) fcs
+            ON fcs.student_id = cs.student_id
+           AND fcs.course_id = cs.course_id
+        LEFT JOIN dim_term dt ON dt.term_id = fcs.term_id
+        WHERE cs.course_id = #{courseId}
+        ORDER BY cs.gmt_created DESC, cs.id DESC
+    </select>
+</mapper>

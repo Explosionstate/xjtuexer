@@ -1,9 +1,9 @@
-﻿<template>
+<template>
   <div class="analytics-page">
     <div class="analytics-wrapper">
       <header class="page-header">
         <h1 class="page-title">课程完成情况</h1>
-        <p class="page-desc">对比不同学院、课程、学期的课程完成情况与学习行为指标。</p>
+        <p class="page-desc">对比不同学院、课程、学年的课程完成情况与学习行为指标。</p>
       </header>
 
       <el-card class="panel-card" shadow="never">
@@ -17,20 +17,13 @@
           <el-tab-pane label="对比对象1" name="group1">
             <div class="filter-row">
               <el-select v-model="group1College" placeholder="选择学院" clearable>
-                <el-option label="全校" value="全校" />
-                <el-option label="电气工程学院" value="电气工程学院" />
-                <el-option label="机械工程学院" value="机械工程学院" />
-                <el-option label="外国语学院" value="外国语学院" />
+                <el-option v-for="item in collegeOptions" :key="item" :label="item" :value="item" />
               </el-select>
               <el-select v-model="group1Course" placeholder="选择课程" clearable>
-                <el-option label="思想道德与法治" value="思想道德与法治" />
-                <el-option label="中国近现代史纲要" value="中国近现代史纲要" />
-                <el-option label="形势与政策" value="形势与政策" />
-                <el-option label="马克思主义基本原理" value="马克思主义基本原理" />
+                <el-option v-for="item in courseOptions" :key="item.courseId" :label="item.title" :value="item.title" />
               </el-select>
-              <el-select v-model="group1Semester" placeholder="选择学期">
-                <el-option label="2024-2025学年" value="2024-2025学年" />
-                <el-option label="2025-2026学年" value="2025-2026学年" />
+              <el-select v-model="group1Semester" placeholder="选择学年">
+                <el-option v-for="item in semesterOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </div>
           </el-tab-pane>
@@ -38,20 +31,13 @@
           <el-tab-pane label="对比对象2" name="group2">
             <div class="filter-row">
               <el-select v-model="group2College" placeholder="选择学院" clearable>
-                <el-option label="全校" value="全校" />
-                <el-option label="电气工程学院" value="电气工程学院" />
-                <el-option label="机械工程学院" value="机械工程学院" />
-                <el-option label="外国语学院" value="外国语学院" />
+                <el-option v-for="item in collegeOptions" :key="item" :label="item" :value="item" />
               </el-select>
               <el-select v-model="group2Course" placeholder="选择课程" clearable>
-                <el-option label="思想道德与法治" value="思想道德与法治" />
-                <el-option label="中国近现代史纲要" value="中国近现代史纲要" />
-                <el-option label="形势与政策" value="形势与政策" />
-                <el-option label="马克思主义基本原理" value="马克思主义基本原理" />
+                <el-option v-for="item in courseOptions" :key="item.courseId" :label="item.title" :value="item.title" />
               </el-select>
-              <el-select v-model="group2Semester" placeholder="选择学期">
-                <el-option label="2024-2025学年" value="2024-2025学年" />
-                <el-option label="2025-2026学年" value="2025-2026学年" />
+              <el-select v-model="group2Semester" placeholder="选择学年">
+                <el-option v-for="item in semesterOptions" :key="item" :label="item" :value="item" />
               </el-select>
             </div>
           </el-tab-pane>
@@ -62,7 +48,7 @@
         <el-table v-if="completionData.length" :data="completionData" border stripe class="table-box">
           <el-table-column prop="courseName" label="课程名称" min-width="160" fixed="left" />
           <el-table-column prop="college" label="学院" min-width="110" />
-          <el-table-column prop="semester" label="学期" min-width="120" />
+          <el-table-column prop="semester" label="学年" min-width="120" />
           <el-table-column prop="taskCompletionRate" label="任务点完成率(%)" min-width="140" />
           <el-table-column prop="videoCompletionRate" label="视频任务点完成率(%)" min-width="170" />
           <el-table-column prop="quizCompletionRate" label="章节测验完成率(%)" min-width="150" />
@@ -78,10 +64,12 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import * as echarts from 'echarts';
 import { ElMessage } from 'element-plus';
-import { getCompletions } from '../../api/api';
+import { getCompletions, getCourseManagementMeta } from '../../api/api';
+
+const DEFAULT_ACADEMIC_YEARS = ['2025-2026学年', '2024-2025学年'];
 
 export default {
   name: 'CourseCompletionAnalytics',
@@ -89,19 +77,50 @@ export default {
     const activeTab = ref('group1');
     const group1College = ref('全校');
     const group1Course = ref('');
-    const group1Semester = ref('2025-2026学年');
+    const group1Semester = ref(DEFAULT_ACADEMIC_YEARS[0]);
     const group2College = ref('全校');
     const group2Course = ref('');
-    const group2Semester = ref('2025-2026学年');
+    const group2Semester = ref(DEFAULT_ACADEMIC_YEARS[0]);
     const completionData = ref([]);
+    const collegeOptions = ref(['全校']);
+    const courseOptions = ref([]);
+    const semesterOptions = ref([...DEFAULT_ACADEMIC_YEARS]);
     let completionChartInstance = null;
+    let resizeHandler = null;
+
+    const getLegendLabel = (college, course, semester) =>
+      `${college || '全校'}${course ? `(${course})` : ''}(${semester})`;
 
     const initChart = () => {
-      completionChartInstance = echarts.init(document.getElementById('completionChart'));
+      const chartDom = document.getElementById('completionChart');
+      if (!chartDom) {
+        return;
+      }
+      completionChartInstance = echarts.init(chartDom);
+    };
+
+    const setEmptyChartOption = (title) => {
+      if (!completionChartInstance) {
+        return;
+      }
+      completionChartInstance.clear();
+      completionChartInstance.setOption({
+        title: {
+          text: title,
+          left: 'center',
+          top: 'middle',
+          textStyle: { color: '#8b96a6', fontSize: 16 },
+        },
+      });
+      completionChartInstance.resize();
     };
 
     const setCompletionChartOption = () => {
       if (!completionChartInstance) {
+        return;
+      }
+      if (!completionData.value.length) {
+        setEmptyChartOption('暂无课程完成情况数据');
         return;
       }
 
@@ -111,75 +130,68 @@ export default {
             d.college === group1College.value &&
             (!group1Course.value || d.courseName === group1Course.value) &&
             d.semester === group1Semester.value
-        ) || {};
+        ) || null;
       const group2Data =
         completionData.value.find(
           (d) =>
             d.college === group2College.value &&
             (!group2Course.value || d.courseName === group2Course.value) &&
             d.semester === group2Semester.value
-        ) || {};
+        ) || null;
 
-      const isChapterStudy = group1Data.chapterStudyCount || group2Data.chapterStudyCount;
-      const yAxis = isChapterStudy
-        ? [
-            { type: 'value', name: '完成率(%)', max: 100, position: 'left' },
-            { type: 'value', name: '章节学习次数', position: 'right' },
-          ]
-        : [{ type: 'value', name: '完成率(%)', max: 100 }];
+      if (!group1Data && !group2Data) {
+        setEmptyChartOption('当前筛选暂无匹配数据');
+        return;
+      }
+
+      const categories = [
+        '任务点完成率(%)',
+        '视频任务点完成率(%)',
+        '章节测验完成率(%)',
+        '作业完成率(%)',
+        '考试完成率(%)',
+        '章节学习次数',
+        '签到完成率(%)',
+      ];
 
       const getSeriesData = (data) => [
-        { value: data.taskCompletionRate || 0, yAxisIndex: 0 },
-        { value: data.videoCompletionRate || 0, yAxisIndex: 0 },
-        { value: data.quizCompletionRate || 0, yAxisIndex: 0 },
-        { value: data.assignmentCompletionRate || 0, yAxisIndex: 0 },
-        { value: data.examCompletionRate || 0, yAxisIndex: 0 },
-        { value: data.chapterStudyCount || 0, yAxisIndex: isChapterStudy ? 1 : 0 },
-        { value: data.checkinCompletionRate || 0, yAxisIndex: 0 },
+        data?.taskCompletionRate ?? 0,
+        data?.videoCompletionRate ?? 0,
+        data?.quizCompletionRate ?? 0,
+        data?.assignmentCompletionRate ?? 0,
+        data?.examCompletionRate ?? 0,
+        data?.chapterStudyCount ?? 0,
+        data?.checkinCompletionRate ?? 0,
       ];
+
+      const group1Label = getLegendLabel(group1College.value, group1Course.value, group1Semester.value);
+      const group2Label = getLegendLabel(group2College.value, group2Course.value, group2Semester.value);
+      const maxValue = Math.max(
+        100,
+        ...getSeriesData(group1Data),
+        ...getSeriesData(group2Data),
+      );
 
       completionChartInstance.setOption({
         title: { text: '课程完成情况对比', left: 'center' },
-        tooltip: {
-          trigger: 'axis',
-          formatter: (params) => {
-            const param1 = params[0] || {};
-            const param2 = params[1] || {};
-            const name = param1.name || param2.name;
-            return `${name}<br/>${param1.seriesName || ''}: ${param1.value || 0}<br/>${param2.seriesName || ''}: ${param2.value || 0}`;
-          },
-        },
-        legend: {
-          data: [
-            `${group1College.value}${group1Course.value ? `(${group1Course.value})` : ''}(${group1Semester.value})`,
-            `${group2College.value}${group2Course.value ? `(${group2Course.value})` : ''}(${group2Semester.value})`,
-          ],
-          top: 30,
-        },
+        tooltip: { trigger: 'axis' },
+        legend: { data: [group1Label, group2Label], top: 30 },
         xAxis: {
           type: 'category',
-          data: [
-            '任务点完成率(%)',
-            '视频任务点完成率(%)',
-            '章节测验完成率(%)',
-            '作业完成率(%)',
-            '考试完成率(%)',
-            '章节学习次数',
-            '签到完成率(%)',
-          ],
+          data: categories,
           axisLabel: { rotate: 30, interval: 0 },
         },
-        yAxis,
+        yAxis: { type: 'value', name: '数值', max: Math.ceil(maxValue / 10) * 10 },
         series: [
           {
-            name: `${group1College.value}${group1Course.value ? `(${group1Course.value})` : ''}(${group1Semester.value})`,
+            name: group1Label,
             type: 'bar',
             data: getSeriesData(group1Data),
             itemStyle: { color: '#4B5EAA' },
             barMaxWidth: 36,
           },
           {
-            name: `${group2College.value}${group2Course.value ? `(${group2Course.value})` : ''}(${group2Semester.value})`,
+            name: group2Label,
             type: 'bar',
             data: getSeriesData(group2Data),
             itemStyle: { color: '#F4A261' },
@@ -187,6 +199,25 @@ export default {
           },
         ],
       });
+      completionChartInstance.resize();
+    };
+
+    const fetchMeta = async () => {
+      try {
+        const response = await getCourseManagementMeta();
+        const meta = response?.data || {};
+        courseOptions.value = meta.courses || [];
+        collegeOptions.value = ['全校', ...(meta.colleges || [])];
+        semesterOptions.value = meta.academicYears?.length ? meta.academicYears : [...DEFAULT_ACADEMIC_YEARS];
+        if (!semesterOptions.value.includes(group1Semester.value)) {
+          group1Semester.value = semesterOptions.value[0];
+        }
+        if (!semesterOptions.value.includes(group2Semester.value)) {
+          group2Semester.value = semesterOptions.value[0];
+        }
+      } catch (error) {
+        ElMessage.error(error?.message || '获取课程筛选项失败');
+      }
     };
 
     const fetchCompletions = async () => {
@@ -201,9 +232,7 @@ export default {
         });
         if (response.data.status && response.data.code === 0) {
           completionData.value = response.data.data || [];
-          if (completionData.value.length === 0) {
-            ElMessage.warning('没有找到匹配的数据');
-          }
+          await nextTick();
           setCompletionChartOption();
         } else {
           ElMessage.error(response.data.message || '获取课程完成情况失败');
@@ -213,12 +242,18 @@ export default {
       }
     };
 
-    onMounted(() => {
+    onMounted(async () => {
       initChart();
-      fetchCompletions();
+      await fetchMeta();
+      await fetchCompletions();
+      resizeHandler = () => completionChartInstance?.resize();
+      window.addEventListener('resize', resizeHandler);
     });
 
     onUnmounted(() => {
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+      }
       if (completionChartInstance) {
         completionChartInstance.dispose();
       }
@@ -239,6 +274,9 @@ export default {
       group2Course,
       group2Semester,
       completionData,
+      collegeOptions,
+      courseOptions,
+      semesterOptions,
     };
   },
 };

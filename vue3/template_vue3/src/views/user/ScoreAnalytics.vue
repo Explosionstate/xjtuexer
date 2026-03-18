@@ -67,7 +67,7 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted, watch } from 'vue';
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import * as echarts from 'echarts';
 import { ElMessage } from 'element-plus';
 import axios from 'axios';
@@ -85,17 +85,35 @@ export default {
     let examScoreChartInstance = null;
     let quizScoreChartInstance = null;
     let courseCreditChartInstance = null;
+    let resizeHandler = null;
 
     const initCharts = () => {
-      totalScoreChartInstance = echarts.init(document.getElementById('totalScoreChart'));
-      assignmentScoreChartInstance = echarts.init(document.getElementById('assignmentScoreChart'));
-      examScoreChartInstance = echarts.init(document.getElementById('examScoreChart'));
-      quizScoreChartInstance = echarts.init(document.getElementById('quizScoreChart'));
-      courseCreditChartInstance = echarts.init(document.getElementById('courseCreditChart'));
+      const totalScoreChart = document.getElementById('totalScoreChart');
+      const assignmentScoreChart = document.getElementById('assignmentScoreChart');
+      const examScoreChart = document.getElementById('examScoreChart');
+      const quizScoreChart = document.getElementById('quizScoreChart');
+      const courseCreditChart = document.getElementById('courseCreditChart');
+      if (!totalScoreChart || !assignmentScoreChart || !examScoreChart || !quizScoreChart || !courseCreditChart) {
+        return;
+      }
+
+      totalScoreChartInstance = echarts.init(totalScoreChart);
+      assignmentScoreChartInstance = echarts.init(assignmentScoreChart);
+      examScoreChartInstance = echarts.init(examScoreChart);
+      quizScoreChartInstance = echarts.init(quizScoreChart);
+      courseCreditChartInstance = echarts.init(courseCreditChart);
     };
 
     const setChartOption = (chartInstance, title, groupField, schoolField) => {
       if (!chartInstance) {
+        return;
+      }
+      if (!scoreData.value.length) {
+        chartInstance.clear();
+        chartInstance.setOption({
+          title: { text: `${title}`, left: 'center', top: 'middle', textStyle: { color: '#8b96a6', fontSize: 16 } },
+        });
+        chartInstance.resize();
         return;
       }
       chartInstance.setOption({
@@ -147,6 +165,7 @@ export default {
         });
         if (response.data.status && response.data.code === 0) {
           scoreData.value = response.data.data || [];
+          await nextTick();
           updateCharts();
         } else {
           ElMessage.error(response.data.message || '获取学习成绩数据失败');
@@ -164,9 +183,20 @@ export default {
     onMounted(() => {
       initCharts();
       fetchCourseScores();
+      resizeHandler = () => {
+        totalScoreChartInstance?.resize();
+        assignmentScoreChartInstance?.resize();
+        examScoreChartInstance?.resize();
+        quizScoreChartInstance?.resize();
+        courseCreditChartInstance?.resize();
+      };
+      window.addEventListener('resize', resizeHandler);
     });
 
     onUnmounted(() => {
+      if (resizeHandler) {
+        window.removeEventListener('resize', resizeHandler);
+      }
       if (totalScoreChartInstance) totalScoreChartInstance.dispose();
       if (assignmentScoreChartInstance) assignmentScoreChartInstance.dispose();
       if (examScoreChartInstance) examScoreChartInstance.dispose();
