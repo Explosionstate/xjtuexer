@@ -57,11 +57,11 @@ export default {
       }
       visitChartInstance.setOption({
         title: { text: '课程访问排行榜 Top 10', left: 'center' },
-        tooltip: { trigger: 'axis', formatter: '{b}: {c} 次' },
+        tooltip: { trigger: 'axis', formatter: '{b}: {c} 次', },
         xAxis: {
           type: 'category',
           data: visitData.value.map((item) => item.courseName),
-          axisLabel: { rotate: 40, interval: 0 },
+          axisLabel: { rotate: 30, interval: 0 },
         },
         yAxis: { type: 'value', name: '访问量' },
         series: [
@@ -170,7 +170,7 @@ export default {
 
 .chart-box {
   width: 100%;
-  height: 420px;
+  height: 580px;
 }
 
 .table-box {
@@ -186,7 +186,7 @@ export default {
   text-align: center;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 800px) {
   .analytics-page {
     padding: 16px;
   }
@@ -200,7 +200,7 @@ export default {
   }
 
   .chart-box {
-    height: 360px;
+    height: 400px;
   }
 }
 </style>
