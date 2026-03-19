@@ -37,16 +37,55 @@ const centerCards = ref([
 ])
 
 const aiRecommendations = ref([
-  { id: 1, title: '2024年奖学金评定政策解读', icon: '✨' },
-  { id: 2, title: '如何进行期末复习规划？', icon: '💡' },
-  { id: 3, title: '近期校园心理健康讲座预约', icon: '💬' },
-  { id: 4, title: '大学生职业生涯规划指南', icon: '🎯' }
+  {
+    id: 1,
+    agentKey: 'policy-qa',
+    title: '2024年奖学金评定政策解读',
+    icon: '✨',
+    presetQuestion: '请解读2024年奖学金评定政策，并给出申请准备建议。'
+  },
+  {
+    id: 2,
+    agentKey: 'student-growth',
+    title: '如何进行期末复习规划？',
+    icon: '💡',
+    presetQuestion: '请为大学生制定一份可执行的期末复习计划（按周和按天）。'
+  },
+  {
+    id: 3,
+    agentKey: 'counselor-ideology',
+    title: '近期校园心理健康讲座预约',
+    icon: '💬',
+    presetQuestion: '请给出校园心理健康讲座预约提醒文案，并附上参与建议。'
+  },
+  {
+    id: 4,
+    agentKey: 'teacher-assistant',
+    title: '大学生职业生涯规划指南',
+    icon: '🎯',
+    presetQuestion: '请给出大学生职业生涯规划指南，分为大一到大四阶段。'
+  }
 ])
 
 const recentUsage = ref([
-  { id: 1, title: '学生成长助手 - 成绩分析' },
-  { id: 2, title: '思政知识问答 - 理论学习' },
-  { id: 3, title: '学情报告助手 - 月度总结' }
+  {
+    id: 1,
+    agentKey: 'student-growth',
+    title: '学生成长助手 - 成绩分析',
+    presetQuestion: '请结合当前学业表现做成绩分析，并给出下阶段提升建议。'
+  },
+  {
+    id: 2,
+    agentKey: 'policy-qa',
+    title: '思政知识问答 - 理论学习',
+    presetQuestion: '请用通俗语言解释思政理论学习的核心要点，并给出学习建议。'
+  },
+  {
+    id: 3,
+    agentKey: 'report-assistant',
+    title: '学情报告助手 - 月度总结',
+    presetQuestion: '请生成本月学情总结，包含关键结论、问题与行动建议。'
+  }
 ])
 
 const iconComponentMap = {
@@ -66,11 +105,13 @@ const navigateToCard = (agentKey: string) => {
   jumpToAiAssistant(agentKey)
 }
 
-const navigateToDetail = (item: any) => {
-  console.log('查看详情:', item)
+const navigateToDetail = (item: { agentKey?: string, title?: string, presetQuestion?: string }) => {
+  const targetAgentKey = item?.agentKey || 'student-growth'
+  const targetQuestion = item?.presetQuestion || item?.title || ''
+  jumpToAiAssistant(targetAgentKey, targetQuestion)
 }
 
-const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
+const jumpToAiAssistant = async (agentKey: string = 'student-growth', presetQuestion: string = '') => {
   if (redirectingToAi.value) {
     return
   }
@@ -91,7 +132,7 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
     url.searchParams.set('agent_title', `${agent?.title || '西交 AI 智能体'}工作台`)
     url.searchParams.set('agent_empty_title', `你好，我是${agent?.title || '西交 AI 智能体'}`)
     url.searchParams.set('agent_empty_desc', agent?.description || '我可以根据知识库提供结构化分析与建议。')
-    url.searchParams.set('preset_question', agent?.debugDefaults?.initialPrompt || '请结合知识库给出结构化建议。')
+    url.searchParams.set('preset_question', presetQuestion || agent?.debugDefaults?.initialPrompt || '请结合知识库给出结构化建议。')
     url.searchParams.set('use_qwen', agent?.debugDefaults?.useQwen ? '1' : '0')
     url.searchParams.set('use_ws', agent?.debugDefaults?.useWs ? '1' : '0')
     url.searchParams.set('retrieval_top_k', String(agent?.debugDefaults?.retrievalTopK || 8))
