@@ -25,7 +25,7 @@
         <div id="visitChart" class="chart-box"></div>
 
         <el-table v-if="visitData.length" :data="visitData" class="table-box">
-          <el-table-column prop="courseName" label="课程名称" min-width="220" />
+          <el-table-column prop="courseName" label="课程名称" min-width="120" />
           <el-table-column prop="visitCount" label="访问量" width="140" />
         </el-table>
         <div v-else class="empty-block">暂无数据</div>
@@ -58,10 +58,17 @@ export default {
       visitChartInstance.setOption({
         title: { text: '课程访问排行榜 Top 10', left: 'center' },
         tooltip: { trigger: 'axis', formatter: '{b}: {c} 次' },
+        grid: { bottom: 80 },
         xAxis: {
           type: 'category',
           data: visitData.value.map((item) => item.courseName),
-          axisLabel: { rotate: 40, interval: 0 },
+          axisLabel: {
+            rotate: 30,
+            interval: 0,
+            fontSize: 11,
+            width: 70,
+            overflow: 'truncate',
+          },
         },
         yAxis: { type: 'value', name: '访问量' },
         series: [
@@ -170,7 +177,7 @@ export default {
 
 .chart-box {
   width: 100%;
-  height: 420px;
+  height: 480px;
 }
 
 .table-box {
