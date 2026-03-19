@@ -11,7 +11,7 @@
  Target Server Version : 80043 (8.0.43)
  File Encoding         : 65001
 
- Date: 18/03/2026 15:30:24
+ Date: 19/03/2026 09:23:47
 */
 
 SET NAMES utf8mb4;
@@ -22,24 +22,24 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `admin_user`;
 CREATE TABLE `admin_user`  (
-                               `id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
-                               `login_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??????',
-                               `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???????????????????Spring Security???{id}encodedPassword?',
-                               `last_login_time` datetime NULL DEFAULT NULL COMMENT '??????',
-                               `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                               `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
-                               `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
-                               `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
-                               `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                               PRIMARY KEY (`id`) USING BTREE,
-                               UNIQUE INDEX `uq_admin_user_login_name`(`login_name` ASC) USING BTREE,
-                               INDEX `idx_admin_user_is_deleted`(`is_deleted` ASC) USING BTREE
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
+  `login_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??????',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???????????????????Spring Security???{id}encodedPassword?',
+  `last_login_time` datetime NULL DEFAULT NULL COMMENT '??????',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
+  `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_admin_user_login_name`(`login_name` ASC) USING BTREE,
+  INDEX `idx_admin_user_is_deleted`(`is_deleted` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '??????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of admin_user
 -- ----------------------------
-INSERT INTO `admin_user` VALUES (3, 'admin1', '120000:5P7vaGb6mvUwC5U1xDqCWA==:ZaVXcyYZFol9oOfK3BSauAPH5mP9rvUoEjcrcxdSEb8=', '2026-03-18 14:55:41', '教务数据管理员', 0, '2026-03-18 11:04:01', '2026-03-18 11:23:55', NULL);
+INSERT INTO `admin_user` VALUES (3, 'admin1', '120000:5P7vaGb6mvUwC5U1xDqCWA==:ZaVXcyYZFol9oOfK3BSauAPH5mP9rvUoEjcrcxdSEb8=', '2026-03-18 15:56:55', '教务数据管理员', 0, '2026-03-18 11:04:01', '2026-03-18 11:23:55', NULL);
 INSERT INTO `admin_user` VALUES (4, 'admin2', 'admin2', '2026-03-17 13:36:00', '教学运营管理员', 0, '2026-03-18 11:04:01', '2026-03-18 11:24:08', NULL);
 INSERT INTO `admin_user` VALUES (5, 'admin3', 'admin3', '2026-03-18 08:45:00', '平台管理员', 0, '2026-03-18 11:04:01', '2026-03-18 11:24:10', NULL);
 
@@ -48,12 +48,12 @@ INSERT INTO `admin_user` VALUES (5, 'admin3', 'admin3', '2026-03-18 08:45:00', '
 -- ----------------------------
 DROP TABLE IF EXISTS `admin_user_menu`;
 CREATE TABLE `admin_user_menu`  (
-                                    `admin_user_id` bigint NOT NULL COMMENT '???ID?admin_user.id?',
-                                    `menu_id` bigint NOT NULL COMMENT '??ID?sys_menu.menu_id?',
-                                    PRIMARY KEY (`admin_user_id`, `menu_id`) USING BTREE,
-                                    INDEX `fk_admin_user_menu_menu`(`menu_id` ASC) USING BTREE,
-                                    CONSTRAINT `fk_admin_user_menu_admin` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                    CONSTRAINT `fk_admin_user_menu_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `admin_user_id` bigint NOT NULL COMMENT '???ID?admin_user.id?',
+  `menu_id` bigint NOT NULL COMMENT '??ID?sys_menu.menu_id?',
+  PRIMARY KEY (`admin_user_id`, `menu_id`) USING BTREE,
+  INDEX `fk_admin_user_menu_menu`(`menu_id` ASC) USING BTREE,
+  CONSTRAINT `fk_admin_user_menu_admin` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_admin_user_menu_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '????????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -82,12 +82,12 @@ INSERT INTO `admin_user_menu` VALUES (5, 7);
 -- ----------------------------
 DROP TABLE IF EXISTS `admin_user_permission`;
 CREATE TABLE `admin_user_permission`  (
-                                          `admin_user_id` bigint NOT NULL COMMENT '???ID',
-                                          `perm_id` bigint NOT NULL COMMENT '??ID',
-                                          PRIMARY KEY (`admin_user_id`, `perm_id`) USING BTREE,
-                                          INDEX `idx_admin_user_permission_perm_id`(`perm_id` ASC) USING BTREE,
-                                          CONSTRAINT `fk_admin_user_permission_admin` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                          CONSTRAINT `fk_admin_user_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `admin_user_id` bigint NOT NULL COMMENT '???ID',
+  `perm_id` bigint NOT NULL COMMENT '??ID',
+  PRIMARY KEY (`admin_user_id`, `perm_id`) USING BTREE,
+  INDEX `idx_admin_user_permission_perm_id`(`perm_id` ASC) USING BTREE,
+  CONSTRAINT `fk_admin_user_permission_admin` FOREIGN KEY (`admin_user_id`) REFERENCES `admin_user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_admin_user_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '????????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -124,24 +124,24 @@ INSERT INTO `admin_user_permission` VALUES (5, 305);
 -- ----------------------------
 DROP TABLE IF EXISTS `agent_analysis_result`;
 CREATE TABLE `agent_analysis_result`  (
-                                          `analysis_id` bigint NOT NULL AUTO_INCREMENT,
-                                          `student_id` bigint NOT NULL,
-                                          `term_id` bigint NULL DEFAULT NULL,
-                                          `analysis_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'academic',
-                                          `risk_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                          `summary_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
-                                          `findings_json` json NULL,
-                                          `recommendations_json` json NULL,
-                                          `model_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                          `generated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                          `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                          PRIMARY KEY (`analysis_id`) USING BTREE,
-                                          INDEX `idx_agent_analysis_student`(`student_id` ASC) USING BTREE,
-                                          INDEX `idx_agent_analysis_term`(`term_id` ASC) USING BTREE,
-                                          INDEX `idx_agent_analysis_type`(`analysis_type` ASC) USING BTREE,
-                                          CONSTRAINT `fk_agent_analysis_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                          CONSTRAINT `fk_agent_analysis_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  `analysis_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `term_id` bigint NULL DEFAULT NULL,
+  `analysis_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'academic',
+  `risk_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `summary_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL,
+  `findings_json` json NULL,
+  `recommendations_json` json NULL,
+  `model_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `generated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`analysis_id`) USING BTREE,
+  INDEX `idx_agent_analysis_student`(`student_id` ASC) USING BTREE,
+  INDEX `idx_agent_analysis_term`(`term_id` ASC) USING BTREE,
+  INDEX `idx_agent_analysis_type`(`analysis_type` ASC) USING BTREE,
+  CONSTRAINT `fk_agent_analysis_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_agent_analysis_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1024 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Persisted agent analysis results' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -153,24 +153,24 @@ CREATE TABLE `agent_analysis_result`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `agg_cohort_stat`;
 CREATE TABLE `agg_cohort_stat`  (
-                                    `agg_id` bigint NOT NULL AUTO_INCREMENT,
-                                    `term_id` bigint NOT NULL,
-                                    `scope_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'class/major/college',
-                                    `scope_id` bigint NOT NULL,
-                                    `course_id` bigint NULL DEFAULT NULL,
-                                    `metric_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'term_gpa',
-                                    `sample_size` int NOT NULL DEFAULT 0,
-                                    `avg_score` decimal(5, 2) NULL DEFAULT NULL,
-                                    `avg_gpa` decimal(4, 2) NULL DEFAULT NULL,
-                                    `pass_rate` decimal(5, 2) NULL DEFAULT NULL,
-                                    `excellent_rate` decimal(5, 2) NULL DEFAULT NULL,
-                                    `failure_rate` decimal(5, 2) NULL DEFAULT NULL,
-                                    `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                    PRIMARY KEY (`agg_id`) USING BTREE,
-                                    UNIQUE INDEX `uq_agg_scope_metric`(`term_id` ASC, `scope_type` ASC, `scope_id` ASC, `course_id` ASC, `metric_type` ASC) USING BTREE,
-                                    INDEX `idx_agg_scope`(`scope_type` ASC, `scope_id` ASC) USING BTREE,
-                                    CONSTRAINT `fk_agg_cohort_stat_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `agg_id` bigint NOT NULL AUTO_INCREMENT,
+  `term_id` bigint NOT NULL,
+  `scope_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'class/major/college',
+  `scope_id` bigint NOT NULL,
+  `course_id` bigint NULL DEFAULT NULL,
+  `metric_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'term_gpa',
+  `sample_size` int NOT NULL DEFAULT 0,
+  `avg_score` decimal(5, 2) NULL DEFAULT NULL,
+  `avg_gpa` decimal(4, 2) NULL DEFAULT NULL,
+  `pass_rate` decimal(5, 2) NULL DEFAULT NULL,
+  `excellent_rate` decimal(5, 2) NULL DEFAULT NULL,
+  `failure_rate` decimal(5, 2) NULL DEFAULT NULL,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`agg_id`) USING BTREE,
+  UNIQUE INDEX `uq_agg_scope_metric`(`term_id` ASC, `scope_type` ASC, `scope_id` ASC, `course_id` ASC, `metric_type` ASC) USING BTREE,
+  INDEX `idx_agg_scope`(`scope_type` ASC, `scope_id` ASC) USING BTREE,
+  CONSTRAINT `fk_agg_cohort_stat_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 255 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Privacy-safe cohort aggregates' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -182,25 +182,25 @@ CREATE TABLE `agg_cohort_stat`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course`  (
-                           `course_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
-                           `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                           `teacher_id` bigint NOT NULL COMMENT '??ID?teacher.teacher_id?',
-                           `chapters` json NULL COMMENT '?????JSON???',
-                           `materials` json NULL COMMENT '?????JSON???',
-                           `task_points` json NULL COMMENT '??????JSON???',
-                           `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
-                           `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
-                           `chapters_count` int GENERATED ALWAYS AS (json_length(`chapters`)) VIRTUAL COMMENT '???(???)' NULL,
-                           `materials_count` int GENERATED ALWAYS AS (json_length(`materials`)) VIRTUAL COMMENT '???(???)' NULL,
-                           `task_points_count` int GENERATED ALWAYS AS (json_length(`task_points`)) VIRTUAL COMMENT '????(???)' NULL,
-                           PRIMARY KEY (`course_id`) USING BTREE,
-                           UNIQUE INDEX `uq_course_course_teacher`(`course_id` ASC, `teacher_id` ASC) USING BTREE,
-                           INDEX `idx_course_teacher_id`(`teacher_id` ASC) USING BTREE,
-                           INDEX `idx_course_chapters_count`(`chapters_count` ASC) USING BTREE,
-                           INDEX `idx_course_materials_count`(`materials_count` ASC) USING BTREE,
-                           INDEX `idx_course_task_points_count`(`task_points_count` ASC) USING BTREE,
-                           CONSTRAINT `fk_course_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '???' ROW_FORMAT = DYNAMIC;
+  `course_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
+  `title` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `teacher_id` bigint NOT NULL COMMENT '??ID?teacher.teacher_id?',
+  `chapters` json NULL COMMENT '?????JSON???',
+  `materials` json NULL COMMENT '?????JSON???',
+  `task_points` json NULL COMMENT '??????JSON???',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
+  `chapters_count` int GENERATED ALWAYS AS (json_length(`chapters`)) VIRTUAL COMMENT '???(???)' NULL,
+  `materials_count` int GENERATED ALWAYS AS (json_length(`materials`)) VIRTUAL COMMENT '???(???)' NULL,
+  `task_points_count` int GENERATED ALWAYS AS (json_length(`task_points`)) VIRTUAL COMMENT '????(???)' NULL,
+  PRIMARY KEY (`course_id`) USING BTREE,
+  UNIQUE INDEX `uq_course_course_teacher`(`course_id` ASC, `teacher_id` ASC) USING BTREE,
+  INDEX `idx_course_teacher_id`(`teacher_id` ASC) USING BTREE,
+  INDEX `idx_course_chapters_count`(`chapters_count` ASC) USING BTREE,
+  INDEX `idx_course_materials_count`(`materials_count` ASC) USING BTREE,
+  INDEX `idx_course_task_points_count`(`task_points_count` ASC) USING BTREE,
+  CONSTRAINT `fk_course_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 17 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '???' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of course
@@ -219,24 +219,24 @@ INSERT INTO `course` VALUES (8, '工程伦理与科技报国', 1130, '[\"工程�
 -- ----------------------------
 DROP TABLE IF EXISTS `course_offering`;
 CREATE TABLE `course_offering`  (
-                                    `offering_id` bigint NOT NULL AUTO_INCREMENT,
-                                    `course_id` bigint NOT NULL,
-                                    `term_id` bigint NOT NULL,
-                                    `teacher_id` bigint NOT NULL,
-                                    `class_id` bigint NULL DEFAULT NULL,
-                                    `credit` decimal(4, 1) NULL DEFAULT NULL,
-                                    `assessment_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                    `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                    PRIMARY KEY (`offering_id`) USING BTREE,
-                                    UNIQUE INDEX `uq_course_offering_unique`(`course_id` ASC, `term_id` ASC, `teacher_id` ASC, `class_id` ASC) USING BTREE,
-                                    INDEX `idx_course_offering_term`(`term_id` ASC) USING BTREE,
-                                    INDEX `idx_course_offering_class`(`class_id` ASC) USING BTREE,
-                                    INDEX `fk_course_offering_teacher`(`teacher_id` ASC) USING BTREE,
-                                    CONSTRAINT `fk_course_offering_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                    CONSTRAINT `fk_course_offering_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                    CONSTRAINT `fk_course_offering_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                    CONSTRAINT `fk_course_offering_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `offering_id` bigint NOT NULL AUTO_INCREMENT,
+  `course_id` bigint NOT NULL,
+  `term_id` bigint NOT NULL,
+  `teacher_id` bigint NOT NULL,
+  `class_id` bigint NULL DEFAULT NULL,
+  `credit` decimal(4, 1) NULL DEFAULT NULL,
+  `assessment_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`offering_id`) USING BTREE,
+  UNIQUE INDEX `uq_course_offering_unique`(`course_id` ASC, `term_id` ASC, `teacher_id` ASC, `class_id` ASC) USING BTREE,
+  INDEX `idx_course_offering_term`(`term_id` ASC) USING BTREE,
+  INDEX `idx_course_offering_class`(`class_id` ASC) USING BTREE,
+  INDEX `fk_course_offering_teacher`(`teacher_id` ASC) USING BTREE,
+  CONSTRAINT `fk_course_offering_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_course_offering_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_course_offering_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_course_offering_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 128 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Course offering by term' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -340,23 +340,1044 @@ INSERT INTO `course_offering` VALUES (95, 8, 5, 1130, 47, 2.0, 'project-report',
 INSERT INTO `course_offering` VALUES (96, 8, 5, 1130, 48, 2.0, 'project-report', '2026-03-18 11:04:01', '2026-03-18 11:04:01');
 
 -- ----------------------------
+-- Table structure for course_student
+-- ----------------------------
+DROP TABLE IF EXISTS `course_student`;
+CREATE TABLE `course_student`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `course_id` bigint NOT NULL,
+  `student_id` bigint NOT NULL,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_course_student`(`course_id` ASC, `student_id` ASC) USING BTREE,
+  INDEX `idx_course_student_student`(`student_id` ASC) USING BTREE,
+  CONSTRAINT `fk_course_student_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_course_student_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1025 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of course_student
+-- ----------------------------
+INSERT INTO `course_student` VALUES (1, 1, 2101, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (2, 2, 2101, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (3, 3, 2102, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (4, 4, 2102, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (5, 5, 2103, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (6, 6, 2103, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (7, 7, 2104, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (8, 8, 2104, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (9, 1, 2105, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (10, 2, 2105, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (11, 3, 2106, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (12, 4, 2106, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (13, 5, 2107, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (14, 6, 2107, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (15, 7, 2108, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (16, 8, 2108, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (17, 1, 2109, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (18, 2, 2109, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (19, 3, 2110, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (20, 4, 2110, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (21, 5, 2111, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (22, 6, 2111, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (23, 7, 2112, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (24, 8, 2112, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (25, 1, 2113, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (26, 2, 2113, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (27, 3, 2114, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (28, 4, 2114, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (29, 5, 2115, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (30, 6, 2115, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (31, 7, 2116, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (32, 8, 2116, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (33, 1, 2117, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (34, 2, 2117, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (35, 3, 2118, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (36, 4, 2118, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (37, 5, 2119, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (38, 6, 2119, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (39, 7, 2120, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (40, 8, 2120, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (41, 1, 2121, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (42, 2, 2121, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (43, 3, 2122, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (44, 4, 2122, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (45, 5, 2123, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (46, 6, 2123, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (47, 7, 2124, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (48, 8, 2124, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (49, 1, 2125, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (50, 2, 2125, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (51, 3, 2126, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (52, 4, 2126, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (53, 5, 2127, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (54, 6, 2127, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (55, 7, 2128, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (56, 8, 2128, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (57, 1, 2129, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (58, 2, 2129, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (59, 3, 2130, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (60, 4, 2130, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (61, 5, 2131, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (62, 6, 2131, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (63, 7, 2132, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (64, 8, 2132, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (65, 1, 2133, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (66, 2, 2133, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (67, 3, 2134, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (68, 4, 2134, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (69, 5, 2135, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (70, 6, 2135, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (71, 7, 2136, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (72, 8, 2136, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (73, 1, 2137, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (74, 2, 2137, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (75, 3, 2138, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (76, 4, 2138, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (77, 5, 2139, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (78, 6, 2139, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (79, 7, 2140, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (80, 8, 2140, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (81, 1, 2141, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (82, 2, 2141, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (83, 3, 2142, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (84, 4, 2142, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (85, 1, 2143, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (86, 2, 2143, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (87, 3, 2144, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (88, 4, 2144, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (89, 5, 2145, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (90, 6, 2145, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (91, 7, 2146, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (92, 8, 2146, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (93, 1, 2147, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (94, 2, 2147, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (95, 3, 2148, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (96, 4, 2148, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (97, 5, 2149, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (98, 6, 2149, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (99, 7, 2150, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (100, 8, 2150, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (101, 1, 2151, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (102, 2, 2151, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (103, 3, 2152, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (104, 4, 2152, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (105, 5, 2153, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (106, 6, 2153, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (107, 7, 2154, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (108, 8, 2154, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (109, 1, 2155, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (110, 2, 2155, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (111, 3, 2156, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (112, 4, 2156, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (113, 5, 2157, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (114, 6, 2157, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (115, 7, 2158, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (116, 8, 2158, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (117, 1, 2159, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (118, 2, 2159, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (119, 3, 2160, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (120, 4, 2160, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (121, 5, 2161, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (122, 6, 2161, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (123, 7, 2162, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (124, 8, 2162, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (125, 1, 2163, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (126, 2, 2163, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (127, 3, 2164, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (128, 4, 2164, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (129, 5, 2165, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (130, 6, 2165, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (131, 7, 2166, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (132, 8, 2166, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (133, 1, 2167, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (134, 2, 2167, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (135, 3, 2168, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (136, 4, 2168, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (137, 5, 2169, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (138, 6, 2169, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (139, 7, 2170, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (140, 8, 2170, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (141, 1, 2171, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (142, 2, 2171, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (143, 3, 2172, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (144, 4, 2172, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (145, 5, 2173, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (146, 6, 2173, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (147, 7, 2174, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (148, 8, 2174, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (149, 1, 2175, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (150, 2, 2175, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (151, 3, 2176, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (152, 4, 2176, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (153, 5, 2177, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (154, 6, 2177, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (155, 7, 2178, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (156, 8, 2178, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (157, 1, 2179, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (158, 2, 2179, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (159, 3, 2180, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (160, 4, 2180, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (161, 5, 2181, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (162, 6, 2181, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (163, 7, 2182, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (164, 8, 2182, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (165, 1, 2183, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (166, 2, 2183, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (167, 3, 2184, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (168, 4, 2184, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (169, 1, 2185, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (170, 2, 2185, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (171, 3, 2186, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (172, 4, 2186, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (173, 5, 2187, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (174, 6, 2187, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (175, 7, 2188, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (176, 8, 2188, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (177, 1, 2189, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (178, 2, 2189, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (179, 3, 2190, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (180, 4, 2190, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (181, 5, 2191, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (182, 6, 2191, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (183, 7, 2192, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (184, 8, 2192, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (185, 1, 2193, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (186, 2, 2193, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (187, 3, 2194, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (188, 4, 2194, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (189, 5, 2195, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (190, 6, 2195, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (191, 7, 2196, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (192, 8, 2196, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (193, 1, 2197, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (194, 2, 2197, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (195, 3, 2198, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (196, 4, 2198, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (197, 5, 2199, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (198, 6, 2199, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (199, 7, 2200, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (200, 8, 2200, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (201, 1, 2201, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (202, 2, 2201, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (203, 3, 2202, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (204, 4, 2202, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (205, 5, 2203, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (206, 6, 2203, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (207, 7, 2204, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (208, 8, 2204, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (209, 1, 2205, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (210, 2, 2205, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (211, 3, 2206, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (212, 4, 2206, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (213, 5, 2207, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (214, 6, 2207, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (215, 7, 2208, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (216, 8, 2208, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (217, 1, 2209, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (218, 2, 2209, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (219, 3, 2210, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (220, 4, 2210, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (221, 5, 2211, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (222, 6, 2211, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (223, 7, 2212, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (224, 8, 2212, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (225, 1, 2213, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (226, 2, 2213, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (227, 3, 2214, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (228, 4, 2214, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (229, 5, 2215, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (230, 6, 2215, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (231, 7, 2216, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (232, 8, 2216, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (233, 1, 2217, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (234, 2, 2217, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (235, 3, 2218, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (236, 4, 2218, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (237, 5, 2219, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (238, 6, 2219, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (239, 7, 2220, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (240, 8, 2220, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (241, 1, 2221, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (242, 2, 2221, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (243, 3, 2222, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (244, 4, 2222, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (245, 5, 2223, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (246, 6, 2223, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (247, 7, 2224, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (248, 8, 2224, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (249, 1, 2225, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (250, 2, 2225, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (251, 3, 2226, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (252, 4, 2226, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (253, 1, 2227, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (254, 2, 2227, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (255, 3, 2228, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (256, 4, 2228, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (257, 5, 2229, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (258, 6, 2229, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (259, 7, 2230, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (260, 8, 2230, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (261, 1, 2231, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (262, 2, 2231, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (263, 3, 2232, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (264, 4, 2232, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (265, 5, 2233, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (266, 6, 2233, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (267, 7, 2234, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (268, 8, 2234, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (269, 1, 2235, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (270, 2, 2235, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (271, 3, 2236, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (272, 4, 2236, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (273, 5, 2237, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (274, 6, 2237, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (275, 7, 2238, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (276, 8, 2238, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (277, 1, 2239, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (278, 2, 2239, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (279, 3, 2240, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (280, 4, 2240, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (281, 5, 2241, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (282, 6, 2241, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (283, 7, 2242, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (284, 8, 2242, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (285, 1, 2243, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (286, 2, 2243, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (287, 3, 2244, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (288, 4, 2244, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (289, 5, 2245, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (290, 6, 2245, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (291, 7, 2246, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (292, 8, 2246, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (293, 1, 2247, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (294, 2, 2247, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (295, 3, 2248, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (296, 4, 2248, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (297, 5, 2249, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (298, 6, 2249, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (299, 7, 2250, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (300, 8, 2250, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (301, 1, 2251, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (302, 2, 2251, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (303, 3, 2252, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (304, 4, 2252, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (305, 5, 2253, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (306, 6, 2253, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (307, 7, 2254, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (308, 8, 2254, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (309, 1, 2255, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (310, 2, 2255, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (311, 3, 2256, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (312, 4, 2256, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (313, 5, 2257, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (314, 6, 2257, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (315, 7, 2258, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (316, 8, 2258, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (317, 1, 2259, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (318, 2, 2259, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (319, 3, 2260, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (320, 4, 2260, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (321, 5, 2261, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (322, 6, 2261, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (323, 7, 2262, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (324, 8, 2262, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (325, 1, 2263, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (326, 2, 2263, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (327, 3, 2264, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (328, 4, 2264, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (329, 5, 2265, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (330, 6, 2265, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (331, 7, 2266, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (332, 8, 2266, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (333, 1, 2267, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (334, 2, 2267, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (335, 3, 2268, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (336, 4, 2268, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (337, 1, 2269, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (338, 2, 2269, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (339, 3, 2270, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (340, 4, 2270, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (341, 5, 2271, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (342, 6, 2271, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (343, 7, 2272, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (344, 8, 2272, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (345, 1, 2273, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (346, 2, 2273, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (347, 3, 2274, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (348, 4, 2274, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (349, 5, 2275, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (350, 6, 2275, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (351, 7, 2276, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (352, 8, 2276, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (353, 1, 2277, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (354, 2, 2277, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (355, 3, 2278, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (356, 4, 2278, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (357, 5, 2279, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (358, 6, 2279, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (359, 7, 2280, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (360, 8, 2280, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (361, 1, 2281, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (362, 2, 2281, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (363, 3, 2282, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (364, 4, 2282, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (365, 5, 2283, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (366, 6, 2283, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (367, 7, 2284, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (368, 8, 2284, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (369, 1, 2285, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (370, 2, 2285, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (371, 3, 2286, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (372, 4, 2286, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (373, 5, 2287, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (374, 6, 2287, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (375, 7, 2288, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (376, 8, 2288, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (377, 1, 2289, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (378, 2, 2289, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (379, 3, 2290, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (380, 4, 2290, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (381, 5, 2291, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (382, 6, 2291, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (383, 7, 2292, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (384, 8, 2292, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (385, 1, 2293, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (386, 2, 2293, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (387, 3, 2294, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (388, 4, 2294, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (389, 5, 2295, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (390, 6, 2295, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (391, 7, 2296, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (392, 8, 2296, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (393, 1, 2297, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (394, 2, 2297, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (395, 3, 2298, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (396, 4, 2298, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (397, 5, 2299, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (398, 6, 2299, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (399, 7, 2300, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (400, 8, 2300, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (401, 1, 2301, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (402, 2, 2301, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (403, 3, 2302, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (404, 4, 2302, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (405, 5, 2303, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (406, 6, 2303, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (407, 7, 2304, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (408, 8, 2304, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (409, 1, 2305, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (410, 2, 2305, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (411, 3, 2306, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (412, 4, 2306, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (413, 5, 2307, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (414, 6, 2307, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (415, 7, 2308, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (416, 8, 2308, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (417, 1, 2309, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (418, 2, 2309, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (419, 3, 2310, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (420, 4, 2310, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (421, 1, 2311, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (422, 2, 2311, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (423, 3, 2312, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (424, 4, 2312, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (425, 5, 2313, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (426, 6, 2313, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (427, 7, 2314, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (428, 8, 2314, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (429, 1, 2315, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (430, 2, 2315, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (431, 3, 2316, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (432, 4, 2316, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (433, 5, 2317, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (434, 6, 2317, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (435, 7, 2318, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (436, 8, 2318, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (437, 1, 2319, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (438, 2, 2319, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (439, 3, 2320, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (440, 4, 2320, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (441, 5, 2321, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (442, 6, 2321, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (443, 7, 2322, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (444, 8, 2322, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (445, 1, 2323, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (446, 2, 2323, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (447, 3, 2324, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (448, 4, 2324, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (449, 5, 2325, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (450, 6, 2325, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (451, 7, 2326, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (452, 8, 2326, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (453, 1, 2327, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (454, 2, 2327, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (455, 3, 2328, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (456, 4, 2328, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (457, 5, 2329, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (458, 6, 2329, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (459, 7, 2330, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (460, 8, 2330, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (461, 1, 2331, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (462, 2, 2331, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (463, 3, 2332, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (464, 4, 2332, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (465, 5, 2333, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (466, 6, 2333, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (467, 7, 2334, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (468, 8, 2334, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (469, 1, 2335, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (470, 2, 2335, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (471, 3, 2336, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (472, 4, 2336, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (473, 5, 2337, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (474, 6, 2337, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (475, 7, 2338, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (476, 8, 2338, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (477, 1, 2339, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (478, 2, 2339, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (479, 3, 2340, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (480, 4, 2340, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (481, 5, 2341, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (482, 6, 2341, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (483, 7, 2342, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (484, 8, 2342, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (485, 1, 2343, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (486, 2, 2343, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (487, 3, 2344, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (488, 4, 2344, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (489, 5, 2345, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (490, 6, 2345, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (491, 7, 2346, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (492, 8, 2346, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (493, 1, 2347, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (494, 2, 2347, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (495, 3, 2348, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (496, 4, 2348, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (497, 5, 2349, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (498, 6, 2349, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (499, 7, 2350, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (500, 8, 2350, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (501, 1, 2351, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (502, 2, 2351, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (503, 3, 2352, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (504, 4, 2352, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (505, 1, 2353, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (506, 2, 2353, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (507, 3, 2354, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (508, 4, 2354, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (509, 5, 2355, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (510, 6, 2355, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (511, 7, 2356, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (512, 8, 2356, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (513, 1, 2357, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (514, 2, 2357, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (515, 3, 2358, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (516, 4, 2358, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (517, 5, 2359, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (518, 6, 2359, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (519, 7, 2360, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (520, 8, 2360, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (521, 1, 2361, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (522, 2, 2361, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (523, 3, 2362, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (524, 4, 2362, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (525, 5, 2363, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (526, 6, 2363, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (527, 7, 2364, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (528, 8, 2364, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (529, 1, 2365, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (530, 2, 2365, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (531, 3, 2366, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (532, 4, 2366, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (533, 5, 2367, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (534, 6, 2367, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (535, 7, 2368, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (536, 8, 2368, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (537, 1, 2369, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (538, 2, 2369, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (539, 3, 2370, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (540, 4, 2370, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (541, 5, 2371, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (542, 6, 2371, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (543, 7, 2372, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (544, 8, 2372, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (545, 1, 2373, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (546, 2, 2373, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (547, 3, 2374, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (548, 4, 2374, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (549, 5, 2375, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (550, 6, 2375, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (551, 7, 2376, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (552, 8, 2376, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (553, 1, 2377, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (554, 2, 2377, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (555, 3, 2378, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (556, 4, 2378, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (557, 5, 2379, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (558, 6, 2379, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (559, 7, 2380, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (560, 8, 2380, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (561, 1, 2381, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (562, 2, 2381, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (563, 3, 2382, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (564, 4, 2382, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (565, 5, 2383, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (566, 6, 2383, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (567, 7, 2384, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (568, 8, 2384, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (569, 1, 2385, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (570, 2, 2385, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (571, 3, 2386, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (572, 4, 2386, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (573, 5, 2387, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (574, 6, 2387, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (575, 7, 2388, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (576, 8, 2388, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (577, 1, 2389, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (578, 2, 2389, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (579, 3, 2390, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (580, 4, 2390, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (581, 5, 2391, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (582, 6, 2391, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (583, 7, 2392, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (584, 8, 2392, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (585, 1, 2393, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (586, 2, 2393, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (587, 3, 2394, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (588, 4, 2394, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (589, 1, 2395, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (590, 2, 2395, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (591, 3, 2396, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (592, 4, 2396, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (593, 5, 2397, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (594, 6, 2397, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (595, 7, 2398, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (596, 8, 2398, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (597, 1, 2399, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (598, 2, 2399, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (599, 3, 2400, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (600, 4, 2400, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (601, 5, 2401, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (602, 6, 2401, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (603, 7, 2402, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (604, 8, 2402, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (605, 1, 2403, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (606, 2, 2403, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (607, 3, 2404, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (608, 4, 2404, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (609, 5, 2405, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (610, 6, 2405, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (611, 7, 2406, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (612, 8, 2406, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (613, 1, 2407, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (614, 2, 2407, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (615, 3, 2408, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (616, 4, 2408, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (617, 5, 2409, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (618, 6, 2409, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (619, 7, 2410, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (620, 8, 2410, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (621, 1, 2411, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (622, 2, 2411, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (623, 3, 2412, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (624, 4, 2412, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (625, 5, 2413, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (626, 6, 2413, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (627, 7, 2414, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (628, 8, 2414, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (629, 1, 2415, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (630, 2, 2415, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (631, 3, 2416, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (632, 4, 2416, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (633, 5, 2417, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (634, 6, 2417, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (635, 7, 2418, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (636, 8, 2418, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (637, 1, 2419, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (638, 2, 2419, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (639, 3, 2420, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (640, 4, 2420, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (641, 5, 2421, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (642, 6, 2421, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (643, 7, 2422, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (644, 8, 2422, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (645, 1, 2423, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (646, 2, 2423, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (647, 3, 2424, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (648, 4, 2424, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (649, 5, 2425, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (650, 6, 2425, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (651, 7, 2426, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (652, 8, 2426, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (653, 1, 2427, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (654, 2, 2427, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (655, 3, 2428, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (656, 4, 2428, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (657, 5, 2429, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (658, 6, 2429, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (659, 7, 2430, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (660, 8, 2430, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (661, 1, 2431, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (662, 2, 2431, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (663, 3, 2432, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (664, 4, 2432, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (665, 5, 2433, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (666, 6, 2433, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (667, 7, 2434, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (668, 8, 2434, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (669, 1, 2435, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (670, 2, 2435, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (671, 3, 2436, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (672, 4, 2436, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (673, 1, 2437, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (674, 2, 2437, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (675, 3, 2438, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (676, 4, 2438, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (677, 5, 2439, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (678, 6, 2439, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (679, 7, 2440, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (680, 8, 2440, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (681, 1, 2441, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (682, 2, 2441, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (683, 3, 2442, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (684, 4, 2442, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (685, 5, 2443, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (686, 6, 2443, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (687, 7, 2444, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (688, 8, 2444, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (689, 1, 2445, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (690, 2, 2445, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (691, 3, 2446, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (692, 4, 2446, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (693, 5, 2447, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (694, 6, 2447, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (695, 7, 2448, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (696, 8, 2448, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (697, 1, 2449, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (698, 2, 2449, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (699, 3, 2450, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (700, 4, 2450, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (701, 5, 2451, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (702, 6, 2451, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (703, 7, 2452, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (704, 8, 2452, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (705, 1, 2453, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (706, 2, 2453, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (707, 3, 2454, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (708, 4, 2454, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (709, 5, 2455, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (710, 6, 2455, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (711, 7, 2456, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (712, 8, 2456, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (713, 1, 2457, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (714, 2, 2457, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (715, 3, 2458, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (716, 4, 2458, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (717, 5, 2459, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (718, 6, 2459, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (719, 7, 2460, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (720, 8, 2460, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (721, 1, 2461, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (722, 2, 2461, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (723, 3, 2462, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (724, 4, 2462, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (725, 5, 2463, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (726, 6, 2463, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (727, 7, 2464, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (728, 8, 2464, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (729, 1, 2465, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (730, 2, 2465, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (731, 3, 2466, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (732, 4, 2466, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (733, 5, 2467, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (734, 6, 2467, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (735, 7, 2468, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (736, 8, 2468, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (737, 1, 2469, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (738, 2, 2469, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (739, 3, 2470, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (740, 4, 2470, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (741, 5, 2471, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (742, 6, 2471, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (743, 7, 2472, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (744, 8, 2472, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (745, 1, 2473, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (746, 2, 2473, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (747, 3, 2474, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (748, 4, 2474, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (749, 5, 2475, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (750, 6, 2475, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (751, 7, 2476, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (752, 8, 2476, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (753, 1, 2477, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (754, 2, 2477, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (755, 1, 2478, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (756, 2, 2478, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (757, 3, 2479, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (758, 4, 2479, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (759, 5, 2480, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (760, 6, 2480, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (761, 7, 2481, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (762, 8, 2481, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (763, 1, 2482, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (764, 2, 2482, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (765, 3, 2483, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (766, 4, 2483, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (767, 5, 2484, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (768, 6, 2484, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (769, 7, 2485, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (770, 8, 2485, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (771, 1, 2486, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (772, 2, 2486, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (773, 3, 2487, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (774, 4, 2487, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (775, 5, 2488, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (776, 6, 2488, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (777, 7, 2489, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (778, 8, 2489, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (779, 1, 2490, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (780, 2, 2490, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (781, 3, 2491, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (782, 4, 2491, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (783, 5, 2492, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (784, 6, 2492, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (785, 7, 2493, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (786, 8, 2493, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (787, 1, 2494, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (788, 2, 2494, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (789, 3, 2495, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (790, 4, 2495, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (791, 5, 2496, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (792, 6, 2496, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (793, 7, 2497, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (794, 8, 2497, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (795, 1, 2498, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (796, 2, 2498, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (797, 3, 2499, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (798, 4, 2499, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (799, 5, 2500, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (800, 6, 2500, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (801, 7, 2501, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (802, 8, 2501, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (803, 1, 2502, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (804, 2, 2502, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (805, 3, 2503, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (806, 4, 2503, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (807, 5, 2504, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (808, 6, 2504, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (809, 7, 2505, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (810, 8, 2505, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (811, 1, 2506, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (812, 2, 2506, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (813, 3, 2507, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (814, 4, 2507, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (815, 5, 2508, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (816, 6, 2508, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (817, 7, 2509, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (818, 8, 2509, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (819, 1, 2510, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (820, 2, 2510, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (821, 3, 2511, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (822, 4, 2511, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (823, 5, 2512, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (824, 6, 2512, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (825, 7, 2513, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (826, 8, 2513, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (827, 1, 2514, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (828, 2, 2514, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (829, 3, 2515, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (830, 4, 2515, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (831, 5, 2516, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (832, 6, 2516, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (833, 7, 2517, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (834, 8, 2517, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (835, 1, 2518, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (836, 2, 2518, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (837, 1, 2519, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (838, 2, 2519, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (839, 3, 2520, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (840, 4, 2520, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (841, 5, 2521, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (842, 6, 2521, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (843, 7, 2522, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (844, 8, 2522, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (845, 1, 2523, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (846, 2, 2523, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (847, 3, 2524, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (848, 4, 2524, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (849, 5, 2525, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (850, 6, 2525, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (851, 7, 2526, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (852, 8, 2526, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (853, 1, 2527, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (854, 2, 2527, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (855, 3, 2528, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (856, 4, 2528, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (857, 5, 2529, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (858, 6, 2529, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (859, 7, 2530, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (860, 8, 2530, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (861, 1, 2531, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (862, 2, 2531, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (863, 3, 2532, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (864, 4, 2532, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (865, 5, 2533, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (866, 6, 2533, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (867, 7, 2534, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (868, 8, 2534, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (869, 1, 2535, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (870, 2, 2535, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (871, 3, 2536, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (872, 4, 2536, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (873, 5, 2537, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (874, 6, 2537, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (875, 7, 2538, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (876, 8, 2538, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (877, 1, 2539, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (878, 2, 2539, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (879, 3, 2540, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (880, 4, 2540, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (881, 5, 2541, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (882, 6, 2541, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (883, 7, 2542, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (884, 8, 2542, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (885, 1, 2543, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (886, 2, 2543, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (887, 3, 2544, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (888, 4, 2544, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (889, 5, 2545, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (890, 6, 2545, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (891, 7, 2546, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (892, 8, 2546, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (893, 1, 2547, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (894, 2, 2547, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (895, 3, 2548, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (896, 4, 2548, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (897, 5, 2549, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (898, 6, 2549, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (899, 7, 2550, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (900, 8, 2550, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (901, 1, 2551, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (902, 2, 2551, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (903, 3, 2552, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (904, 4, 2552, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (905, 5, 2553, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (906, 6, 2553, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (907, 7, 2554, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (908, 8, 2554, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (909, 1, 2555, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (910, 2, 2555, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (911, 3, 2556, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (912, 4, 2556, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (913, 5, 2557, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (914, 6, 2557, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (915, 7, 2558, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (916, 8, 2558, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (917, 1, 2559, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (918, 2, 2559, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (919, 1, 2560, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (920, 2, 2560, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (921, 3, 2561, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (922, 4, 2561, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (923, 5, 2562, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (924, 6, 2562, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (925, 7, 2563, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (926, 8, 2563, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (927, 1, 2564, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (928, 2, 2564, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (929, 3, 2565, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (930, 4, 2565, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (931, 5, 2566, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (932, 6, 2566, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (933, 7, 2567, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (934, 8, 2567, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (935, 1, 2568, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (936, 2, 2568, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (937, 3, 2569, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (938, 4, 2569, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (939, 5, 2570, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (940, 6, 2570, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (941, 7, 2571, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (942, 8, 2571, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (943, 1, 2572, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (944, 2, 2572, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (945, 3, 2573, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (946, 4, 2573, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (947, 5, 2574, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (948, 6, 2574, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (949, 7, 2575, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (950, 8, 2575, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (951, 1, 2576, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (952, 2, 2576, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (953, 3, 2577, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (954, 4, 2577, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (955, 5, 2578, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (956, 6, 2578, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (957, 7, 2579, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (958, 8, 2579, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (959, 1, 2580, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (960, 2, 2580, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (961, 3, 2581, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (962, 4, 2581, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (963, 5, 2582, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (964, 6, 2582, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (965, 7, 2583, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (966, 8, 2583, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (967, 1, 2584, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (968, 2, 2584, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (969, 3, 2585, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (970, 4, 2585, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (971, 5, 2586, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (972, 6, 2586, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (973, 7, 2587, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (974, 8, 2587, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (975, 1, 2588, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (976, 2, 2588, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (977, 3, 2589, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (978, 4, 2589, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (979, 5, 2590, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (980, 6, 2590, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (981, 7, 2591, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (982, 8, 2591, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (983, 1, 2592, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (984, 2, 2592, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (985, 3, 2593, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (986, 4, 2593, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (987, 5, 2594, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (988, 6, 2594, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (989, 7, 2595, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (990, 8, 2595, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (991, 1, 2596, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (992, 2, 2596, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (993, 3, 2597, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (994, 4, 2597, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (995, 5, 2598, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (996, 6, 2598, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (997, 7, 2599, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (998, 8, 2599, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (999, 1, 2600, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+INSERT INTO `course_student` VALUES (1000, 2, 2600, '2026-03-18 17:02:48', '2026-03-18 17:02:48');
+
+-- ----------------------------
 -- Table structure for coursevisit
 -- ----------------------------
 DROP TABLE IF EXISTS `coursevisit`;
 CREATE TABLE `coursevisit`  (
-                                `course_id` bigint NOT NULL COMMENT '??ID?course.course_id?',
-                                `coursename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???????????',
-                                `today` int NOT NULL DEFAULT 0 COMMENT '??????',
-                                `thisweek` int NOT NULL DEFAULT 0 COMMENT '??????',
-                                `thismonth` int NOT NULL DEFAULT 0 COMMENT '??????',
-                                `thisyear` int NOT NULL DEFAULT 0 COMMENT '??????',
-                                PRIMARY KEY (`coursename`) USING BTREE,
-                                UNIQUE INDEX `uq_coursevisit_course_id`(`course_id` ASC) USING BTREE,
-                                INDEX `idx_coursevisit_today`(`today` ASC) USING BTREE,
-                                INDEX `idx_coursevisit_thisweek`(`thisweek` ASC) USING BTREE,
-                                INDEX `idx_coursevisit_thismonth`(`thismonth` ASC) USING BTREE,
-                                INDEX `idx_coursevisit_thisyear`(`thisyear` ASC) USING BTREE,
-                                CONSTRAINT `fk_coursevisit_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `course_id` bigint NOT NULL COMMENT '??ID?course.course_id?',
+  `coursename` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???????????',
+  `today` int NOT NULL DEFAULT 0 COMMENT '??????',
+  `thisweek` int NOT NULL DEFAULT 0 COMMENT '??????',
+  `thismonth` int NOT NULL DEFAULT 0 COMMENT '??????',
+  `thisyear` int NOT NULL DEFAULT 0 COMMENT '??????',
+  PRIMARY KEY (`coursename`) USING BTREE,
+  UNIQUE INDEX `uq_coursevisit_course_id`(`course_id` ASC) USING BTREE,
+  INDEX `idx_coursevisit_today`(`today` ASC) USING BTREE,
+  INDEX `idx_coursevisit_thisweek`(`thisweek` ASC) USING BTREE,
+  INDEX `idx_coursevisit_thismonth`(`thismonth` ASC) USING BTREE,
+  INDEX `idx_coursevisit_thisyear`(`thisyear` ASC) USING BTREE,
+  CONSTRAINT `fk_coursevisit_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '??????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -364,8 +1385,8 @@ CREATE TABLE `coursevisit`  (
 -- ----------------------------
 INSERT INTO `coursevisit` VALUES (2, '中国近现代史纲要', 17, 101, 289, 1111);
 INSERT INTO `coursevisit` VALUES (6, '习近平新时代中国特色社会主义思想概论', 25, 145, 385, 1371);
-INSERT INTO `coursevisit` VALUES (7, '国家安全教育', 27, 156, 409, 1436);
-INSERT INTO `coursevisit` VALUES (8, '工程伦理与科技报国', 29, 167, 433, 1501);
+INSERT INTO `coursevisit` VALUES (7, '国家安全教育', 28, 157, 410, 1437);
+INSERT INTO `coursevisit` VALUES (8, '工程伦理与科技报国', 30, 168, 434, 1502);
 INSERT INTO `coursevisit` VALUES (3, '形势与政策', 19, 112, 313, 1176);
 INSERT INTO `coursevisit` VALUES (1, '思想道德与法治', 14, 89, 264, 1045);
 INSERT INTO `coursevisit` VALUES (5, '毛泽东思想和中国特色社会主义理论体系概论', 22, 133, 360, 1305);
@@ -376,20 +1397,20 @@ INSERT INTO `coursevisit` VALUES (4, '马克思主义基本原理', 20, 122, 336
 -- ----------------------------
 DROP TABLE IF EXISTS `dim_class`;
 CREATE TABLE `dim_class`  (
-                              `class_id` bigint NOT NULL AUTO_INCREMENT,
-                              `major_id` bigint NOT NULL,
-                              `class_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                              `class_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                              `grade_year` smallint NULL DEFAULT NULL,
-                              `is_active` tinyint(1) NOT NULL DEFAULT 1,
-                              `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                              `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                              PRIMARY KEY (`class_id`) USING BTREE,
-                              UNIQUE INDEX `uq_dim_class_code`(`class_code` ASC) USING BTREE,
-                              UNIQUE INDEX `uq_dim_class_major_name`(`major_id` ASC, `class_name` ASC) USING BTREE,
-                              INDEX `idx_dim_class_major`(`major_id` ASC) USING BTREE,
-                              INDEX `idx_dim_class_grade`(`grade_year` ASC) USING BTREE,
-                              CONSTRAINT `fk_dim_class_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `class_id` bigint NOT NULL AUTO_INCREMENT,
+  `major_id` bigint NOT NULL,
+  `class_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `class_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `grade_year` smallint NULL DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`class_id`) USING BTREE,
+  UNIQUE INDEX `uq_dim_class_code`(`class_code` ASC) USING BTREE,
+  UNIQUE INDEX `uq_dim_class_major_name`(`major_id` ASC, `class_name` ASC) USING BTREE,
+  INDEX `idx_dim_class_major`(`major_id` ASC) USING BTREE,
+  INDEX `idx_dim_class_grade`(`grade_year` ASC) USING BTREE,
+  CONSTRAINT `fk_dim_class_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 64 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Class dimension' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -449,15 +1470,15 @@ INSERT INTO `dim_class` VALUES (48, 12, 'CL2022-AERO', '飞行器设计与工程
 -- ----------------------------
 DROP TABLE IF EXISTS `dim_college`;
 CREATE TABLE `dim_college`  (
-                                `college_id` bigint NOT NULL AUTO_INCREMENT,
-                                `college_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                `college_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                `is_active` tinyint(1) NOT NULL DEFAULT 1,
-                                `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                PRIMARY KEY (`college_id`) USING BTREE,
-                                UNIQUE INDEX `uq_dim_college_code`(`college_code` ASC) USING BTREE,
-                                UNIQUE INDEX `uq_dim_college_name`(`college_name` ASC) USING BTREE
+  `college_id` bigint NOT NULL AUTO_INCREMENT,
+  `college_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `college_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`college_id`) USING BTREE,
+  UNIQUE INDEX `uq_dim_college_code`(`college_code` ASC) USING BTREE,
+  UNIQUE INDEX `uq_dim_college_name`(`college_name` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'College dimension' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -481,18 +1502,18 @@ INSERT INTO `dim_college` VALUES (12, 'AERO', '航空航天学院', 1, '2026-03-
 -- ----------------------------
 DROP TABLE IF EXISTS `dim_major`;
 CREATE TABLE `dim_major`  (
-                              `major_id` bigint NOT NULL AUTO_INCREMENT,
-                              `college_id` bigint NOT NULL,
-                              `major_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                              `major_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                              `is_active` tinyint(1) NOT NULL DEFAULT 1,
-                              `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                              `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                              PRIMARY KEY (`major_id`) USING BTREE,
-                              UNIQUE INDEX `uq_dim_major_code`(`major_code` ASC) USING BTREE,
-                              UNIQUE INDEX `uq_dim_major_college_name`(`college_id` ASC, `major_name` ASC) USING BTREE,
-                              INDEX `idx_dim_major_college`(`college_id` ASC) USING BTREE,
-                              CONSTRAINT `fk_dim_major_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `major_id` bigint NOT NULL AUTO_INCREMENT,
+  `college_id` bigint NOT NULL,
+  `major_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `major_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`major_id`) USING BTREE,
+  UNIQUE INDEX `uq_dim_major_code`(`major_code` ASC) USING BTREE,
+  UNIQUE INDEX `uq_dim_major_college_name`(`college_id` ASC, `major_name` ASC) USING BTREE,
+  INDEX `idx_dim_major_college`(`college_id` ASC) USING BTREE,
+  CONSTRAINT `fk_dim_major_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Major dimension' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -516,20 +1537,20 @@ INSERT INTO `dim_major` VALUES (12, 12, 'AERO', '飞行器设计与工程', 1, '
 -- ----------------------------
 DROP TABLE IF EXISTS `dim_term`;
 CREATE TABLE `dim_term`  (
-                             `term_id` bigint NOT NULL AUTO_INCREMENT,
-                             `term_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                             `term_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                             `academic_year` int NOT NULL,
-                             `term_no` tinyint NOT NULL,
-                             `start_date` date NULL DEFAULT NULL,
-                             `end_date` date NULL DEFAULT NULL,
-                             `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'planned',
-                             `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                             `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                             PRIMARY KEY (`term_id`) USING BTREE,
-                             UNIQUE INDEX `uq_dim_term_code`(`term_code` ASC) USING BTREE,
-                             UNIQUE INDEX `uq_dim_term_year_no`(`academic_year` ASC, `term_no` ASC) USING BTREE,
-                             INDEX `idx_dim_term_status`(`status` ASC) USING BTREE
+  `term_id` bigint NOT NULL AUTO_INCREMENT,
+  `term_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `term_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `academic_year` int NOT NULL,
+  `term_no` tinyint NOT NULL,
+  `start_date` date NULL DEFAULT NULL,
+  `end_date` date NULL DEFAULT NULL,
+  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'planned',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`term_id`) USING BTREE,
+  UNIQUE INDEX `uq_dim_term_code`(`term_code` ASC) USING BTREE,
+  UNIQUE INDEX `uq_dim_term_year_no`(`academic_year` ASC, `term_no` ASC) USING BTREE,
+  INDEX `idx_dim_term_status`(`status` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Term dimension' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -547,30 +1568,30 @@ INSERT INTO `dim_term` VALUES (6, '2026-FALL', '2026-2027学年第一学期', 20
 -- ----------------------------
 DROP TABLE IF EXISTS `fact_course_score`;
 CREATE TABLE `fact_course_score`  (
-                                      `score_id` bigint NOT NULL AUTO_INCREMENT,
-                                      `student_id` bigint NOT NULL,
-                                      `course_id` bigint NOT NULL,
-                                      `term_id` bigint NOT NULL,
-                                      `offering_id` bigint NULL DEFAULT NULL,
-                                      `usual_score` decimal(5, 2) NULL DEFAULT NULL,
-                                      `final_score` decimal(5, 2) NOT NULL,
-                                      `gpa_point` decimal(4, 2) NULL DEFAULT NULL,
-                                      `rank_in_class` int NULL DEFAULT NULL,
-                                      `rank_in_major` int NULL DEFAULT NULL,
-                                      `is_passed` tinyint(1) NOT NULL DEFAULT 1,
-                                      `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                      `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                      PRIMARY KEY (`score_id`) USING BTREE,
-                                      UNIQUE INDEX `uq_fact_course_score`(`student_id` ASC, `course_id` ASC, `term_id` ASC) USING BTREE,
-                                      INDEX `idx_fact_course_score_term`(`term_id` ASC) USING BTREE,
-                                      INDEX `idx_fact_course_score_course`(`course_id` ASC) USING BTREE,
-                                      INDEX `idx_fact_course_score_student`(`student_id` ASC) USING BTREE,
-                                      INDEX `fk_fact_course_score_offering`(`offering_id` ASC) USING BTREE,
-                                      CONSTRAINT `fk_fact_course_score_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                      CONSTRAINT `fk_fact_course_score_offering` FOREIGN KEY (`offering_id`) REFERENCES `course_offering` (`offering_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                      CONSTRAINT `fk_fact_course_score_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                      CONSTRAINT `fk_fact_course_score_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 2049 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Per student per course score by term' ROW_FORMAT = Dynamic;
+  `score_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `course_id` bigint NOT NULL,
+  `term_id` bigint NOT NULL,
+  `offering_id` bigint NULL DEFAULT NULL,
+  `usual_score` decimal(5, 2) NULL DEFAULT NULL,
+  `final_score` decimal(5, 2) NOT NULL,
+  `gpa_point` decimal(4, 2) NULL DEFAULT NULL,
+  `rank_in_class` int NULL DEFAULT NULL,
+  `rank_in_major` int NULL DEFAULT NULL,
+  `is_passed` tinyint(1) NOT NULL DEFAULT 1,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`score_id`) USING BTREE,
+  UNIQUE INDEX `uq_fact_course_score`(`student_id` ASC, `course_id` ASC, `term_id` ASC) USING BTREE,
+  INDEX `idx_fact_course_score_term`(`term_id` ASC) USING BTREE,
+  INDEX `idx_fact_course_score_course`(`course_id` ASC) USING BTREE,
+  INDEX `idx_fact_course_score_student`(`student_id` ASC) USING BTREE,
+  INDEX `fk_fact_course_score_offering`(`offering_id` ASC) USING BTREE,
+  CONSTRAINT `fk_fact_course_score_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_course_score_offering` FOREIGN KEY (`offering_id`) REFERENCES `course_offering` (`offering_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_course_score_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_course_score_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 2050 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Per student per course score by term' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of fact_course_score
@@ -581,33 +1602,33 @@ CREATE TABLE `fact_course_score`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `fact_term_gpa`;
 CREATE TABLE `fact_term_gpa`  (
-                                  `term_gpa_id` bigint NOT NULL AUTO_INCREMENT,
-                                  `student_id` bigint NOT NULL,
-                                  `term_id` bigint NOT NULL,
-                                  `avg_score` decimal(5, 2) NULL DEFAULT NULL,
-                                  `gpa` decimal(4, 2) NULL DEFAULT NULL,
-                                  `total_credits` decimal(6, 2) NULL DEFAULT NULL,
-                                  `passed_credits` decimal(6, 2) NULL DEFAULT NULL,
-                                  `class_rank` int NULL DEFAULT NULL,
-                                  `major_rank` int NULL DEFAULT NULL,
-                                  `college_rank` int NULL DEFAULT NULL,
-                                  `cohort_size` int NULL DEFAULT NULL,
-                                  `class_id` bigint NULL DEFAULT NULL,
-                                  `major_id` bigint NULL DEFAULT NULL,
-                                  `college_id` bigint NULL DEFAULT NULL,
-                                  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  PRIMARY KEY (`term_gpa_id`) USING BTREE,
-                                  UNIQUE INDEX `uq_fact_term_gpa`(`student_id` ASC, `term_id` ASC) USING BTREE,
-                                  INDEX `idx_fact_term_gpa_term`(`term_id` ASC) USING BTREE,
-                                  INDEX `idx_fact_term_gpa_class`(`class_id` ASC) USING BTREE,
-                                  INDEX `idx_fact_term_gpa_major`(`major_id` ASC) USING BTREE,
-                                  INDEX `idx_fact_term_gpa_college`(`college_id` ASC) USING BTREE,
-                                  CONSTRAINT `fk_fact_term_gpa_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                  CONSTRAINT `fk_fact_term_gpa_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                  CONSTRAINT `fk_fact_term_gpa_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                  CONSTRAINT `fk_fact_term_gpa_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                  CONSTRAINT `fk_fact_term_gpa_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  `term_gpa_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `term_id` bigint NOT NULL,
+  `avg_score` decimal(5, 2) NULL DEFAULT NULL,
+  `gpa` decimal(4, 2) NULL DEFAULT NULL,
+  `total_credits` decimal(6, 2) NULL DEFAULT NULL,
+  `passed_credits` decimal(6, 2) NULL DEFAULT NULL,
+  `class_rank` int NULL DEFAULT NULL,
+  `major_rank` int NULL DEFAULT NULL,
+  `college_rank` int NULL DEFAULT NULL,
+  `cohort_size` int NULL DEFAULT NULL,
+  `class_id` bigint NULL DEFAULT NULL,
+  `major_id` bigint NULL DEFAULT NULL,
+  `college_id` bigint NULL DEFAULT NULL,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`term_gpa_id`) USING BTREE,
+  UNIQUE INDEX `uq_fact_term_gpa`(`student_id` ASC, `term_id` ASC) USING BTREE,
+  INDEX `idx_fact_term_gpa_term`(`term_id` ASC) USING BTREE,
+  INDEX `idx_fact_term_gpa_class`(`class_id` ASC) USING BTREE,
+  INDEX `idx_fact_term_gpa_major`(`major_id` ASC) USING BTREE,
+  INDEX `idx_fact_term_gpa_college`(`college_id` ASC) USING BTREE,
+  CONSTRAINT `fk_fact_term_gpa_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_term_gpa_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_term_gpa_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_term_gpa_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_term_gpa_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 2049 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Student term-level GPA/score facts' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -619,25 +1640,25 @@ CREATE TABLE `fact_term_gpa`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `fact_warning_event`;
 CREATE TABLE `fact_warning_event`  (
-                                       `warning_id` bigint NOT NULL AUTO_INCREMENT,
-                                       `student_id` bigint NOT NULL,
-                                       `term_id` bigint NULL DEFAULT NULL,
-                                       `warning_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                       `warning_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'low',
-                                       `risk_score` decimal(6, 2) NOT NULL DEFAULT 0.00,
-                                       `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'open',
-                                       `opened_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `resolved_at` datetime NULL DEFAULT NULL,
-                                       `handler` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                       `remark` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                       `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                       PRIMARY KEY (`warning_id`) USING BTREE,
-                                       INDEX `idx_fact_warning_event_student`(`student_id` ASC) USING BTREE,
-                                       INDEX `idx_fact_warning_event_term`(`term_id` ASC) USING BTREE,
-                                       INDEX `idx_fact_warning_event_status`(`status` ASC) USING BTREE,
-                                       CONSTRAINT `fk_fact_warning_event_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_fact_warning_event_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT
+  `warning_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `term_id` bigint NULL DEFAULT NULL,
+  `warning_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `warning_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'low',
+  `risk_score` decimal(6, 2) NOT NULL DEFAULT 0.00,
+  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'open',
+  `opened_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `resolved_at` datetime NULL DEFAULT NULL,
+  `handler` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `remark` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`warning_id`) USING BTREE,
+  INDEX `idx_fact_warning_event_student`(`student_id` ASC) USING BTREE,
+  INDEX `idx_fact_warning_event_term`(`term_id` ASC) USING BTREE,
+  INDEX `idx_fact_warning_event_status`(`status` ASC) USING BTREE,
+  CONSTRAINT `fk_fact_warning_event_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_fact_warning_event_term` FOREIGN KEY (`term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 256 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Student warning events' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -649,21 +1670,21 @@ CREATE TABLE `fact_warning_event`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `learning_record`;
 CREATE TABLE `learning_record`  (
-                                    `record_id` bigint NOT NULL AUTO_INCREMENT COMMENT '????ID',
-                                    `user_id` bigint NOT NULL COMMENT '??ID?student.student_id?',
-                                    `course_id` bigint NOT NULL COMMENT '??ID?course.course_id?',
-                                    `check_in_time` datetime NULL DEFAULT NULL COMMENT '????',
-                                    `task_point_id` bigint NULL DEFAULT NULL COMMENT '???ID??course.task_points??????????',
-                                    `is_online` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
-                                    `last_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '??????',
-                                    PRIMARY KEY (`record_id`) USING BTREE,
-                                    INDEX `idx_learning_record_course_id`(`course_id` ASC) USING BTREE,
-                                    INDEX `idx_learning_record_is_online`(`is_online` ASC) USING BTREE,
-                                    INDEX `idx_learning_record_check_in_time`(`check_in_time` ASC) USING BTREE,
-                                    INDEX `idx_learning_record_user_course`(`user_id` ASC, `course_id` ASC) USING BTREE,
-                                    CONSTRAINT `fk_learning_record_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                    CONSTRAINT `fk_learning_record_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`student_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB AUTO_INCREMENT = 1024 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '?????' ROW_FORMAT = DYNAMIC;
+  `record_id` bigint NOT NULL AUTO_INCREMENT COMMENT '????ID',
+  `user_id` bigint NOT NULL COMMENT '??ID?student.student_id?',
+  `course_id` bigint NOT NULL COMMENT '??ID?course.course_id?',
+  `check_in_time` datetime NULL DEFAULT NULL COMMENT '????',
+  `task_point_id` bigint NULL DEFAULT NULL COMMENT '???ID??course.task_points??????????',
+  `is_online` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
+  `last_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '??????',
+  PRIMARY KEY (`record_id`) USING BTREE,
+  INDEX `idx_learning_record_course_id`(`course_id` ASC) USING BTREE,
+  INDEX `idx_learning_record_is_online`(`is_online` ASC) USING BTREE,
+  INDEX `idx_learning_record_check_in_time`(`check_in_time` ASC) USING BTREE,
+  INDEX `idx_learning_record_user_course`(`user_id` ASC, `course_id` ASC) USING BTREE,
+  CONSTRAINT `fk_learning_record_course` FOREIGN KEY (`course_id`) REFERENCES `course` (`course_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_learning_record_student` FOREIGN KEY (`user_id`) REFERENCES `student` (`student_id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1025 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '?????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of learning_record
@@ -1674,22 +2695,22 @@ INSERT INTO `learning_record` VALUES (1000, 2600, 2, '2026-03-30 10:00:00', 3, 1
 -- ----------------------------
 DROP TABLE IF EXISTS `live_session`;
 CREATE TABLE `live_session`  (
-                                 `session_id` bigint NOT NULL AUTO_INCREMENT COMMENT '????ID',
-                                 `course_id` bigint NOT NULL COMMENT '??ID',
-                                 `teacher_id` bigint NOT NULL COMMENT '??ID?teacher.teacher_id?',
-                                 `start_time` datetime NOT NULL COMMENT '????',
-                                 `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'scheduled' COMMENT '???scheduled/live/ended/cancelled',
-                                 `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
-                                 `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
-                                 PRIMARY KEY (`session_id`) USING BTREE,
-                                 INDEX `idx_live_session_course_id`(`course_id` ASC) USING BTREE,
-                                 INDEX `idx_live_session_teacher_id`(`teacher_id` ASC) USING BTREE,
-                                 INDEX `idx_live_session_start_time`(`start_time` ASC) USING BTREE,
-                                 INDEX `idx_live_session_status`(`status` ASC) USING BTREE,
-                                 INDEX `fk_live_session_course_teacher`(`course_id` ASC, `teacher_id` ASC) USING BTREE,
-                                 CONSTRAINT `fk_live_session_course_teacher` FOREIGN KEY (`course_id`, `teacher_id`) REFERENCES `course` (`course_id`, `teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                 CONSTRAINT `fk_live_session_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
-                                 CONSTRAINT `ck_live_session_status` CHECK (`status` in (_utf8mb4'scheduled',_utf8mb4'live',_utf8mb4'ended',_utf8mb4'cancelled'))
+  `session_id` bigint NOT NULL AUTO_INCREMENT COMMENT '????ID',
+  `course_id` bigint NOT NULL COMMENT '??ID',
+  `teacher_id` bigint NOT NULL COMMENT '??ID?teacher.teacher_id?',
+  `start_time` datetime NOT NULL COMMENT '????',
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'scheduled' COMMENT '???scheduled/live/ended/cancelled',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
+  PRIMARY KEY (`session_id`) USING BTREE,
+  INDEX `idx_live_session_course_id`(`course_id` ASC) USING BTREE,
+  INDEX `idx_live_session_teacher_id`(`teacher_id` ASC) USING BTREE,
+  INDEX `idx_live_session_start_time`(`start_time` ASC) USING BTREE,
+  INDEX `idx_live_session_status`(`status` ASC) USING BTREE,
+  INDEX `fk_live_session_course_teacher`(`course_id` ASC, `teacher_id` ASC) USING BTREE,
+  CONSTRAINT `fk_live_session_course_teacher` FOREIGN KEY (`course_id`, `teacher_id`) REFERENCES `course` (`course_id`, `teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `fk_live_session_teacher` FOREIGN KEY (`teacher_id`) REFERENCES `teacher` (`teacher_id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+  CONSTRAINT `ck_live_session_status` CHECK (`status` in (_utf8mb4'scheduled',_utf8mb4'live',_utf8mb4'ended',_utf8mb4'cancelled'))
 ) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '?????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -1709,12 +2730,12 @@ INSERT INTO `live_session` VALUES (8, 8, 1130, '2026-04-03 20:00:00', 'live', '2
 -- ----------------------------
 DROP TABLE IF EXISTS `role_menu`;
 CREATE TABLE `role_menu`  (
-                              `role_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????student/teacher',
-                              `menu_id` bigint NOT NULL COMMENT '??ID',
-                              PRIMARY KEY (`role_code`, `menu_id`) USING BTREE,
-                              INDEX `idx_role_menu_menu_id`(`menu_id` ASC) USING BTREE,
-                              CONSTRAINT `fk_role_menu_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                              CONSTRAINT `ck_role_menu_role` CHECK (`role_code` in (_utf8mb4'student',_utf8mb4'teacher'))
+  `role_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????student/teacher',
+  `menu_id` bigint NOT NULL COMMENT '??ID',
+  PRIMARY KEY (`role_code`, `menu_id`) USING BTREE,
+  INDEX `idx_role_menu_menu_id`(`menu_id` ASC) USING BTREE,
+  CONSTRAINT `fk_role_menu_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `ck_role_menu_role` CHECK (`role_code` in (_utf8mb4'student',_utf8mb4'teacher'))
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '???????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -1735,12 +2756,12 @@ INSERT INTO `role_menu` VALUES ('teacher', 7);
 -- ----------------------------
 DROP TABLE IF EXISTS `role_permission`;
 CREATE TABLE `role_permission`  (
-                                    `role_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????student/teacher',
-                                    `perm_id` bigint NOT NULL COMMENT '??ID',
-                                    PRIMARY KEY (`role_code`, `perm_id`) USING BTREE,
-                                    INDEX `idx_role_permission_perm_id`(`perm_id` ASC) USING BTREE,
-                                    CONSTRAINT `fk_role_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                    CONSTRAINT `ck_role_permission_role` CHECK (`role_code` in (_utf8mb4'student',_utf8mb4'teacher'))
+  `role_code` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????student/teacher',
+  `perm_id` bigint NOT NULL COMMENT '??ID',
+  PRIMARY KEY (`role_code`, `perm_id`) USING BTREE,
+  INDEX `idx_role_permission_perm_id`(`perm_id` ASC) USING BTREE,
+  CONSTRAINT `fk_role_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `ck_role_permission_role` CHECK (`role_code` in (_utf8mb4'student',_utf8mb4'teacher'))
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '???????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -1763,12 +2784,12 @@ INSERT INTO `role_permission` VALUES ('teacher', 305);
 -- ----------------------------
 DROP TABLE IF EXISTS `schema_migration_log`;
 CREATE TABLE `schema_migration_log`  (
-                                         `id` bigint NOT NULL AUTO_INCREMENT,
-                                         `migration_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                         `migration_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                                         `executed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                         PRIMARY KEY (`id`) USING BTREE,
-                                         UNIQUE INDEX `uq_schema_migration_code`(`migration_code` ASC) USING BTREE
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `migration_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `migration_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `executed_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_schema_migration_code`(`migration_code` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Schema migration log' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -1781,25 +2802,25 @@ INSERT INTO `schema_migration_log` VALUES (1, 'ACADEMIC_20260317_V1', 'Academic 
 -- ----------------------------
 DROP TABLE IF EXISTS `student`;
 CREATE TABLE `student`  (
-                            `student_id` bigint NOT NULL COMMENT '??ID??user.id??',
-                            `student_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
-                            `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
-                            `college` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                            `college_id` bigint NULL DEFAULT NULL,
-                            `major_id` bigint NULL DEFAULT NULL,
-                            `class_id` bigint NULL DEFAULT NULL,
-                            `grade_year` smallint NULL DEFAULT NULL,
-                            `learning_index` decimal(5, 2) NULL DEFAULT NULL COMMENT '??????',
-                            `comparison_last_month` decimal(5, 2) NULL DEFAULT NULL COMMENT '????',
-                            `total_warnings` int NOT NULL DEFAULT 0 COMMENT '??????',
-                            `resolved_warnings` int NOT NULL DEFAULT 0 COMMENT '??????',
-                            `learning_scores` decimal(5, 2) NULL DEFAULT NULL COMMENT '????',
-                            `average_course_scores` decimal(5, 2) NULL DEFAULT NULL COMMENT '?????',
-                            PRIMARY KEY (`student_id`) USING BTREE,
-                            UNIQUE INDEX `uq_student_student_no`(`student_no` ASC) USING BTREE,
-                            INDEX `idx_student_name`(`name` ASC) USING BTREE,
-                            INDEX `idx_student_college`(`college` ASC) USING BTREE,
-                            CONSTRAINT `fk_student_user` FOREIGN KEY (`student_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `student_id` bigint NOT NULL COMMENT '??ID??user.id??',
+  `student_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
+  `college` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `college_id` bigint NULL DEFAULT NULL,
+  `major_id` bigint NULL DEFAULT NULL,
+  `class_id` bigint NULL DEFAULT NULL,
+  `grade_year` smallint NULL DEFAULT NULL,
+  `learning_index` decimal(5, 2) NULL DEFAULT NULL COMMENT '??????',
+  `comparison_last_month` decimal(5, 2) NULL DEFAULT NULL COMMENT '????',
+  `total_warnings` int NOT NULL DEFAULT 0 COMMENT '??????',
+  `resolved_warnings` int NOT NULL DEFAULT 0 COMMENT '??????',
+  `learning_scores` decimal(5, 2) NULL DEFAULT NULL COMMENT '????',
+  `average_course_scores` decimal(5, 2) NULL DEFAULT NULL COMMENT '?????',
+  PRIMARY KEY (`student_id`) USING BTREE,
+  UNIQUE INDEX `uq_student_student_no`(`student_no` ASC) USING BTREE,
+  INDEX `idx_student_name`(`name` ASC) USING BTREE,
+  INDEX `idx_student_college`(`college` ASC) USING BTREE,
+  CONSTRAINT `fk_student_user` FOREIGN KEY (`student_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '????/????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -2312,31 +3333,31 @@ INSERT INTO `student` VALUES (2601, 'S0002601', '赵梓元', NULL, NULL, NULL, N
 -- ----------------------------
 DROP TABLE IF EXISTS `student_enrollment`;
 CREATE TABLE `student_enrollment`  (
-                                       `enrollment_id` bigint NOT NULL AUTO_INCREMENT,
-                                       `student_id` bigint NOT NULL,
-                                       `college_id` bigint NULL DEFAULT NULL,
-                                       `major_id` bigint NULL DEFAULT NULL,
-                                       `class_id` bigint NULL DEFAULT NULL,
-                                       `grade_year` smallint NULL DEFAULT NULL,
-                                       `start_term_id` bigint NULL DEFAULT NULL,
-                                       `end_term_id` bigint NULL DEFAULT NULL,
-                                       `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'active',
-                                       `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                       `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                       PRIMARY KEY (`enrollment_id`) USING BTREE,
-                                       INDEX `idx_student_enrollment_student`(`student_id` ASC) USING BTREE,
-                                       INDEX `idx_student_enrollment_status`(`status` ASC) USING BTREE,
-                                       INDEX `idx_student_enrollment_college_major_class`(`college_id` ASC, `major_id` ASC, `class_id` ASC) USING BTREE,
-                                       INDEX `fk_student_enrollment_major`(`major_id` ASC) USING BTREE,
-                                       INDEX `fk_student_enrollment_class`(`class_id` ASC) USING BTREE,
-                                       INDEX `fk_student_enrollment_start_term`(`start_term_id` ASC) USING BTREE,
-                                       INDEX `fk_student_enrollment_end_term`(`end_term_id` ASC) USING BTREE,
-                                       CONSTRAINT `fk_student_enrollment_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_student_enrollment_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_student_enrollment_end_term` FOREIGN KEY (`end_term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_student_enrollment_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_student_enrollment_start_term` FOREIGN KEY (`start_term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
-                                       CONSTRAINT `fk_student_enrollment_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `enrollment_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `college_id` bigint NULL DEFAULT NULL,
+  `major_id` bigint NULL DEFAULT NULL,
+  `class_id` bigint NULL DEFAULT NULL,
+  `grade_year` smallint NULL DEFAULT NULL,
+  `start_term_id` bigint NULL DEFAULT NULL,
+  `end_term_id` bigint NULL DEFAULT NULL,
+  `status` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'active',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`enrollment_id`) USING BTREE,
+  INDEX `idx_student_enrollment_student`(`student_id` ASC) USING BTREE,
+  INDEX `idx_student_enrollment_status`(`status` ASC) USING BTREE,
+  INDEX `idx_student_enrollment_college_major_class`(`college_id` ASC, `major_id` ASC, `class_id` ASC) USING BTREE,
+  INDEX `fk_student_enrollment_major`(`major_id` ASC) USING BTREE,
+  INDEX `fk_student_enrollment_class`(`class_id` ASC) USING BTREE,
+  INDEX `fk_student_enrollment_start_term`(`start_term_id` ASC) USING BTREE,
+  INDEX `fk_student_enrollment_end_term`(`end_term_id` ASC) USING BTREE,
+  CONSTRAINT `fk_student_enrollment_class` FOREIGN KEY (`class_id`) REFERENCES `dim_class` (`class_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_student_enrollment_college` FOREIGN KEY (`college_id`) REFERENCES `dim_college` (`college_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_student_enrollment_end_term` FOREIGN KEY (`end_term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_student_enrollment_major` FOREIGN KEY (`major_id`) REFERENCES `dim_major` (`major_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_student_enrollment_start_term` FOREIGN KEY (`start_term_id`) REFERENCES `dim_term` (`term_id`) ON DELETE SET NULL ON UPDATE RESTRICT,
+  CONSTRAINT `fk_student_enrollment_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1535 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Student enrollment history' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -2848,23 +3869,23 @@ INSERT INTO `student_enrollment` VALUES (1523, 2600, 12, 12, 12, 2025, 4, NULL, 
 -- ----------------------------
 DROP TABLE IF EXISTS `student_portrait`;
 CREATE TABLE `student_portrait`  (
-                                     `portrait_id` bigint NOT NULL AUTO_INCREMENT,
-                                     `student_id` bigint NOT NULL,
-                                     `learning_index` decimal(6, 2) NULL DEFAULT NULL,
-                                     `cumulative_avg_score` decimal(5, 2) NULL DEFAULT NULL,
-                                     `cumulative_gpa` decimal(4, 2) NULL DEFAULT NULL,
-                                     `total_credits` decimal(6, 2) NULL DEFAULT NULL,
-                                     `passed_credits` decimal(6, 2) NULL DEFAULT NULL,
-                                     `failed_course_count` int NULL DEFAULT NULL,
-                                     `risk_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
-                                     `portrait_json` json NULL,
-                                     `snapshot_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                     `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                     PRIMARY KEY (`portrait_id`) USING BTREE,
-                                     UNIQUE INDEX `uq_student_portrait_student`(`student_id` ASC) USING BTREE,
-                                     INDEX `idx_student_portrait_risk`(`risk_level` ASC) USING BTREE,
-                                     CONSTRAINT `fk_student_portrait_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `portrait_id` bigint NOT NULL AUTO_INCREMENT,
+  `student_id` bigint NOT NULL,
+  `learning_index` decimal(6, 2) NULL DEFAULT NULL,
+  `cumulative_avg_score` decimal(5, 2) NULL DEFAULT NULL,
+  `cumulative_gpa` decimal(4, 2) NULL DEFAULT NULL,
+  `total_credits` decimal(6, 2) NULL DEFAULT NULL,
+  `passed_credits` decimal(6, 2) NULL DEFAULT NULL,
+  `failed_course_count` int NULL DEFAULT NULL,
+  `risk_level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `portrait_json` json NULL,
+  `snapshot_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`portrait_id`) USING BTREE,
+  UNIQUE INDEX `uq_student_portrait_student`(`student_id` ASC) USING BTREE,
+  INDEX `idx_student_portrait_risk`(`risk_level` ASC) USING BTREE,
+  CONSTRAINT `fk_student_portrait_student` FOREIGN KEY (`student_id`) REFERENCES `student` (`student_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1025 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'Student portrait snapshot' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
@@ -2876,14 +3897,14 @@ CREATE TABLE `student_portrait`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu`  (
-                             `menu_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
-                             `menu_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                             `menu_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                             `route_path` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                             `sort_no` int NOT NULL DEFAULT 0 COMMENT '??',
-                             `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '????',
-                             PRIMARY KEY (`menu_id`) USING BTREE,
-                             UNIQUE INDEX `uq_sys_menu_code`(`menu_code` ASC) USING BTREE
+  `menu_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
+  `menu_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `menu_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `route_path` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `sort_no` int NOT NULL DEFAULT 0 COMMENT '??',
+  `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '????',
+  PRIMARY KEY (`menu_id`) USING BTREE,
+  UNIQUE INDEX `uq_sys_menu_code`(`menu_code` ASC) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '?????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -2902,12 +3923,12 @@ INSERT INTO `sys_menu` VALUES (7, 'COURSE_VISIT', '学习统计', '/course-visit
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_menu_permission`;
 CREATE TABLE `sys_menu_permission`  (
-                                        `menu_id` bigint NOT NULL COMMENT '??ID',
-                                        `perm_id` bigint NOT NULL COMMENT '??ID',
-                                        PRIMARY KEY (`menu_id`, `perm_id`) USING BTREE,
-                                        INDEX `idx_sys_menu_permission_perm_id`(`perm_id` ASC) USING BTREE,
-                                        CONSTRAINT `fk_sys_menu_permission_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
-                                        CONSTRAINT `fk_sys_menu_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `menu_id` bigint NOT NULL COMMENT '??ID',
+  `perm_id` bigint NOT NULL COMMENT '??ID',
+  PRIMARY KEY (`menu_id`, `perm_id`) USING BTREE,
+  INDEX `idx_sys_menu_permission_perm_id`(`perm_id` ASC) USING BTREE,
+  CONSTRAINT `fk_sys_menu_permission_menu` FOREIGN KEY (`menu_id`) REFERENCES `sys_menu` (`menu_id`) ON DELETE CASCADE ON UPDATE RESTRICT,
+  CONSTRAINT `fk_sys_menu_permission_perm` FOREIGN KEY (`perm_id`) REFERENCES `sys_permission` (`perm_id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '??-?????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -2930,22 +3951,22 @@ INSERT INTO `sys_menu_permission` VALUES (7, 305);
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_permission`;
 CREATE TABLE `sys_permission`  (
-                                   `perm_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
-                                   `perm_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                                   `perm_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                                   `resource_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????api/button',
-                                   `resource_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '?????????',
-                                   `http_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'HTTP??',
-                                   `rule_json` json NULL COMMENT '??????????role??',
-                                   `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '????',
-                                   `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                                   `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
-                                   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
-                                   PRIMARY KEY (`perm_id`) USING BTREE,
-                                   UNIQUE INDEX `uq_sys_permission_code`(`perm_code` ASC) USING BTREE,
-                                   INDEX `idx_sys_permission_enabled`(`enabled` ASC) USING BTREE,
-                                   CONSTRAINT `ck_sys_permission_enabled` CHECK (`enabled` in (0,1)),
-                                   CONSTRAINT `ck_sys_permission_resource_type` CHECK (`resource_type` in (_utf8mb4'api',_utf8mb4'button'))
+  `perm_id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
+  `perm_code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `perm_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `resource_type` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '?????api/button',
+  `resource_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '?????????',
+  `http_method` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'HTTP??',
+  `rule_json` json NULL COMMENT '??????????role??',
+  `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '????',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
+  PRIMARY KEY (`perm_id`) USING BTREE,
+  UNIQUE INDEX `uq_sys_permission_code`(`perm_code` ASC) USING BTREE,
+  INDEX `idx_sys_permission_enabled`(`enabled` ASC) USING BTREE,
+  CONSTRAINT `ck_sys_permission_enabled` CHECK (`enabled` in (0,1)),
+  CONSTRAINT `ck_sys_permission_resource_type` CHECK (`resource_type` in (_utf8mb4'api',_utf8mb4'button'))
 ) ENGINE = InnoDB AUTO_INCREMENT = 306 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '???????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -2968,13 +3989,13 @@ INSERT INTO `sys_permission` VALUES (305, 'COURSE_VISIT_VIEW', '查看学习统�
 -- ----------------------------
 DROP TABLE IF EXISTS `teacher`;
 CREATE TABLE `teacher`  (
-                            `teacher_id` bigint NOT NULL COMMENT '??ID??user.id??',
-                            `teacher_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
-                            `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??????????',
-                            `title` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                            PRIMARY KEY (`teacher_id`) USING BTREE,
-                            UNIQUE INDEX `uq_teacher_teacher_no`(`teacher_no` ASC) USING BTREE,
-                            CONSTRAINT `fk_teacher_user` FOREIGN KEY (`teacher_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+  `teacher_id` bigint NOT NULL COMMENT '??ID??user.id??',
+  `teacher_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '????',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??????????',
+  `title` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  PRIMARY KEY (`teacher_id`) USING BTREE,
+  UNIQUE INDEX `uq_teacher_teacher_no`(`teacher_no` ASC) USING BTREE,
+  CONSTRAINT `fk_teacher_user` FOREIGN KEY (`teacher_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '?????' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -3026,30 +4047,30 @@ INSERT INTO `teacher` VALUES (1140, 'T2026040', '何书萌', '助教');
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
-                         `id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
-                         `login_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???',
-                         `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
-                         `role` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???student/teacher',
-                         `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                         `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                         `department_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??/????',
-                         `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
-                         `last_login_time` datetime NULL DEFAULT NULL COMMENT '??????',
-                         `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
-                         `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
-                         `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
-                         PRIMARY KEY (`id`) USING BTREE,
-                         UNIQUE INDEX `uq_user_login_name`(`login_name` ASC) USING BTREE,
-                         UNIQUE INDEX `uq_user_email`(`email` ASC) USING BTREE,
-                         INDEX `idx_user_role_is_deleted`(`role` ASC, `is_deleted` ASC) USING BTREE,
-                         INDEX `idx_user_is_deleted_department`(`is_deleted` ASC, `department_name` ASC) USING BTREE,
-                         CONSTRAINT `ck_user_role` CHECK (`role` in (_utf8mb4'student',_utf8mb4'teacher'))
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '??ID',
+  `login_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '??',
+  `role` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '???student/teacher',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `email` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `department_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??/????',
+  `avatar` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '??',
+  `last_login_time` datetime NULL DEFAULT NULL COMMENT '??????',
+  `is_deleted` tinyint(1) NOT NULL DEFAULT 0 COMMENT '?????0=??1=??',
+  `gmt_created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '????',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '????',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uq_user_login_name`(`login_name` ASC) USING BTREE,
+  UNIQUE INDEX `uq_user_email`(`email` ASC) USING BTREE,
+  INDEX `idx_user_role_is_deleted`(`role` ASC, `is_deleted` ASC) USING BTREE,
+  INDEX `idx_user_is_deleted_department`(`is_deleted` ASC, `department_name` ASC) USING BTREE,
+  CONSTRAINT `ck_user_role` CHECK (`role` in (_utf8mb4'student',_utf8mb4'teacher'))
 ) ENGINE = InnoDB AUTO_INCREMENT = 2602 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '????????/???' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES (1101, 't2026001', '120000:iVv3JzGCsXQe9+1S4CxT9g==:9XvHBuN/88NLfXZ3XEolqZGLZnoU1Iur+ITlEGAqaV8=', 'teacher', '黄彦钰', 't2026001@xjtu.edu.cn', '马克思主义学院', NULL, '2026-03-18 15:28:45', 0, '2026-03-18 11:04:01', '2026-03-18 14:41:45');
+INSERT INTO `user` VALUES (1101, 't2026001', '120000:iVv3JzGCsXQe9+1S4CxT9g==:9XvHBuN/88NLfXZ3XEolqZGLZnoU1Iur+ITlEGAqaV8=', 'teacher', '黄彦钰', 't2026001@xjtu.edu.cn', '马克思主义学院', NULL, '2026-03-19 09:16:10', 0, '2026-03-18 11:04:01', '2026-03-18 14:41:45');
 INSERT INTO `user` VALUES (1102, 't2026002', '123456', 'teacher', '高雨博', 't2026002@xjtu.edu.cn', '马克思主义学院', NULL, '2026-03-11 14:00:00', 0, '2026-03-18 11:04:01', '2026-03-18 11:04:01');
 INSERT INTO `user` VALUES (1103, 't2026003', '123456', 'teacher', '宋可涵', 't2026003@xjtu.edu.cn', '马克思主义学院', NULL, '2026-03-16 17:00:00', 0, '2026-03-18 11:04:01', '2026-03-18 11:04:01');
 INSERT INTO `user` VALUES (1104, 't2026004', '123456', 'teacher', '陈书萌', 't2026004@xjtu.edu.cn', '马克思主义学院', NULL, '2026-03-01 10:00:00', 0, '2026-03-18 11:04:01', '2026-03-18 11:04:01');
