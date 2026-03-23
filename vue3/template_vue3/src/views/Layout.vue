@@ -13,7 +13,6 @@ import {
   Document,
   Tickets,
   SuccessFilled,
-  DataLine,
   DArrowRight,
   DArrowLeft,
   Odometer,
@@ -54,7 +53,6 @@ const ROLE_ALLOW_ROUTES = {
     '/user/learninggrade',
     '/user/interaction',
     '/user/avgscore',
-    '/user/LearningDurationA',
     '/user/completion'
   ]),
   student: new Set([
@@ -302,10 +300,6 @@ const handleClose = (key, keyPath) => {
             <el-menu-item index="/user/avgscore">
               <el-icon><Tickets /></el-icon>
               <span>课程平均分</span>
-            </el-menu-item>
-            <el-menu-item index="/user/LearningDurationA">
-              <el-icon><DataLine /></el-icon>
-              <span>学习时长</span>
             </el-menu-item>
             <el-menu-item index="/user/completion">
               <el-icon><SuccessFilled /></el-icon>
