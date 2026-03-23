@@ -17,9 +17,6 @@
       <div class="butt">
         <button class="particle-btn" @click="goToLogin">
           <div class="btn-glow"></div>
-          <div class="particles-container">
-            <i v-for="n in 20" :key="n" class="particle" :style="getParticleStyle(n)"></i>
-          </div>
           <span class="btn-text">立即登录</span>
           <span class="arrow-icon">→</span>
         </button>
