@@ -13,13 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/online-course")
 public class OnlineCourseController {
     private static final Logger logger = LoggerFactory.getLogger(OnlineCourseController.class);
-    private static final String VIDEO_PATH = "E:/Suncaper Project/xjtuexer/file//video";
+    private static final String DEFAULT_VIDEO_PATH = "D:/xjtu/xjtuexer/file/video";
 
     @Autowired
     private IOnlineCourseService onlineCourseService;
@@ -41,12 +43,19 @@ public class OnlineCourseController {
     @GetMapping("/video/{filename}")
     public ResponseEntity<Resource> getVideo(@PathVariable String filename) {
         logger.info("Requested video: {}", filename);
-        if (!filename.matches("^(11\\.mp4|12\\.mp4|21\\.mp4|22\\.mp4)$")) {
+        if (!filename.matches("^[a-zA-Z0-9._-]+\\.mp4$")) {
             logger.warn("Invalid video filename requested: {}", filename);
             return ResponseEntity.badRequest().build();
         }
 
-        File file = new File(VIDEO_PATH + filename.replace("/", File.separator));
+        Path basePath = resolveVideoBasePath();
+        Path fullPath = basePath.resolve(filename).normalize();
+        if (!fullPath.startsWith(basePath)) {
+            logger.warn("Rejected path traversal filename: {}", filename);
+            return ResponseEntity.badRequest().build();
+        }
+
+        File file = fullPath.toFile();
         logger.info("Attempting to load video file: {}", file.getAbsolutePath());
         if (!file.exists() || !file.isFile()) {
             logger.error("Video file not found or is not a file: {}", file.getAbsolutePath());
@@ -54,10 +63,21 @@ public class OnlineCourseController {
         }
 
         Resource resource = new FileSystemResource(file);
-        logger.info("Serving video file: {}", file.getAbsolutePath());
+        long contentLength = file.length();
+
+        logger.info("Serving full video file: {}", file.getAbsolutePath());
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("video/mp4"))
-                .header("Content-Length", String.valueOf(file.length()))
+                .header("Accept-Ranges", "bytes")
+                .header("Content-Length", String.valueOf(contentLength))
                 .body(resource);
+    }
+
+    private Path resolveVideoBasePath() {
+        String configured = System.getenv("ONLINE_VIDEO_PATH");
+        if (configured == null || configured.trim().isEmpty()) {
+            configured = DEFAULT_VIDEO_PATH;
+        }
+        return Paths.get(configured).toAbsolutePath().normalize();
     }
 }
