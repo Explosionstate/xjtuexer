@@ -7,7 +7,6 @@ import UserCount from '@/views/user/UserCount.vue'
 import StudentList from '@/views/user/StudentList.vue'
 import UserJiashicang from '@/views/user/UserJiashicang.vue'
 import UsersList from '@/views/user/UsersList.vue'
-import LearningDurationAnalytics from '@/views/user/LearningDurationAnalytics.vue'
 import CourseCompletionAnalytics from '@/views/user/CourseCompletionAnalytics.vue'
 import News from '@/views/user/news.vue'
 import OnlineLearning from '@/views/user/OnlineLearning.vue'
@@ -42,7 +41,6 @@ const ROLE_ALLOW_ROUTES = {
     '/user/learninggrade',
     '/user/interaction',
     '/user/avgscore',
-    '/user/LearningDurationA',
     '/user/completion'
   ]),
   student: new Set([
@@ -70,7 +68,6 @@ const routes = [
       { path: '/user/studentList', component: StudentList },
       { path: '/user/jiashicang', component: UserJiashicang },
       { path: '/user/completion', component: CourseCompletionAnalytics },
-      { path: '/user/LearningDurationA', component: LearningDurationAnalytics },
       { path: '/user/coursevisit', component: CourseVisitAnalytics },
       { path: '/user/interaction', component: InteractionAnalytics },
       { path: '/user/learninggrade', component: ScoreAnalytics },

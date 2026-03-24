@@ -164,7 +164,6 @@ export function saveCourseScore(data) {
 }
 
 // export const getTop10Visits = (params) => axios.get('/api/coursevisit/top10Visits', { params });
-// export const getDurations = (params) => axios.get('/api/learningduration/durations', { params });
 
 export const getCurUser = () => request.get("/api/user/getInfo");
 export const pageUsers = (query) => request.get("/api/user/listPage", { params: query });
