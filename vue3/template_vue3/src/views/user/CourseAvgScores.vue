@@ -4,7 +4,7 @@
       <header class="page-header">
         <div class="header-content">
           <h1 class="page-title">
-            <span class="title-icon">📊</span>
+            <span class="title-icon"></span>
             课程平均分
           </h1>
           <p class="page-desc">按学院与学期查看课程均分对比，支持本群体与全校平均的横向分析</p>
