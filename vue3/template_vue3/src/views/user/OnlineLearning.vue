@@ -303,6 +303,15 @@ export default {
       ],
     };
 
+    // Chapter-level custom video override.
+    // Put your video file into ONLINE_VIDEO_PATH (default: D:/xjtu/xjtuexer/file/video)
+    // and set filename here, e.g. "late-qing-crisis.mp4".
+    const chapterVideoOverrides = {
+      '中国近现代史纲要': {
+        '晚清变局与民族危机': '/api/online-course/video/late-qing-crisis.mp4'
+      }
+    };
+
     const overallProgress = computed(() =>
         sections.value.length > 0
             ? Math.round((completedSections.value / sections.value.length) * 100)
@@ -464,7 +473,11 @@ export default {
         console.error('记录访问量失败:', error);
       }
       selectedCourse.value = name;
-      sections.value = courseSections[name] || [];
+      const overrideMap = chapterVideoOverrides[name] || {};
+      sections.value = (courseSections[name] || []).map((section) => ({
+        ...section,
+        video: overrideMap[section.name] || section.video
+      }));
       activeSection.value = '';
       currentVideo.value = '';
       currentSection.value = null;

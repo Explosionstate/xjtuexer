@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import image1 from '@/assets/lunbo-1.jpg'
 import image2 from '@/assets/lunbo-2.jpg'
@@ -8,6 +8,7 @@ import image4 from '@/assets/lunbo-4.jpg'
 import { getSsoTicket } from '@/api/api'
 import { AGENT_WORKSPACE_BASE_URL } from '@/constants/adminAgents'
 import { getAdminAgentByKey } from '@/constants/adminAgents'
+import { useUserInfoStore } from '@/stores/userInfo'
 import {
   User,
   DataAnalysis,
@@ -37,17 +38,174 @@ const centerCards = ref([
 ])
 
 const aiRecommendations = ref([
-  { id: 1, title: '2024年奖学金评定政策解读', icon: '✨' },
-  { id: 2, title: '如何进行期末复习规划？', icon: '💡' },
-  { id: 3, title: '近期校园心理健康讲座预约', icon: '💬' },
-  { id: 4, title: '大学生职业生涯规划指南', icon: '🎯' }
+  {
+    id: 1,
+    agentKey: 'policy-qa',
+    title: '2024年奖学金评定政策解读',
+    icon: '✨',
+    presetQuestion: '请解读2024年奖学金评定政策，并给出申请准备建议。'
+  },
+  {
+    id: 2,
+    agentKey: 'student-growth',
+    title: '如何进行期末复习规划？',
+    icon: '💡',
+    presetQuestion: '请为大学生制定一份可执行的期末复习计划（按周和按天）。'
+  },
+  {
+    id: 3,
+    agentKey: 'counselor-ideology',
+    title: '近期校园心理健康讲座预约',
+    icon: '💬',
+    presetQuestion: '请给出校园心理健康讲座预约提醒文案，并附上参与建议。'
+  },
+  {
+    id: 4,
+    agentKey: 'teacher-assistant',
+    title: '大学生职业生涯规划指南',
+    icon: '🎯',
+    presetQuestion: '请给出大学生职业生涯规划指南，分为大一到大四阶段。'
+  }
 ])
 
-const recentUsage = ref([
-  { id: 1, title: '学生成长助手 - 成绩分析' },
-  { id: 2, title: '思政知识问答 - 理论学习' },
-  { id: 3, title: '学情报告助手 - 月度总结' }
-])
+type RecentUsageViewItem = {
+  id: number
+  agentKey: string
+  title: string
+  presetQuestion: string
+}
+
+const recentUsage = ref<RecentUsageViewItem[]>([])
+
+type RecentUsageRecord = {
+  usageKey: string
+  agentKey: string
+  title: string
+  presetQuestion: string
+  updatedAt: number
+}
+
+type RecentUsageStorage = Record<string, RecentUsageRecord[]>
+
+const RECENT_USAGE_STORAGE_KEY = 'xjtuexer_recent_usage_v1'
+const RECENT_USAGE_LIMIT = 5
+
+const userInfoStore = useUserInfoStore()
+
+const usageUserKey = computed(() => {
+  const rawUser = (userInfoStore.userInfo || {}) as Record<string, unknown>
+  const loginName = String(rawUser.loginName || rawUser.username || rawUser.name || rawUser.id || 'anonymous')
+  return loginName.trim() || 'anonymous'
+})
+
+const normalizeText = (value: unknown) => {
+  if (typeof value !== 'string') {
+    return ''
+  }
+  return value.trim()
+}
+
+const normalizeRecentUsageRecords = (items: unknown): RecentUsageRecord[] => {
+  if (!Array.isArray(items)) {
+    return []
+  }
+
+  const deduped = new Map<string, RecentUsageRecord>()
+  items.forEach((item) => {
+    if (!item || typeof item !== 'object') {
+      return
+    }
+    const raw = item as Record<string, unknown>
+    const agentKey = normalizeText(raw.agentKey) || 'student-growth'
+    const title = normalizeText(raw.title) || (getAdminAgentByKey(agentKey)?.title || 'AI 助手')
+    const presetQuestion = normalizeText(raw.presetQuestion)
+    const usageKey = normalizeText(raw.usageKey) || `${agentKey}|${title}|${presetQuestion}`
+    const updatedAtValue = Number(raw.updatedAt)
+    const updatedAt = Number.isFinite(updatedAtValue) ? updatedAtValue : 0
+    if (!usageKey || !title) {
+      return
+    }
+    const normalizedItem: RecentUsageRecord = {
+      usageKey,
+      agentKey,
+      title,
+      presetQuestion,
+      updatedAt
+    }
+    const previous = deduped.get(usageKey)
+    if (!previous || normalizedItem.updatedAt > previous.updatedAt) {
+      deduped.set(usageKey, normalizedItem)
+    }
+  })
+
+  return [...deduped.values()]
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .slice(0, RECENT_USAGE_LIMIT)
+}
+
+const readRecentUsageStorage = (): RecentUsageStorage => {
+  try {
+    const raw = localStorage.getItem(RECENT_USAGE_STORAGE_KEY)
+    if (!raw) {
+      return {}
+    }
+    const parsed = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') {
+      return {}
+    }
+    return parsed as RecentUsageStorage
+  } catch (_) {
+    return {}
+  }
+}
+
+const saveRecentUsageRecords = (records: RecentUsageRecord[]) => {
+  const storage = readRecentUsageStorage()
+  storage[usageUserKey.value] = normalizeRecentUsageRecords(records)
+  localStorage.setItem(RECENT_USAGE_STORAGE_KEY, JSON.stringify(storage))
+}
+
+const syncRecentUsageView = (records: RecentUsageRecord[]) => {
+  recentUsage.value = records.map((item, index) => ({
+    id: index + 1,
+    agentKey: item.agentKey,
+    title: item.title,
+    presetQuestion: item.presetQuestion
+  } satisfies RecentUsageViewItem))
+}
+
+const loadRecentUsage = () => {
+  const storage = readRecentUsageStorage()
+  const records = normalizeRecentUsageRecords(storage[usageUserKey.value])
+  syncRecentUsageView(records)
+}
+
+const recordRecentUsage = (payload: {
+  agentKey: string
+  title: string
+  presetQuestion: string
+}) => {
+  const agentKey = normalizeText(payload.agentKey) || 'student-growth'
+  const title = normalizeText(payload.title) || (getAdminAgentByKey(agentKey)?.title || 'AI 助手')
+  const presetQuestion = normalizeText(payload.presetQuestion)
+  const usageKey = `${agentKey}|${title}|${presetQuestion}`
+
+  const storage = readRecentUsageStorage()
+  const currentRecords = normalizeRecentUsageRecords(storage[usageUserKey.value])
+  const merged = [
+    {
+      usageKey,
+      agentKey,
+      title,
+      presetQuestion,
+      updatedAt: Date.now()
+    },
+    ...currentRecords.filter((item) => item.usageKey !== usageKey)
+  ]
+  const normalizedRecords = normalizeRecentUsageRecords(merged)
+  saveRecentUsageRecords(normalizedRecords)
+  syncRecentUsageView(normalizedRecords)
+}
 
 const iconComponentMap = {
   'User': User,
@@ -62,15 +220,30 @@ const getIconComponent = (iconName: string) => {
   return iconComponentMap[iconName as keyof typeof iconComponentMap] || User
 }
 
-const navigateToCard = (agentKey: string) => {
-  jumpToAiAssistant(agentKey)
+const navigateToCard = (agentKey: string, title?: string) => {
+  jumpToAiAssistant(agentKey, '', title)
 }
 
-const navigateToDetail = (item: any) => {
-  console.log('查看详情:', item)
+const navigateToDetail = (item: { agentKey?: string, title?: string, presetQuestion?: string }) => {
+  const targetAgentKey = item?.agentKey || 'student-growth'
+  const targetQuestion = item?.presetQuestion || item?.title || ''
+  const targetTitle = item?.title || getAdminAgentByKey(targetAgentKey)?.title || 'AI 助手'
+  jumpToAiAssistant(targetAgentKey, targetQuestion, targetTitle)
 }
 
-const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
+onMounted(() => {
+  loadRecentUsage()
+})
+
+watch(usageUserKey, () => {
+  loadRecentUsage()
+})
+
+const jumpToAiAssistant = async (
+  agentKey: string = 'student-growth',
+  presetQuestion: string = '',
+  usageTitle: string = ''
+) => {
   if (redirectingToAi.value) {
     return
   }
@@ -91,13 +264,18 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
     url.searchParams.set('agent_title', `${agent?.title || '西交 AI 智能体'}工作台`)
     url.searchParams.set('agent_empty_title', `你好，我是${agent?.title || '西交 AI 智能体'}`)
     url.searchParams.set('agent_empty_desc', agent?.description || '我可以根据知识库提供结构化分析与建议。')
-    url.searchParams.set('preset_question', agent?.debugDefaults?.initialPrompt || '请结合知识库给出结构化建议。')
+    url.searchParams.set('preset_question', presetQuestion || agent?.debugDefaults?.initialPrompt || '请结合知识库给出结构化建议。')
     url.searchParams.set('use_qwen', agent?.debugDefaults?.useQwen ? '1' : '0')
     url.searchParams.set('use_ws', agent?.debugDefaults?.useWs ? '1' : '0')
     url.searchParams.set('retrieval_top_k', String(agent?.debugDefaults?.retrievalTopK || 8))
     url.searchParams.set('score_threshold', String(agent?.debugDefaults?.scoreThreshold || 0.2))
     url.searchParams.set('fusion_mode', agent?.debugDefaults?.fusionMode || 'weighted')
     url.searchParams.set('alpha', String(agent?.debugDefaults?.alpha || 0.6))
+    recordRecentUsage({
+      agentKey: agent?.key || 'student-growth',
+      title: usageTitle || agent?.title || 'AI 助手',
+      presetQuestion: presetQuestion || agent?.debugDefaults?.initialPrompt || ''
+    })
     window.location.href = url.toString()
   } catch (error) {
     ElMessage.error('跳转AI系统失败，请稍后重试')
@@ -133,7 +311,7 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
         </div>
 
         <div class="ai-jump-row">
-          <el-button type="primary" :loading="redirectingToAi" @click="jumpToAiAssistant('student-growth')">
+          <el-button type="primary" :loading="redirectingToAi" @click="jumpToAiAssistant('student-growth', '', 'AI 助手快速入口')">
             {{ redirectingToAi ? '正在跳转 AI 助手...' : '进入 AI 助手（单点登录）' }}
           </el-button>
         </div>
@@ -143,7 +321,7 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
             v-for="card in centerCards"
             :key="card.id"
             class="card-item"
-              @click="navigateToCard(card.agentKey)"
+              @click="navigateToCard(card.agentKey, card.title)"
             >
             <div class="card-icon-wrapper" :style="{ '--theme-color': card.color }">
               <component :is="getIconComponent(card.icon)" class="card-icon"></component>
@@ -180,7 +358,9 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
             <h3>最近使用</h3>
           </div>
           <div class="panel-list">
+            <div v-if="recentUsage.length === 0" class="list-empty">暂无最近使用记录</div>
             <div
+              v-else
               v-for="item in recentUsage"
               :key="item.id"
               class="list-item"
@@ -414,6 +594,16 @@ const jumpToAiAssistant = async (agentKey: string = 'student-growth') => {
       display: flex;
       flex-direction: column;
       gap: 12px;
+
+      .list-empty {
+        padding: 14px 16px;
+        background: #ffffff;
+        border: 1px dashed #dcdfe6;
+        border-radius: 8px;
+        color: #909399;
+        font-size: 13px;
+        text-align: center;
+      }
     }
 
     .list-item {
