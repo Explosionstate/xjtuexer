@@ -898,8 +898,6 @@ export default {
   flex-direction: column;
   gap: 24px;
 }
-
-/* 视频卡片 */
 .video-card {
   background: var(--c-surface);
   border-radius: var(--radius);
@@ -968,8 +966,6 @@ export default {
 }
 
 .placeholder-hint { font-size: 12px; color: #ccc; margin: 0; }
-
-/* 信息卡片 */
 .info-cards-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
