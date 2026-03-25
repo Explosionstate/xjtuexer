@@ -21,7 +21,6 @@ import {
 } from '@element-plus/icons-vue'
 import avatar from '@/assets/default.png'
 import platformLogo from '@/assets/logo.png'
-// 假设背景图名为 background.png
 import headerBg from '@/assets/background.png'
 import { useUserInfoStore } from '@/stores/userInfo'
 import { useRoute, useRouter } from 'vue-router'
@@ -85,7 +84,6 @@ const welcomeDisplayName = computed(() => {
   if (roleCode.value === 'student') {
     return normalizedName
   }
-  // 兼容保留 admin 及其他角色原展示逻辑
   return legacyName
 })
 
@@ -365,12 +363,9 @@ const handleClose = (key, keyPath) => {
 </template>
 
 <style lang="scss" scoped>
-/* 定义全局 Quaric Cubic-Bezier 丝滑曲线 */
 $qw-ease: cubic-bezier(0.25, 1, 0.25, 1);
-/* 定义冷色调科技感的背景色 */
 $qw-bg-color: #f0f2f5;
 
-/* 清除默认抗锯齿，文字清晰度提升 */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -379,14 +374,12 @@ $qw-bg-color: #f0f2f5;
 .layout-container {
   height: 100vh;
   display: flex;
-  background-color: $qw-bg-color; /* 更冷的背景底色 */
+  background-color: $qw-bg-color;
 
-  /* 侧边栏优化 */
   .sidebar-wrapper {
     background-color: #ffffff;
     box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04);
     z-index: 10;
-    /* 侧边栏收缩动画必须使用 Quart 曲线，不能用默认 linear */
     transition: width 0.3s $qw-ease;
     overflow: hidden;
     display: flex;
@@ -397,25 +390,21 @@ $qw-bg-color: #f0f2f5;
       height: 100%;
       display: flex;
       flex-direction: column;
-      background-color: transparent; /* 允许菜单项悬浮效果 */
+      background-color: transparent;
       padding: 12px 0;
     }
 
-    /* 非折叠状态宽度 */
     .el-menu-vertical-demo:not(.el-menu--collapse) {
-      width: 240px; /* 大气 */
+      width: 240px;
     }
 
-    /* 菜单内容滚动区 */
     .menu-content-scroll {
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
-      /* 隐藏滚动条 */
       &::-webkit-scrollbar { width: 0; }
     }
 
-    /* 自定义折叠按钮 */
     .collapse-trigger-box {
       padding: 12px;
       border-top: 1px solid #f1f5f9;
@@ -442,15 +431,14 @@ $qw-bg-color: #f0f2f5;
     }
   }
 
-  /* 核心优化：胶囊悬浮式菜单项，科技感 */
   :deep(.el-menu-item),
   :deep(.el-sub-menu__title) {
     height: 48px;
     line-height: 48px;
-    margin: 4px 12px; /* 关键：四周留白，呈现胶囊悬浮感 */
-    border-radius: 8px; /* 柔和圆角 */
+    margin: 4px 12px;
+    border-radius: 8px;
     color: #64748b;
-    transition: all 0.3s $qw-ease; /* 全局Quart曲线 */
+    transition: all 0.3s $qw-ease;
     position: relative;
     overflow: hidden;
     left: 0;
@@ -461,7 +449,6 @@ $qw-bg-color: #f0f2f5;
       font-weight: 600;
       box-shadow: 0 4px 12px rgba(var(--el-color-primary-rgb), 0.1); /* 柔和光晕 */
 
-      /* 激活时的右侧微妙指示条 */
       &::before {
         content: '';
         position: absolute;
@@ -479,11 +466,9 @@ $qw-bg-color: #f0f2f5;
     &:hover:not(.is-active) {
       background-color: #f1f5f9;
       color: var(--el-color-primary);
-      /* 微动效：悬浮时水平微移 */
       left: 3px;
     }
 
-    /* Icon 细节 */
     .el-icon {
       font-size: 18px;
       transition: all 0.3s $qw-ease;
@@ -492,12 +477,11 @@ $qw-bg-color: #f0f2f5;
     &.is-active .el-icon { color: var(--el-color-primary); }
   }
 
-  /* 子菜单适配 */
   :deep(.el-sub-menu) {
     .el-menu-item {
       height: 44px;
       line-height: 44px;
-      margin: 2px 12px 2px 24px; /* 缩进，增强层次感 */
+      margin: 2px 12px 2px 24px;
       padding-left: 20px !important;
     }
   }
@@ -508,9 +492,8 @@ $qw-bg-color: #f0f2f5;
     overflow: hidden;
   }
 
-  /* 顶部 Header：科技感重刷 */
   .global-brand-header {
-    height: 72px; /* 缩减高度，精致 */
+    height: 72px;
     padding: 0 32px;
     display: flex;
     justify-content: space-between;
@@ -520,14 +503,12 @@ $qw-bg-color: #f0f2f5;
     position: relative;
     overflow: hidden;
 
-    /* 品牌背景重刷：更强的蓝灰科技渐变，降低透明度增加毛玻璃感 */
     background-image:
       linear-gradient(135deg, rgba(44, 62, 80, 0.55) 0%, rgba(75, 108, 183, 0.55) 100%),
       var(--header-bg);
     background-size: cover;
     background-position: center;
 
-    /* 核心：高斯模糊毛玻璃效果 */
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -542,7 +523,6 @@ $qw-bg-color: #f0f2f5;
     z-index: 2;
 
     .logo-wrapper {
-      /* 圆角玻璃拟态 */
       background: rgba(255, 255, 255, 0.1);
       width: 46px;
       height: 46px;
@@ -557,8 +537,8 @@ $qw-bg-color: #f0f2f5;
       .brand-logo {
         width: 100%;
         height: 100%;
-        object-fit: contain; /* 改为 contain，防止 logo 变形 */
-        padding: 4px; /* 留白 */
+        object-fit: contain;
+        padding: 4px;
       }
     }
 
@@ -568,7 +548,7 @@ $qw-bg-color: #f0f2f5;
       justify-content: center;
 
       .brand-title {
-        font-size: 20px; /* 精致化 */
+        font-size: 20px;
         font-weight: 600;
         margin: 0;
         letter-spacing: 1.5px;
@@ -627,24 +607,21 @@ $qw-bg-color: #f0f2f5;
     }
   }
 
-  /* 内容区域细节优化 */
   .el-main {
     padding: 24px;
     overflow-y: auto;
     background-color: $qw-bg-color;
 
-    /* 这里是未来 router-view 的内容，可以加一个白底卡片包裹层 */
     & > * {
       background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); /* 柔和阴影 */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
       padding: 24px;
       min-height: 100%;
       overflow: hidden;
     }
   }
 
-  /* 丝滑的页面切换动画 (Fade-Transform) */
   .fade-transform-leave-active,
   .fade-transform-enter-active {
     transition: all 0.4s $qw-ease;
@@ -652,12 +629,12 @@ $qw-bg-color: #f0f2f5;
 
   .fade-transform-enter-from {
     opacity: 0;
-    transform: translateY(15px); /* 向上淡入 */
+    transform: translateY(15px);
   }
 
   .fade-transform-leave-to {
     opacity: 0;
-    transform: translateY(-15px); /* 向上淡出 */
+    transform: translateY(-15px);
   }
 
   .el-footer {
@@ -671,7 +648,6 @@ $qw-bg-color: #f0f2f5;
     height: 48px;
   }
 
-  /* 移动端端适配细节 */
   @media (max-width: 768px) {
     .global-brand-header {
       height: 60px;
@@ -684,7 +660,6 @@ $qw-bg-color: #f0f2f5;
   }
 }
 
-/* 优化 Dropdown 样式，使其更优雅 */
 .custom-dropdown {
   border-radius: 8px;
   overflow: hidden;
