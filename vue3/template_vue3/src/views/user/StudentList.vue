@@ -2,11 +2,10 @@
 import {ref, computed, onMounted, onBeforeUnmount, watch} from "vue";
 import { pageStudents } from "@/api/student";
 import * as XLSX from "xlsx";
-// 引入 Element Plus 的配置组件和中文语言包
+
 import { ElConfigProvider } from 'element-plus';
 import zhCn from 'element-plus/es/locale/lang/zh-cn';
 
-// ============= 数据状态 =============
 const students = ref([]);
 const pageNum = ref(1);
 const pageSize = ref(10);
@@ -17,62 +16,39 @@ const dateRange = ref([]);
 const sortField = ref('');
 const sortOrder = ref('');
 
-// ============= 预警和时间 =============
 const currentPeriod = ref('day');
 const currentDateTime = ref('');
 const clockTimer = ref(null);
 
-// ============= 详情模态框 =============
 const showDetailModal = ref(false);
 const selectedStudent = ref({});
 
-// ============= 工具函数 =============
 
-/**
- * 安全的数字转换
- * @param {*} value - 要转换的值
- * @param {number} fallback - 转换失败时的默认值
- * @returns {number} 转换后的数字
- */
 const toNumber = (value, fallback = 0) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-/**
- * 格式化分数显示
- * @param {*} value - 分数值
- * @returns {string} 格式化后的字符串
- */
+
 const formatScore = (value) => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed.toFixed(2) : '--';
 };
 
-/**
- * 获取学情指数等级（改进版）
- * @param {*} index - 学情指数值
- * @returns {string} 等级名称
- */
+
 const getLearningIndexLevel = (index) => {
   const value = toNumber(index, -1);
 
-  // 数据缺失
   if (value === -1) return 'missing';
 
-  // 根据分数范围返回等级
-  // 假设分数范围是 0-5
-  if (value >= 4.5) return 'excellent';   // 优秀
-  if (value >= 3.5) return 'good';        // 良好
-  if (value >= 2.5) return 'fair';        // 一般
-  if (value >= 0) return 'poor';          // 较差
-
-  return 'invalid';  // 无效数据
+  if (value >= 4.5) return 'excellent';
+  if (value >= 3.5) return 'good';
+  if (value >= 2.5) return 'fair';
+  if (value >= 0) return 'poor';
+  return 'invalid';
 };
 
-/**
- * 获取学情指数等级的显示文本
- */
+
 const getLearningIndexLevelText = (index) => {
   const level = getLearningIndexLevel(index);
   const levelMap = {
@@ -86,16 +62,10 @@ const getLearningIndexLevelText = (index) => {
   return levelMap[level] || '--';
 };
 
-/**
- * 计算学生的未解除预警次数
- * @param {Object} student - 学生对象
- * @returns {number} 未解除预警次数
- */
 const unresolvedCount = (student) => {
   const totalWarnings = toNumber(student?.totalWarnings, 0);
   const resolvedWarnings = toNumber(student?.resolvedWarnings, 0);
 
-  // 数据验证：解除次数不能超过总次数
   if (resolvedWarnings > totalWarnings) {
     console.warn(`学生 ${student?.name} 的预警数据异常: 解除(${resolvedWarnings}) > 总计(${totalWarnings})`);
   }
@@ -207,15 +177,10 @@ const buildStudentStatus = (student, validation = validateStudentDataV2(student)
   };
 };
 
-/**
- * 数据验证函数
- * @param {Object} student - 学生对象
- * @returns {Object} 验证结果和错误信息
- */
 const validateStudentData = (student) => {
   const errors = [];
 
-  // 验证学情指数
+
   const learningIndex = toNumber(student?.learningIndex, null);
   if (learningIndex === null) {
     errors.push('学情指数缺失');
@@ -223,14 +188,12 @@ const validateStudentData = (student) => {
     errors.push(`学情指数超出范围(0-5): ${learningIndex}`);
   }
 
-  // 验证预警数据一致性
   const totalWarnings = toNumber(student?.totalWarnings, 0);
   const resolvedWarnings = toNumber(student?.resolvedWarnings, 0);
   if (resolvedWarnings > totalWarnings) {
     errors.push(`解除(${resolvedWarnings})超过总计(${totalWarnings})`);
   }
 
-  // 验证对比百分比
   const comparison = toNumber(student?.comparisonLastMonth, null);
   if (comparison !== null && (comparison < -100 || comparison > 100)) {
     errors.push(`对比百分比异常: ${comparison}%`);
@@ -243,16 +206,11 @@ const validateStudentData = (student) => {
   };
 };
 
-// ============= 统计计算 =============
-
-/**
- * 预警统计信息（改进版 - 区分人和次）
- */
 const warningStatistics = computed(() => {
   const stats = {
-    studentsWithWarnings: 0,      // 有未解除预警的学生数
-    totalUnresolvedWarnings: 0,   // 未解除预警总次数
-    warningRate: 0,               // 预警率（百分比）
+    studentsWithWarnings: 0,
+    totalUnresolvedWarnings: 0,
+    warningRate: 0,
   };
 
   students.value.forEach((student) => {
@@ -264,7 +222,6 @@ const warningStatistics = computed(() => {
     stats.totalUnresolvedWarnings += unresolved;
   });
 
-  // 计算预警率
   if (students.value.length > 0) {
     stats.warningRate = ((stats.studentsWithWarnings / students.value.length) * 100).toFixed(2);
   }
@@ -272,19 +229,16 @@ const warningStatistics = computed(() => {
   return stats;
 });
 
-/**
- * 学情指数统计
- */
 const learningIndexStatistics = computed(() => {
   if (students.value.length === 0) {
     return {
       average: 0,
       max: 0,
       min: 0,
-      excellent: 0,    // >= 8
-      good: 0,         // >= 6
-      fair: 0,         // >= 4
-      poor: 0,         // < 4
+      excellent: 0,
+      good: 0,
+      fair: 0,
+      poor: 0,
     };
   }
 
@@ -309,14 +263,10 @@ const learningIndexStatistics = computed(() => {
   return stats;
 });
 
-/**
- * 过期的计算属性（保留以兼容旧代码）
- */
 const warningCount = computed(() => warningStatistics.value.studentsWithWarnings);
 const changeCount = computed(() => warningStatistics.value.totalUnresolvedWarnings);
 const isPositive = computed(() => changeCount.value > 0);
 
-// ============= 日期和时间 =============
 
 onMounted(() => {
   const updateDateTime = () => {
@@ -351,14 +301,10 @@ const changeText = computed(() => `当前未解除预警：${changeCount.value} 
 
 const changePeriod = (period) => {
   currentPeriod.value = period;
-  dateRange.value = [];  // 切换时期时清空日期范围
+  dateRange.value = [];
 };
 
-// ============= API 调用 =============
 
-/**
- * 获取学生列表 - 改进版（包含日期参数）
- */
 const getStudents = () => {
   const query = {
     pageNum: pageNum.value,
@@ -367,14 +313,12 @@ const getStudents = () => {
     college: college.value,
     sortField: sortField.value,
     sortOrder: sortOrder.value,
-    // ✅ 新增：时间相关参数
     currentPeriod: currentPeriod.value,
     startDate: dateRange.value?.[0] || null,
     endDate: dateRange.value?.[1] || null,
   };
 
   pageStudents(query).then((res) => {
-    // 在获取数据后添加验证信息
     students.value = (res?.data?.records || []).map(student => {
       const validation = validateStudentDataV2(student);
       return {
@@ -399,7 +343,7 @@ const handleSortChange = ({ prop, order }) => {
     sortField.value = '';
     sortOrder.value = '';
   }
-  pageNum.value = 1;  // 排序时重置页码
+  pageNum.value = 1;
   getStudents();
 };
 
@@ -419,7 +363,6 @@ const handleViewDetail = (row) => {
   showDetailModal.value = true;
 };
 
-// ============= Excel 导出 =============
 
 const exportExcel = () => {
   const headers = {
@@ -453,17 +396,12 @@ const exportExcel = () => {
   XLSX.writeFile(workbook, "学生学情表.xlsx");
 };
 
-// ============= 初始化 =============
-
-// 默认设置为"今日"
 changePeriod('day');
 
-// 监听时期变化，自动查询
 watch(currentPeriod, () => {
   getStudents();
 });
 
-// 初始加载
 getStudents();
 </script>
 
@@ -537,7 +475,6 @@ getStudents();
       </el-form-item>
     </el-form>
 
-    <!-- 统计信息区域（改进版） -->
     <el-form-item class="stats-container">
       <div class="stats-main">
         <div class="stats-item">
@@ -570,7 +507,6 @@ getStudents();
       </div>
     </el-form-item>
 
-    <!-- 表格 -->
     <el-table :data="students" style="width: 100%" @sort-change="handleSortChange" stripe>
       <el-table-column prop="name" label="姓名">
         <template #header>
@@ -641,7 +577,6 @@ getStudents();
       </el-table-column>
     </el-table>
 
-    <!-- 详情对话框 -->
     <el-dialog v-model="showDetailModal" title="学生详情" width="35%" align-center destroy-on-close>
       <div class="detail-content">
         <el-row :gutter="20">
@@ -759,8 +694,6 @@ getStudents();
         <el-button @click="showDetailModal = false">关闭</el-button>
       </template>
     </el-dialog>
-
-    <!-- 分页 (使用 ElConfigProvider 进行中文化) -->
     <el-config-provider :locale="zhCn">
       <el-pagination
           :background="true"
@@ -812,7 +745,6 @@ getStudents();
   margin-top: 20px;
 }
 
-/* 改进的统计区域 */
 .stats-container {
   display: flex !important;
   justify-content: space-between;
@@ -873,7 +805,6 @@ getStudents();
   white-space: nowrap;
 }
 
-/* 详情对话框样式 */
 .detail-content {
   padding: 10px 0;
 }
@@ -895,7 +826,6 @@ getStudents();
   color: #333;
 }
 
-/* El-tag 类型映射 */
 :deep(.el-tag) {
   &.excellent {
     background-color: #f0f9ff;
